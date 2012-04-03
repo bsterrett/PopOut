@@ -24,7 +24,7 @@ public class BoardState {
 	}
 	
 	public boolean drop(final int col, final short player){
-		if(0 == p_current_state[col][p_row_count-1]){
+		if(valid_drop(col)){
 			//this column has an empty space and can be played
 			for(int row = 0; row < p_row_count; row++){
 				//search up from the bottom to find where the chip will go
@@ -33,6 +33,7 @@ public class BoardState {
 					break;
 				}
 			}
+			p_moves_so_far++;
 			return true;
 		}
 		else{
@@ -47,18 +48,19 @@ public class BoardState {
 	}
 	
 	public boolean pop(final int col){
-		if(0 == p_current_state[col][0]){
-			//this column is empty and cannot be popped!
-			System.err.println("Trying to pop an empty column!");
-			return false;
-		}
-		else{
+		if(valid_pop(col)){
 			for(int row = 0; row < (p_row_count-1); row++){
 				//drops chip from space above into current space, going from bottom to top
 				p_current_state[col][row] = p_current_state[col][row+1];
 			}
 			p_current_state[col][p_row_count-1] = 0;
+			p_moves_so_far++;
 			return true;
+		}
+		else{
+			//this column is empty and cannot be popped!
+			System.err.println("Trying to pop an empty column!");
+			return false;
 		}
 	}
 
@@ -67,16 +69,65 @@ public class BoardState {
 	}
 	
 	public short compute_win(){
+		//WARNING: THIS CANNOT RECOGNIZE TWO SIMULTANEOUS WINNERS!
 		for(int col = 0; col < p_column_count; col++){
 			for(int row = 0; row < p_row_count; row++){
-				if(0 != p_current_state[col][row]){
-					//check up-left
-					//check up
-					//check up-right
-					//check right
+				final short compare_against = p_current_state[col][row];
+				if(0 != compare_against){
+					if(		col >= 3 && row <= p_row_count-4 &&
+							p_current_state[col-1][row+1] == compare_against && 
+							p_current_state[col-2][row+2] == compare_against && 
+							p_current_state[col-3][row+3] == compare_against){
+						//check for win by going diagonally up and left
+						return compare_against;
+					}
+					if(		row <= p_row_count-4 &&
+							p_current_state[col][row+1] == compare_against &&
+							p_current_state[col][row+2] == compare_against &&
+							p_current_state[col][row+3] == compare_against){
+						//check for win by going straight up
+						return compare_against;
+					}
+					if(		col <= p_column_count-4 && row <= p_row_count-4 &&
+							p_current_state[col+1][row+1] == compare_against &&
+							p_current_state[col+2][row+2] == compare_against &&
+							p_current_state[col+3][row+3] == compare_against){
+						//check for win by going diagonally up and right
+						return compare_against;
+					}
+					if(		col <= p_column_count-4 &&
+							p_current_state[col+1][row] == compare_against &&
+							p_current_state[col+2][row] == compare_against &&
+							p_current_state[col+3][row] == compare_against){
+						//check for win by going straight right
+						return compare_against;
+					}
 				}
 			}
 		}
-		return 0; //CHANGE THIS!!!!!
+		return 0;
+	}
+	
+	
+	
+	public String[] get_available_moves(){
+		//returns a list of available moves that the next player can make
+		//numbers between 0 and p_column_count-1 correspond to pops, numbers between p_column_count and 2*p_column_count-1 are drops
+		int valid_move_count = 0;
+		for(int i = 0; i < p_column_count; i++){
+			if(valid_pop(i)) valid_move_count++;
+		}
+		for(int i = 0; i < p_column_count; i++){
+			if(valid_drop(i)) valid_move_count++;
+		}
+		String move_list[] = new String[valid_move_count];
+		int move_write_count = 0;
+		for(int i = 0; i < p_column_count; i++){
+			if(valid_pop(i)) move_list[move_write_count++] = "P " + String.valueOf(i);
+		}
+		for(int i = 0; i < p_column_count; i++){
+			if(valid_drop(i)) move_list[move_write_count++] = "D " + String.valueOf(i); 
+		}
+		return move_list;		
 	}
 }
