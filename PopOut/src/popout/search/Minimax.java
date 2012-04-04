@@ -20,13 +20,14 @@ public class Minimax extends Search {
 	}
 	
 	public void make_next_move(){
+		// Call this to make the computer move
 		short depth = p_depth;
 		short alpha = -200;
 		int best_move = -1;		
-		short current_board_short[][] = new short[7][6];
-		for(int i = 0; i < 7; i++){
-			for(int j = 0; j < 6; j++){
-				current_board_short[i][j] = p_board.get_state()[i][j];
+		short current_board_short[][] = new short[p_column_count][p_row_count];
+		for(int col_iter = 0; col_iter < p_column_count; col_iter++){
+			for(int row_iter = 0; row_iter < p_row_count; row_iter++){
+				current_board_short[col_iter][row_iter] = p_board.get_state()[col_iter][row_iter];
 			}
 		}
 		BoardState current_board = new BoardState(current_board_short);
@@ -36,10 +37,10 @@ public class Minimax extends Search {
 				//this move is a drop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 				
-				short temp_board[][] = new short[7][6];
-				for(int k = 0; k < 7; k++){
-					for(int j = 0; j < 6; j++){
-						temp_board[k][j] = current_board.get_state()[k][j];
+				short temp_board[][] = new short[p_column_count][p_row_count];
+				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
+					for(int row_iter = 0; row_iter < p_row_count; row_iter++){
+						temp_board[col_iter][row_iter] = current_board.get_state()[col_iter][row_iter];
 					}
 				}
 				current_board.drop(move_col, p_computer_number);
@@ -47,6 +48,7 @@ public class Minimax extends Search {
 				//System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
+				// recursively call minimax() for this hypothetical drop
 				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
 				if(temp_score >= alpha){				
 					alpha = temp_score;
@@ -57,10 +59,10 @@ public class Minimax extends Search {
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-				short temp_board[][] = new short[7][6];
-				for(int k = 0; k < 7; k++){
-					for(int j = 0; j < 6; j++){
-						temp_board[k][j] = current_board.get_state()[k][j];
+				short temp_board[][] = new short[p_column_count][p_row_count];
+				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
+					for(int row_iter = 0; row_iter < p_row_count; row_iter++){
+						temp_board[col_iter][row_iter] = current_board.get_state()[col_iter][row_iter];
 					}
 				}
 				current_board.pop(move_col);
@@ -68,6 +70,7 @@ public class Minimax extends Search {
 				//System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
+				// recursively call minimax() for this hypothetical pop
 				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
 				if(temp_score >= alpha){				
 					alpha = temp_score;
@@ -81,16 +84,26 @@ public class Minimax extends Search {
 		}
 		
 		if(best_move == -1){
+			//couldn't find a best move or something
 			System.err.println("Something bad happened during minimax search!");
 		}
 		else{
+			//the search returned a best move, now carrying it out on the actual game board
 			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)));
 		}
 	}
 	
 	private short minimax(final short[][] test_board_short, final int depth, final short turn, final String move){
-		BoardState current_board = new BoardState(test_board_short);		
+		// Recursive function which will create a complete game tree up to a certain depth, then search the tree for good moves
+		short test_board_temp[][] = new short[p_column_count][p_row_count];		//paranoid sanitation of references, can probably remove for performance boost
+		for(int col_iter = 0; col_iter < p_column_count; col_iter++){
+			for(int row_iter = 0; row_iter < p_row_count; row_iter++){
+				test_board_temp[col_iter][row_iter] = test_board_short[col_iter][row_iter];
+			}
+		}		
+		BoardState current_board = new BoardState(test_board_temp);	
+		
 		if(depth <= 0){
 			switch(p_heuristic){
 			case 0:
@@ -129,9 +142,10 @@ public class Minimax extends Search {
 				current_board.drop(move_col, turn);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
+				//recursive call
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
-				alpha += 0;
+				alpha += 0;		//for debugging, please remove
 						
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
@@ -146,9 +160,10 @@ public class Minimax extends Search {
 				current_board.pop(move_col);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
+				//recursive call
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i] );
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
-				alpha += 0;
+				alpha += 0;		//for debugging, please remove
 			}
 			else{
 				//this move is not recognized
