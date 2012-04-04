@@ -29,8 +29,10 @@ public class Minimax extends Search {
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+				short temp_board[][] = current_board.get_state();
 				current_board.drop(move_col, p_computer_number);
 				short next_board[][] = current_board.get_state();
+				current_board.set_state(temp_board);
 				short temp_score = minimax(next_board, depth-1, p_player_number);
 				if(temp_score >= alpha){				
 					alpha = temp_score;
@@ -41,8 +43,10 @@ public class Minimax extends Search {
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+				short temp_board[][] = current_board.get_state();
 				current_board.pop(move_col);
 				short next_board[][] = current_board.get_state();
+				current_board.set_state(temp_board);
 				short temp_score = minimax(next_board, depth-1, p_player_number);
 				if(temp_score >= alpha){				
 					alpha = temp_score;
@@ -95,8 +99,10 @@ public class Minimax extends Search {
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+				short temp_board[][] = current_board.get_state();
 				current_board.drop(move_col, turn);
 				short next_board[][] = current_board.get_state();
+				current_board.set_state(temp_board);
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number) );
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
 						
@@ -104,8 +110,10 @@ public class Minimax extends Search {
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+				short temp_board[][] = current_board.get_state();
 				current_board.pop(move_col);
 				short next_board[][] = current_board.get_state();
+				current_board.set_state(temp_board);
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number) );
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
 			}
