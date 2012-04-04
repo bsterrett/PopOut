@@ -67,7 +67,13 @@ public class Minimax extends Search {
 	private short minimax(final short[][] test_board_short, final int depth, final short turn){
 		BoardState current_board = new BoardState(test_board_short);		
 		if(depth <= 0){
-			return evaluate_board(current_board);
+			switch(p_heuristic){
+			case 0:
+				return evaluate_board_one(current_board);
+			default:
+				return evaluate_board_one(current_board);
+			}
+			
 		}
 		
 		
@@ -113,7 +119,7 @@ public class Minimax extends Search {
 	}
 	
 	
-	private short evaluate_board(final BoardState target_board){
+	private short evaluate_board_one(final BoardState target_board){
 		//Returns a poorly adjusted utility for the computer player
 		// 20 for computer win, -20 for player win
 		// 5, 10, 15   for    1, 2, 3   three-in-a-rows   respectively
