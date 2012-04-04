@@ -29,11 +29,27 @@ public class Control {
 					System.err.println("Invalid user input!");
 				}
 			}
-
+			if(B.compute_win() != 0){
+				System.out.println(C.toString());
+				break;
+			}
 			M.make_next_move();
 			System.out.println(C.toString());			
 		}
-		System.out.println("The winner: " + B.compute_win());
+		
+		switch(B.compute_win()){
+		case 0:
+			System.out.println("No winner. Maybe a draw. Who knows. This shouldn't happen.");
+			break;
+		case 1:
+			System.out.println("You win! The computer must be really REALLY dumb.");
+			break;
+		case 2:
+			System.out.println("The computer wins! Societal takeover is imminent!");
+			break;
+		default:
+			System.err.println("Not sure who won.");				
+		}
 	}
 
 }

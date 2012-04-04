@@ -23,17 +23,29 @@ public class Minimax extends Search {
 	public void make_next_move(){
 		short depth = p_depth;
 		short alpha = -200;
-		int best_move = -1;
-		BoardState current_board = new BoardState(p_board.get_state());
+		int best_move = -1;		
+		short current_board_short[][] = new short[7][6];
+		for(int i = 0; i < 7; i++){
+			for(int j = 0; j < 6; j++){
+				current_board_short[i][j] = p_board.get_state()[i][j];
+			}
+		}
+		BoardState current_board = new BoardState(current_board_short);
 		final String valid_next_moves[] = current_board.get_available_moves();		
 		for(int i = 0; i < valid_next_moves.length; i++){
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-				short temp_board[][] = current_board.get_state();
+				
+				short temp_board[][] = new short[7][6];
+				for(int k = 0; k < 7; k++){
+					for(int j = 0; j < 6; j++){
+						temp_board[k][j] = current_board.get_state()[k][j];
+					}
+				}
 				current_board.drop(move_col, p_computer_number);
-				CLDisplay C = new CLDisplay(current_board.get_state()); //for debugging, get rid of this
-				System.out.println(C.toString());  //for debugging, get rid of this
+				//CLDisplay C = new CLDisplay(current_board.get_state()); //for debugging, get rid of this
+				//System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				short temp_score = minimax(next_board, depth-1, p_player_number);
@@ -46,10 +58,15 @@ public class Minimax extends Search {
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-				short temp_board[][] = current_board.get_state();
+				short temp_board[][] = new short[7][6];
+				for(int k = 0; k < 7; k++){
+					for(int j = 0; j < 6; j++){
+						temp_board[k][j] = current_board.get_state()[k][j];
+					}
+				}
 				current_board.pop(move_col);
-				CLDisplay C = new CLDisplay(current_board.get_state());  //for debugging, get rid of this
-				System.out.println(C.toString());  //for debugging, get rid of this
+				//CLDisplay C = new CLDisplay(current_board.get_state());  //for debugging, get rid of this
+				//System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				short temp_score = minimax(next_board, depth-1, p_player_number);
@@ -104,10 +121,13 @@ public class Minimax extends Search {
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-				short temp_board[][] = current_board.get_state();
+				short temp_board[][] = new short[7][6];
+				for(int k = 0; k < 7; k++){
+					for(int j = 0; j < 6; j++){
+						temp_board[k][j] = current_board.get_state()[k][j];
+					}
+				}
 				current_board.drop(move_col, turn);
-				CLDisplay C = new CLDisplay(current_board.get_state());  //for debugging, get rid of this
-				System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number) );
@@ -117,10 +137,13 @@ public class Minimax extends Search {
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-				short temp_board[][] = current_board.get_state();
+				short temp_board[][] = new short[7][6];
+				for(int k = 0; k < 7; k++){
+					for(int j = 0; j < 6; j++){
+						temp_board[k][j] = current_board.get_state()[k][j];
+					}
+				}
 				current_board.pop(move_col);
-				CLDisplay C = new CLDisplay(current_board.get_state());  //for debugging, get rid of this
-				System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number) );
