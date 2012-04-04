@@ -4,32 +4,54 @@ import popout.board.BoardState;
 
 public class Minimax extends Search {
 	
-	protected final int p_heuristic;
+	protected final short p_heuristic;
+	protected final short p_depth;
 	
 	public Minimax(BoardState board){
 		super(board);
 		p_heuristic = 0;
+		p_depth = 5;
 	}
 	
-	public Minimax(BoardState board, int heuristic){
+	public Minimax(BoardState board, short depth, short heuristic){
 		super(board);
 		p_heuristic = heuristic;
+		p_depth = depth;
 	}
 	
 	public void make_next_move(){
-		final String valid_next_moves[] = p_board.get_available_moves();
+		short depth = p_depth;
+		short alpha = -200;
+		int best_move = -1;
+		BoardState current_board = new BoardState(p_board.get_state());
+		final String valid_next_moves[] = current_board.get_available_moves();
 		for(int i = 0; i < valid_next_moves.length; i++){
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+				current_board.drop(move_col, p_computer_player);
+				short next_board[][] = current_board.get_state();
+				short temp_score = minimax(next_board, depth-1, p_player_number);
+				if(temp_score >= alpha){				
+					alpha = temp_score;
+					best_move = i;
+				}
+						
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+				current_board.pop(move_col);
+				short next_board[][] = current_board.get_state();
+				short temp_score = minimax(next_board, depth-1, p_player_number);
+				if(temp_score >= alpha){				
+					alpha = temp_score;
+					best_move = i;
+				}
 			}
 			else{
 				//this move is not recognized
-				System.out.println("Unrecognized available move: " + valid_next_moves[i]);
+				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 			}
 		}
 	}
@@ -43,10 +65,10 @@ public class Minimax extends Search {
 		
 		short alpha = 0;
 		if(p_player_number == turn){
-			alpha = -200;
+			alpha = 200;
 		}
 		else if(p_computer_number == turn){
-			alpha = 200;
+			alpha = -200;
 		}
 		else{
 			System.err.println("Minimax is unsure of whose turn it is!");
