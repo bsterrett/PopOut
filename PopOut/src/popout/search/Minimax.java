@@ -1,7 +1,6 @@
 package popout.search;
 
 import popout.board.BoardState;
-import popout.ui.CLDisplay;
 
 public class Minimax extends Search {
 	
@@ -48,7 +47,7 @@ public class Minimax extends Search {
 				//System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
-				short temp_score = minimax(next_board, depth-1, p_player_number);
+				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
 				if(temp_score >= alpha){				
 					alpha = temp_score;
 					best_move = i;
@@ -69,7 +68,7 @@ public class Minimax extends Search {
 				//System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
-				short temp_score = minimax(next_board, depth-1, p_player_number);
+				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
 				if(temp_score >= alpha){				
 					alpha = temp_score;
 					best_move = i;
@@ -90,12 +89,12 @@ public class Minimax extends Search {
 		}
 	}
 	
-	private short minimax(final short[][] test_board_short, final int depth, final short turn){
+	private short minimax(final short[][] test_board_short, final int depth, final short turn, final String move){
 		BoardState current_board = new BoardState(test_board_short);		
 		if(depth <= 0){
 			switch(p_heuristic){
 			case 0:
-				return evaluate_board_one(current_board);
+				return evaluate_move_one(move);
 			default:
 				return evaluate_board_one(current_board);
 			}
@@ -130,8 +129,9 @@ public class Minimax extends Search {
 				current_board.drop(move_col, turn);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
-				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number) );
+				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
+				alpha += 0;
 						
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
@@ -146,8 +146,9 @@ public class Minimax extends Search {
 				current_board.pop(move_col);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
-				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number) );
+				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i] );
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
+				alpha += 0;
 			}
 			else{
 				//this move is not recognized
@@ -227,4 +228,29 @@ public class Minimax extends Search {
 		return (short) (positive_board_utility + negative_board_utility);
 	}
 	
+	private short evaluate_move_one(final String move){
+		// This is only valid for 7 column boards
+		// This was designed for Connect 4, not Pop Out
+		// In fact, this is probably a horrible heuristic for Pop Out
+		int move_col = Integer.parseInt(move.substring(2));
+		switch(move_col){
+		case 0:
+			return 3;
+		case 1:
+			return 4;
+		case 2:
+			return 5;
+		case 3:
+			return 7;
+		case 4:
+			return 5;
+		case 5:
+			return 4;
+		case 6:
+			return 3;
+		default:
+			System.err.println("Tried to evaluate a move into an invalid column!");
+			return 0;			
+		}
+	}	
 }
