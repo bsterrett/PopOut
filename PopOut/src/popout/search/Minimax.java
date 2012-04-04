@@ -54,6 +54,14 @@ public class Minimax extends Search {
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 			}
 		}
+		
+		if(best_move == -1){
+			System.err.println("Something bad happened during minimax search!");
+		}
+		else{
+			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_player);
+			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)));
+		}
 	}
 	
 	private short minimax(final short[][] test_board_short, final int depth, final short turn){

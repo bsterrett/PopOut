@@ -28,7 +28,7 @@ public class BoardState {
 		return (col >= 0 && col <= p_column_count-1 && 0 == p_current_state[col][p_row_count-1]);
 	}
 	
-	public boolean drop(final int col, final short player){
+	public boolean drop(final int col, short player){
 		if(valid_drop(col)){
 			//this column has an empty space and can be played
 			for(int row = 0; row < p_row_count; row++){
