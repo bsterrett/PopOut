@@ -175,10 +175,10 @@ public class Minimax extends Search {
 					}
 				}
 				// more than 3 three-in-a-rows is not a significant strategic advantage
-				if(positive_board_utility - negative_board_utility > 30) return (short) (positive_board_utility - negative_board_utility);
+				if(positive_board_utility - negative_board_utility >= 30) return (short) (positive_board_utility + negative_board_utility);
 			}
 		}
-		return (short) (positive_board_utility - negative_board_utility);
+		return (short) (positive_board_utility + negative_board_utility);
 	}
 	
 }
