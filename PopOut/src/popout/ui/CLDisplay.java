@@ -15,7 +15,8 @@ public class CLDisplay {
 		p_row_count = board_height;
 	}
 	
-	public void print_board(){
+	public String toString(){
+		String return_string = "";
 		p_display_state = p_board.get_state();
 		if(p_column_count != p_display_state.length && p_row_count != p_display_state[0].length){
 			System.err.println("Tried to print board state which does not have the correct dimensions!");
@@ -25,22 +26,23 @@ public class CLDisplay {
 				for(int col = 0; col < p_column_count; col++){
 					switch(p_display_state[col][row]) {
 					case 0:
-						System.out.print("- ");
+						return_string += "- ";
 						break;
 					case 1:
-						System.out.print("X ");
+						return_string += "X ";
 						break;
 					case 2:
-						System.out.print("O ");
+						return_string += "0 ";
 						break;
 					default:
-						System.out.print("Z ");
+						return_string += "! ";
 						break;
 					}
 				}
-				System.out.print("\n");
+				return_string += "\n";
 			}
 		}
+		return return_string;
 	}
 	
 

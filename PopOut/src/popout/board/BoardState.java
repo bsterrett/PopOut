@@ -112,7 +112,6 @@ public class BoardState {
 	
 	public String[] get_available_moves(){
 		//returns a list of available moves that the next player can make
-		//numbers between 0 and p_column_count-1 correspond to pops, numbers between p_column_count and 2*p_column_count-1 are drops
 		int valid_move_count = 0;
 		for(int i = 0; i < p_column_count; i++){
 			if(valid_pop(i)) valid_move_count++;

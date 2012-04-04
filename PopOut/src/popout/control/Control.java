@@ -10,7 +10,7 @@ public class Control {
 		// TODO Auto-generated method stub
 		BoardState B = new BoardState(6, 7);
 		CLDisplay C = new CLDisplay(6, 7, B);
-		Search M = new Minimax(B);
+		//Search M = new Minimax(B);
 		B.drop(0, (short) 1);
 		B.drop(0, (short) 1);
 		B.drop(0, (short) 1);
@@ -18,19 +18,10 @@ public class Control {
 		B.drop(1, (short) 1);
 		B.drop(1, (short) 1);
 		B.drop(1, (short) 2);
-		B.drop(1, (short) 1);
-		B.drop(2, (short) 1);
-		B.drop(2, (short) 2);
-		B.drop(2, (short) 1);
-		B.drop(2, (short) 1);
-		B.drop(3, (short) 2);
-		B.drop(3, (short) 1);
-		B.drop(3, (short) 1);
-		B.drop(3, (short) 1);
-		C.print_board();
+		System.out.println(C.toString());
 		while(B.compute_win() == 0){
 			B.drop(3, (short) 2);
-			C.print_board();
+			System.out.println(C.toString());
 			System.out.println("Current winner: " + B.compute_win());
 		}
 	}
