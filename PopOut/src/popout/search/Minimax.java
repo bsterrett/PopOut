@@ -45,7 +45,8 @@ public class Minimax extends Search {
 		final short board[][] = p_board.get_state();
 		final int column_count = board.length;
 		final int row_count = board[0].length;
-		short board_utility = 0;
+		short positive_board_utility = 0;
+		short negative_board_utility = 0;
 		for(int col = 0; col < column_count; col++){
 			for(int row = 0; row < row_count; row++){
 				final short compare_against = board[col][row];
@@ -54,22 +55,22 @@ public class Minimax extends Search {
 					if(		col >= 2 && row <=row_count-3 &&
 							board[col-1][row+1] == compare_against &&
 							board[col-2][row+1] == compare_against){
-						board_utility += board_utility > 10 ? 0 : -5;
+						negative_board_utility += negative_board_utility < -10 ? 0 : -5;
 					}
 					if(		row <= row_count-3 &&
 							board[col][row+1] == compare_against &&
 							board[col][row+2] == compare_against){
-						board_utility += board_utility > 10 ? 0 : -5;
+						negative_board_utility += negative_board_utility < -10 ? 0 : -5;
 					}
 					if(		col <= column_count-3 && row <= row_count-3 &&
 							board[col+1][row+1] == compare_against &&
 							board[col+2][row+2] == compare_against){
-						board_utility += board_utility > 10 ? 0 : -5;
+						negative_board_utility += negative_board_utility < -10 ? 0 : -5;
 					}
 					if(		col <= column_count-3 &&
 							board[col+1][row] == compare_against &&
 							board[col+2][row] == compare_against){
-						board_utility += board_utility > 10 ? 0 : -5;
+						negative_board_utility += negative_board_utility < -10 ? 0 : -5;
 					}
 				}
 				if(p_computer_number == compare_against){
@@ -77,29 +78,29 @@ public class Minimax extends Search {
 					if(		col >= 2 && row <=row_count-3 &&
 							board[col-1][row+1] == compare_against &&
 							board[col-2][row+1] == compare_against){
-						board_utility += board_utility > 10 ? 0 : 5;
+						positive_board_utility += positive_board_utility > 10 ? 0 : 5;
 					}
 					if(		row <= row_count-3 &&
 							board[col][row+1] == compare_against &&
 							board[col][row+2] == compare_against){
-						board_utility += board_utility > 10 ? 0 : 5;
+						positive_board_utility += positive_board_utility > 10 ? 0 : 5;
 					}
 					if(		col <= column_count-3 && row <= row_count-3 &&
 							board[col+1][row+1] == compare_against &&
 							board[col+2][row+2] == compare_against){
-						board_utility += board_utility > 10 ? 0 : 5;
+						positive_board_utility += positive_board_utility > 10 ? 0 : 5;
 					}
 					if(		col <= column_count-3 &&
 							board[col+1][row] == compare_against &&
 							board[col+2][row] == compare_against){
-						board_utility += board_utility > 10 ? 0 : 5;
+						positive_board_utility += positive_board_utility > 10 ? 0 : 5;
 					}
 				}
 				// more than 3 three-in-a-rows is not a significant strategic advantage
-				if(Math.abs(board_utility) >= 15) return board_utility;
+				if(positive_board_utility - negative_board_utility > 30) return (short) (positive_board_utility - negative_board_utility);
 			}
 		}
-		return board_utility;
+		return (short) (positive_board_utility - negative_board_utility);
 	}
 	
 }
