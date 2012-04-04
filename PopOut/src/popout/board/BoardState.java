@@ -18,8 +18,14 @@ public class BoardState {
 		}
 	}
 	
+	public BoardState(short[][] board_state){
+		p_column_count = board_state.length;
+		p_row_count = board_state[0].length;
+		p_current_state = board_state;
+	}
+	
 	public boolean valid_drop(final int col){
-		return (0 == p_current_state[col][p_row_count-1]);
+		return (col >= 0 && col <= p_column_count-1 && 0 == p_current_state[col][p_row_count-1]);
 	}
 	
 	public boolean drop(final int col, final short player){
@@ -43,7 +49,7 @@ public class BoardState {
 	}
 	
 	public boolean valid_pop(final int col){
-		return (0 != p_current_state[col][0]);
+		return (col >=0 && col <= p_column_count-1 && 0 != p_current_state[col][0]);
 	}
 	
 	public boolean pop(final int col){
@@ -61,6 +67,11 @@ public class BoardState {
 			System.err.println("Trying to pop an empty column!");
 			return false;
 		}
+	}
+	
+	public void set_state(short[][] board_state){
+		// ONLY FOR USE BY SEARCH FUNCTION 
+		p_current_state = board_state;
 	}
 
 	public short[][] get_state() {
