@@ -3,8 +3,7 @@ package popout.board;
 public class BoardState {	
 
 	protected short[][] p_current_state;
-	protected short p_moves_so_far;
-	
+	protected short p_moves_so_far;	
 	protected final int p_column_count;
 	protected final int p_row_count;
 	
@@ -66,6 +65,10 @@ public class BoardState {
 
 	public short[][] get_state() {
 		return p_current_state;
+	}
+	
+	public short get_moves_so_far(){
+		return p_moves_so_far;
 	}
 	
 	public short compute_win(){

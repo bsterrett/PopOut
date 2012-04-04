@@ -34,4 +34,72 @@ public class Minimax extends Search {
 		}
 	}
 	
+	
+	private short evaluate_board(){
+		//Returns a poorly adjusted utility for the computer player
+		// 20 for computer win, -20 for player win
+		// 5, 10, 15   for    1, 2, 3   three-in-a-rows   respectively
+		short current_winner = p_board.compute_win();
+		if(p_player_number == current_winner) return -20;
+		if(p_computer_number == current_winner) return 20;
+		final short board[][] = p_board.get_state();
+		final int column_count = board.length;
+		final int row_count = board[0].length;
+		short board_utility = 0;
+		for(int col = 0; col < column_count; col++){
+			for(int row = 0; row < row_count; row++){
+				final short compare_against = board[col][row];
+				if(p_player_number == compare_against){
+					//compute the utility of this position if owned by the player
+					if(		col >= 2 && row <=row_count-3 &&
+							board[col-1][row+1] == compare_against &&
+							board[col-2][row+1] == compare_against){
+						board_utility += board_utility > 10 ? 0 : -5;
+					}
+					if(		row <= row_count-3 &&
+							board[col][row+1] == compare_against &&
+							board[col][row+2] == compare_against){
+						board_utility += board_utility > 10 ? 0 : -5;
+					}
+					if(		col <= column_count-3 && row <= row_count-3 &&
+							board[col+1][row+1] == compare_against &&
+							board[col+2][row+2] == compare_against){
+						board_utility += board_utility > 10 ? 0 : -5;
+					}
+					if(		col <= column_count-3 &&
+							board[col+1][row] == compare_against &&
+							board[col+2][row] == compare_against){
+						board_utility += board_utility > 10 ? 0 : -5;
+					}
+				}
+				if(p_computer_number == compare_against){
+					//compute the utility of this position if owned by the computer
+					if(		col >= 2 && row <=row_count-3 &&
+							board[col-1][row+1] == compare_against &&
+							board[col-2][row+1] == compare_against){
+						board_utility += board_utility > 10 ? 0 : 5;
+					}
+					if(		row <= row_count-3 &&
+							board[col][row+1] == compare_against &&
+							board[col][row+2] == compare_against){
+						board_utility += board_utility > 10 ? 0 : 5;
+					}
+					if(		col <= column_count-3 && row <= row_count-3 &&
+							board[col+1][row+1] == compare_against &&
+							board[col+2][row+2] == compare_against){
+						board_utility += board_utility > 10 ? 0 : 5;
+					}
+					if(		col <= column_count-3 &&
+							board[col+1][row] == compare_against &&
+							board[col+2][row] == compare_against){
+						board_utility += board_utility > 10 ? 0 : 5;
+					}
+				}
+				// more than 3 three-in-a-rows is not a significant strategic advantage
+				if(Math.abs(board_utility) >= 15) return board_utility;
+			}
+		}
+		return board_utility;
+	}
+	
 }
