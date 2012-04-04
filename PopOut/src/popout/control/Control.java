@@ -16,17 +16,21 @@ public class Control {
 
 		while(B.compute_win() == 0){
 			System.out.println("Next move? (Format: 'X Y' where X is D or P and Y is 0-6)");
-			String user_input = scan.nextLine();
-			if(user_input.length() > 0 &&'D' == user_input.charAt(0)){
-				B.drop(Integer.parseInt(user_input.substring(2)), (short) 1);
+			boolean user_input_valid = false;
+			while(!user_input_valid){
+				String user_input = scan.nextLine();
+				if(user_input.length() > 0 && 'D' == user_input.toUpperCase().charAt(0)){
+					user_input_valid = B.drop(Integer.parseInt(user_input.substring(1).trim()), (short) 1);					
+				}
+				else if(user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)){
+					user_input_valid = B.pop(Integer.parseInt(user_input.substring(1).trim()));					
+				}
+				else{
+					System.err.println("Invalid user input!");
+				}
 			}
-			else if(user_input.length() > 0 && 'P' == user_input.charAt(0)){
-				B.pop(Integer.parseInt(user_input.substring(2)));
-			}
-			else{
-				System.err.println("Invalid user input!");
-			}
-			//M.make_next_move();
+
+			M.make_next_move();
 			System.out.println(C.toString());			
 		}
 		System.out.println("The winner: " + B.compute_win());

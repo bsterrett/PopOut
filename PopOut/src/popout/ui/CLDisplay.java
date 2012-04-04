@@ -8,6 +8,12 @@ public class CLDisplay {
 	protected BoardState p_board;
 	protected final int p_column_count;
 	protected final int p_row_count;
+	
+	public CLDisplay(short board_state_short[][]){
+		p_board = new BoardState(board_state_short);
+		p_column_count = board_state_short.length;
+		p_row_count = board_state_short[0].length;
+	}
 
 	public CLDisplay(int board_height, int board_width, BoardState board){
 		p_board = board;
