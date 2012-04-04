@@ -29,7 +29,7 @@ public class Minimax extends Search {
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
 				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-				current_board.drop(move_col, p_computer_player);
+				current_board.drop(move_col, p_computer_number);
 				short next_board[][] = current_board.get_state();
 				short temp_score = minimax(next_board, depth-1, p_player_number);
 				if(temp_score >= alpha){				
@@ -59,7 +59,7 @@ public class Minimax extends Search {
 			System.err.println("Something bad happened during minimax search!");
 		}
 		else{
-			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_player);
+			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)));
 		}
 	}
