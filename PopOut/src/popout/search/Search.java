@@ -7,11 +7,13 @@ public abstract class Search {
 	protected BoardState p_board;
 	protected final short p_player_number;
 	protected final short p_computer_number;
+	protected final short p_empty_space_number;
 	protected final int p_column_count;
 	protected final int p_row_count;
 	
 	public Search(BoardState board){
 		p_board = board;
+		p_empty_space_number = 0;
 		p_player_number = 1;
 		p_computer_number = 2;
 		p_column_count = p_board.get_state().length;

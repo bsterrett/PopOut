@@ -1,6 +1,7 @@
 package popout.search;
 
 import popout.board.BoardState;
+import popout.ui.CLDisplay;
 
 public class Minimax extends Search {
 	
@@ -9,8 +10,8 @@ public class Minimax extends Search {
 	
 	public Minimax(BoardState board){
 		super(board);
-		p_heuristic = 0;
-		p_depth = 5;
+		p_heuristic = 2;
+		p_depth = 4;
 	}
 	
 	public Minimax(BoardState board, short depth, short heuristic){
@@ -104,10 +105,20 @@ public class Minimax extends Search {
 		}		
 		BoardState current_board = new BoardState(test_board_temp);	
 		
+		
+		if(p_computer_number == current_board.compute_win()){
+			return 19001;
+		}
+		if(p_player_number == current_board.compute_win()){
+			return -19001;
+		}
+		
 		if(depth <= 0){
 			switch(p_heuristic){
-			case 0:
+			case 1:
 				return evaluate_move_one(move);
+			case 2:
+				return evaluate_board_two(current_board);
 			default:
 				return evaluate_board_one(current_board);
 			}
@@ -117,10 +128,10 @@ public class Minimax extends Search {
 		
 		short alpha = 0;
 		if(p_player_number == turn){
-			alpha = 200;
+			alpha = 30000;
 		}
 		else if(p_computer_number == turn){
-			alpha = -200;
+			alpha = -30000;
 		}
 		else{
 			System.err.println("Minimax is unsure of whose turn it is!");
@@ -139,13 +150,19 @@ public class Minimax extends Search {
 						temp_board[k][j] = current_board.get_state()[k][j];
 					}
 				}
-				current_board.drop(move_col, turn);
+				
 				short next_board[][] = current_board.get_state();
+				current_board.drop(move_col, turn);
+				CLDisplay C = new CLDisplay(next_board);
 				current_board.set_state(temp_board);
 				//recursive call
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
-				alpha += 0;		//for debugging, please remove
+				if(alpha > 15){
+					//System.out.println(C.toString());
+					alpha += 0;		//for debugging, please remove
+				}
+				
 						
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
@@ -159,11 +176,15 @@ public class Minimax extends Search {
 				}
 				current_board.pop(move_col);
 				short next_board[][] = current_board.get_state();
+				CLDisplay C = new CLDisplay(next_board);
 				current_board.set_state(temp_board);
 				//recursive call
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i] );
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
-				alpha += 0;		//for debugging, please remove
+				if(alpha > 15){
+					//System.out.println(C.toString());
+					alpha += 0;		//for debugging, please remove
+				}
 			}
 			else{
 				//this move is not recognized
@@ -241,6 +262,108 @@ public class Minimax extends Search {
 			}
 		}
 		return (short) (positive_board_utility + negative_board_utility);
+	}
+	
+	private short evaluate_board_two(final BoardState target_board){
+		short current_winner = target_board.compute_win();
+		if(p_player_number == current_winner) return -19000;
+		if(p_computer_number == current_winner) return 19000;
+		final short board[][] = target_board.get_state();
+		final int column_count = board.length;
+		final int row_count = board[0].length;
+		short utility = 0;
+		
+		//iterate over all columns, looking for 3 in a row with an empty space on top
+		for(int col = 0; col < column_count; col++){
+			for(int row = 0; row < row_count-3; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col][row+1] && 
+						board[col][row] == board[col][row+2] && 
+						board[col][row+3] == p_empty_space_number){
+					utility += (board[col][row] == p_player_number ? -12 : 12);
+				}
+			}
+		}
+		
+		//iterate over all rows, looking for 3 in a row with an empty space OR a chip that could be popped to make a connect 4
+		for(int row = 0; row < row_count; row++){
+			for(int col = 0; col < column_count-3; col++){
+				if(		row_count-1 > row && board[col][row] != p_empty_space_number &&
+						((board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+2][row] &&
+						(board[col+3][row] == p_empty_space_number || board[col][row] == board[col+3][row+1]))
+						||
+						(board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+3][row] &&
+						(board[col+2][row] == p_empty_space_number || board[col][row] == board[col+2][row+1]))						
+						||
+						(board[col][row] == board[col+3][row] &&
+						board[col][row] == board[col+2][row] &&
+						(board[col+1][row] == p_empty_space_number || board[col][row] == board[col+1][row+1])))){
+					//this could be broken up to look for a good pop and a good drop separately
+					//could increase the efficacy of the evaluation function
+					utility += (board[col][row] == p_player_number ?  -14 : 14);
+				}
+				else if(row_count-1 == row && board[col][row] != p_empty_space_number &&
+						((board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+2][row] &&
+						board[col+3][row] == p_empty_space_number)
+						||
+						(board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+3][row] &&
+						board[col+2][row] == p_empty_space_number)
+						||
+						(board[col][row] == board[col+3][row] &&
+						board[col][row] == board[col+2][row] &&
+						board[col+1][row] == p_empty_space_number))){
+					utility += (board[col][row] == p_player_number ? -12 : 12);
+				}
+			}
+		}
+		
+		//iterate over all left-up diagonals
+		for(int col = 3; col < column_count; col++){
+			for(int row = 0; row < row_count-3; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						(board[col][row] == board[col-1][row+1] &&
+						board[col][row] == board[col-2][row+2] &&
+						(board[col-3][row+3] == p_empty_space_number ||
+						(row_count-4 > row && board[col-3][row+4] == board[col][row]))
+						||
+						board[col][row] == board[col-1][row+1] &&
+						board[col][row] == board[col-3][row+3] &&
+						(board[col-2][row+2] == p_empty_space_number || board[col][row] == board[col-2][row+3])
+						||
+						board[col][row] == board[col-2][row+2] &&
+						board[col][row] == board[col-3][row+3] &&
+						(board[col-1][row+1] == p_empty_space_number || board[col][row] == board[col-1][row+2]))){
+					utility += (board[col][row] == p_player_number ? -14 : 14);
+				}
+			}
+		}
+		
+		//iterate over all right-up diagonals
+		for(int col = 0; col < column_count-3; col++){
+			for(int row = 0; row < row_count-3; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						(board[col][row] == board[col+1][row+1] &&
+						board[col][row] == board[col+2][row+2] &&
+						(board[col+3][row+3] == p_empty_space_number ||
+						(row_count-4 > row && board[col+3][row+4] == board[col][row]))
+						||
+						board[col][row] == board[col+1][row+1] &&
+						board[col][row] == board[col+3][row+3] &&
+						(board[col+2][row+2] == p_empty_space_number || board[col][row] == board[col+2][row+3])
+						||
+						board[col][row] == board[col+2][row+2] &&
+						board[col][row] == board[col+3][row+3] &&
+						(board[col+1][row+1] == p_empty_space_number || board[col][row] == board[col+1][row+2]))){
+					utility += (board[col][row] == p_player_number ? -14 : 14);
+				}
+			}
+		}
+
+		return utility;
 	}
 	
 	private short evaluate_move_one(final String move){

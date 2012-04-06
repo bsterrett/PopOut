@@ -38,7 +38,7 @@ public class CLDisplay {
 						return_string += "X ";
 						break;
 					case 2:
-						return_string += "0 ";
+						return_string += "O ";
 						break;
 					default:
 						return_string += "! ";
