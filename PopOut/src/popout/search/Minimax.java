@@ -1,7 +1,7 @@
 package popout.search;
 
 import popout.board.BoardState;
-import popout.ui.CLDisplay;
+//import popout.ui.CLDisplay;
 
 public class Minimax extends Search {
 	
@@ -23,7 +23,7 @@ public class Minimax extends Search {
 	public void make_next_move(){
 		// Call this to make the computer move
 		short depth = p_depth;
-		short alpha = -200;
+		short alpha = -30000;
 		int best_move = -1;		
 		short current_board_short[][] = new short[p_column_count][p_row_count];
 		for(int col_iter = 0; col_iter < p_column_count; col_iter++){
@@ -32,7 +32,7 @@ public class Minimax extends Search {
 			}
 		}
 		BoardState current_board = new BoardState(current_board_short);
-		final String valid_next_moves[] = current_board.get_available_moves();		
+		final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);		
 		for(int i = 0; i < valid_next_moves.length; i++){
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
@@ -66,7 +66,7 @@ public class Minimax extends Search {
 						temp_board[col_iter][row_iter] = current_board.get_state()[col_iter][row_iter];
 					}
 				}
-				current_board.pop(move_col);
+				current_board.pop(move_col,p_computer_number);
 				//CLDisplay C = new CLDisplay(current_board.get_state());  //for debugging, get rid of this
 				//System.out.println(C.toString());  //for debugging, get rid of this
 				short next_board[][] = current_board.get_state();
@@ -91,7 +91,7 @@ public class Minimax extends Search {
 		else{
 			//the search returned a best move, now carrying it out on the actual game board
 			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
-			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)));
+			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 		}
 	}
 	
@@ -139,7 +139,7 @@ public class Minimax extends Search {
 		}
 		
 		
-		final String valid_next_moves[] = current_board.get_available_moves();
+		final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);
 		for(int i = 0; i < valid_next_moves.length; i++){
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
@@ -153,7 +153,7 @@ public class Minimax extends Search {
 				
 				short next_board[][] = current_board.get_state();
 				current_board.drop(move_col, turn);
-				CLDisplay C = new CLDisplay(next_board);
+				//CLDisplay C = new CLDisplay(next_board);
 				current_board.set_state(temp_board);
 				//recursive call
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
@@ -174,9 +174,9 @@ public class Minimax extends Search {
 						temp_board[k][j] = current_board.get_state()[k][j];
 					}
 				}
-				current_board.pop(move_col);
+				current_board.pop(move_col,p_computer_number);
 				short next_board[][] = current_board.get_state();
-				CLDisplay C = new CLDisplay(next_board);
+				//CLDisplay C = new CLDisplay(next_board);
 				current_board.set_state(temp_board);
 				//recursive call
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i] );
@@ -192,7 +192,7 @@ public class Minimax extends Search {
 				return 0;
 			}
 		}
-		return alpha;
+		return (short) (alpha+0);
 	}
 	
 	

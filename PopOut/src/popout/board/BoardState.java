@@ -48,12 +48,12 @@ public class BoardState {
 		}
 	}
 	
-	public boolean valid_pop(final int col){
-		return (col >=0 && col <= p_column_count-1 && 0 != p_current_state[col][0]);
+	public boolean valid_pop(final int col, final short player){
+		return (col >=0 && col <= p_column_count-1 && player == p_current_state[col][0]);
 	}
 	
-	public boolean pop(final int col){
-		if(valid_pop(col)){
+	public boolean pop(final int col, final short player){
+		if(valid_pop(col,player)){
 			for(int row = 0; row < (p_row_count-1); row++){
 				//drops chip from space above into current space, going from bottom to top
 				p_current_state[col][row] = p_current_state[col][row+1];
@@ -124,11 +124,11 @@ public class BoardState {
 	
 	
 	
-	public String[] get_available_moves(){
+	public String[] get_available_moves(short player){
 		//returns a list of available moves that the next player can make
 		int valid_move_count = 0;
 		for(int i = 0; i < p_column_count; i++){
-			if(valid_pop(i)) valid_move_count++;
+			if(valid_pop(i,player)) valid_move_count++;
 		}
 		for(int i = 0; i < p_column_count; i++){
 			if(valid_drop(i)) valid_move_count++;
@@ -136,7 +136,7 @@ public class BoardState {
 		String move_list[] = new String[valid_move_count];
 		int move_write_count = 0;
 		for(int i = 0; i < p_column_count; i++){
-			if(valid_pop(i)) move_list[move_write_count++] = "P " + String.valueOf(i);
+			if(valid_pop(i,player)) move_list[move_write_count++] = "P " + String.valueOf(i);
 		}
 		for(int i = 0; i < p_column_count; i++){
 			if(valid_drop(i)) move_list[move_write_count++] = "D " + String.valueOf(i); 

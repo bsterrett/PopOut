@@ -13,6 +13,7 @@ public class Control {
 		CLDisplay C = new CLDisplay(6, 7, B);
 		Search M = new Minimax(B);
 		Scanner scan = new Scanner(System.in); 
+		final short player_number = 1;
 
 		while(B.compute_win() == 0){
 			System.out.println("Next move? (Format: 'X Y' where X is D or P and Y is 0-6)");
@@ -20,10 +21,10 @@ public class Control {
 			while(!user_input_valid){
 				String user_input = scan.nextLine();
 				if(user_input.length() > 0 && 'D' == user_input.toUpperCase().charAt(0)){
-					user_input_valid = B.drop(Integer.parseInt(user_input.substring(1).trim()), (short) 1);					
+					user_input_valid = B.drop(Integer.parseInt(user_input.substring(1).trim()), player_number);					
 				}
 				else if(user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)){
-					user_input_valid = B.pop(Integer.parseInt(user_input.substring(1).trim()));					
+					user_input_valid = B.pop(Integer.parseInt(user_input.substring(1).trim()), player_number);					
 				}
 				else{
 					System.err.println("Invalid user input!");
