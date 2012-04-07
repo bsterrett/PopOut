@@ -10,7 +10,7 @@ public class Minimax extends Search {
 	public Minimax(BoardState board){
 		super(board);
 		p_heuristic = 3;
-		p_depth = 7;
+		p_depth = 6;
 	}
 	
 	public Minimax(BoardState board, short depth, short heuristic){
@@ -32,8 +32,6 @@ public class Minimax extends Search {
 		}
 		BoardState current_board = new BoardState(current_board_short);
 		final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);	
-		final short minimax_outputs[] = new short[valid_next_moves.length];
-		int output_counter = 0;
 		for(int i = 0; i < valid_next_moves.length; i++){
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
@@ -50,7 +48,6 @@ public class Minimax extends Search {
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical drop
 				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
-				minimax_outputs[output_counter++] = temp_score;
 				if(temp_score >= alpha){				
 					alpha = temp_score;
 					best_move = i;
@@ -71,7 +68,6 @@ public class Minimax extends Search {
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical pop
 				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
-				minimax_outputs[output_counter++] = temp_score;
 				if(temp_score >= alpha){				
 					alpha = temp_score;
 					best_move = i;
@@ -92,9 +88,6 @@ public class Minimax extends Search {
 			//the search returned a best move, now carrying it out on the actual game board
 			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
-		}
-		for(int i = 0; i < valid_next_moves.length; i++){
-			System.out.print(valid_next_moves[i] + " " +  minimax_outputs[i] + "    ");
 		}
 		System.out.println("");
 	}
@@ -140,7 +133,7 @@ public class Minimax extends Search {
 		}
 		
 		
-		final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);
+		final String valid_next_moves[] = current_board.get_available_moves(turn);
 		for(int i = 0; i < valid_next_moves.length; i++){
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
@@ -156,7 +149,7 @@ public class Minimax extends Search {
 				current_board.set_state(temp_board);
 				//recursive call
 				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
-				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));		
+				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));	
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
@@ -167,7 +160,7 @@ public class Minimax extends Search {
 						temp_board[col][row] = current_board.get_state()[col][row];
 					}
 				}
-				current_board.pop(move_col,p_computer_number);
+				current_board.pop(move_col, turn);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				//recursive call
@@ -179,6 +172,7 @@ public class Minimax extends Search {
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 				return 0;
 			}
+			alpha += 0;
 		}
 		return alpha;
 	}

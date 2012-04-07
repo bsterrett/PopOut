@@ -208,7 +208,7 @@ public abstract class Search {
 		final int row_count = board[0].length;
 		final int connect_4 = 600;
 		final int three_in_a_row = 3;
-		final int scary_loss_factor = 50;
+		final int scary_loss_factor = 0;
 		short utility = 0;
 		
 		//check up and left for 4 in a row
