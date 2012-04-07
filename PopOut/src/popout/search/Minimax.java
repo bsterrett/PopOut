@@ -9,8 +9,8 @@ public class Minimax extends Search {
 	
 	public Minimax(BoardState board){
 		super(board);
-		p_heuristic = 2;
-		p_depth = 3;
+		p_heuristic = 3;
+		p_depth = 6;
 	}
 	
 	public Minimax(BoardState board, short depth, short heuristic){
@@ -31,7 +31,9 @@ public class Minimax extends Search {
 			}
 		}
 		BoardState current_board = new BoardState(current_board_short);
-		final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);		
+		final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);	
+		final short minimax_outputs[] = new short[valid_next_moves.length];
+		int output_counter = 0;
 		for(int i = 0; i < valid_next_moves.length; i++){
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
@@ -48,6 +50,7 @@ public class Minimax extends Search {
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical drop
 				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
+				minimax_outputs[output_counter++] = temp_score;
 				if(temp_score >= alpha){				
 					alpha = temp_score;
 					best_move = i;
@@ -68,6 +71,7 @@ public class Minimax extends Search {
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical pop
 				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
+				minimax_outputs[output_counter++] = temp_score;
 				if(temp_score >= alpha){				
 					alpha = temp_score;
 					best_move = i;
@@ -77,6 +81,7 @@ public class Minimax extends Search {
 				//this move is not recognized
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 			}
+			if(p_depth > 6 && i != valid_next_moves.length-1 )	System.out.printf("Computer is %2d percent done with search.%n", ((100*(i+1))/valid_next_moves.length));
 		}
 		
 		if(best_move == -1){
@@ -88,6 +93,10 @@ public class Minimax extends Search {
 			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 		}
+		for(int i = 0; i < valid_next_moves.length; i++){
+			System.out.print(valid_next_moves[i] + " " +  minimax_outputs[i] + "    ");
+		}
+		System.out.println("");
 	}
 	
 	private final short minimax(final short[][] test_board_short, final int depth, final short turn, final String move){
@@ -120,10 +129,10 @@ public class Minimax extends Search {
 		
 		short alpha = 0;
 		if(p_player_number == turn){
-			alpha = 30000;
+			alpha = 20000;
 		}
 		else if(p_computer_number == turn){
-			alpha = -30000;
+			alpha = -20000;
 		}
 		else{
 			System.err.println("Minimax is unsure of whose turn it is!");
@@ -357,6 +366,8 @@ public class Minimax extends Search {
 		final short board[][] = target_board.get_state();
 		final int column_count = board.length;
 		final int row_count = board[0].length;
+		final int connect_4 = 200;
+		final int three_in_a_row = 3;
 		short utility = 0;
 		
 		int diagonal_bonus_offset = 0; 	//highly experimental, turn to 0 in case of bad stuff
@@ -368,7 +379,7 @@ public class Minimax extends Search {
 						board[col][row] == board[col-1][row+1] &&
 						board[col][row] == board[col-2][row+2] &&
 						board[col][row] == board[col-3][row+3] ){
-					utility += (board[col][row] == p_computer_number ? 50+diagonal_bonus_offset : -50+diagonal_bonus_offset);
+					utility += (board[col][row] == p_computer_number ? connect_4 + diagonal_bonus_offset : -1 * connect_4 + diagonal_bonus_offset);
 				}
 			}
 		}
@@ -380,7 +391,7 @@ public class Minimax extends Search {
 						board[col][row] == board[col][row+1] &&
 						board[col][row] == board[col][row+2] &&
 						board[col][row] == board[col][row+3] ){
-					utility += (board[col][row] == p_computer_number ? 50 : -50);
+					utility += (board[col][row] == p_computer_number ? connect_4 : -1 * connect_4 );
 				}
 			}
 		}
@@ -392,7 +403,7 @@ public class Minimax extends Search {
 						board[col][row] == board[col+1][row+1] &&
 						board[col][row] == board[col+2][row+2] &&
 						board[col][row] == board[col+3][row+3] ){
-					utility += (board[col][row] == p_computer_number ? 50+diagonal_bonus_offset : -50+diagonal_bonus_offset);
+					utility += (board[col][row] == p_computer_number ? connect_4 + diagonal_bonus_offset : -1 * connect_4 + diagonal_bonus_offset);
 				}
 			}
 		}
@@ -402,10 +413,10 @@ public class Minimax extends Search {
 		for(int col = 0; col < column_count-3; col++){
 			for(int row = 0; row < row_count; row++){
 				if(		board[col][row] != p_empty_space_number &&
-						board[col][row] == board[col+1][row+1] &&
-						board[col][row] == board[col+2][row+2] &&
-						board[col][row] == board[col+3][row+3] ){
-					utility += (board[col][row] == p_computer_number ? 50 : -50);
+						board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+2][row] &&
+						board[col][row] == board[col+3][row] ){
+					utility += (board[col][row] == p_computer_number ? connect_4 : -1 * connect_4);
 				}
 			}
 		}
@@ -416,7 +427,7 @@ public class Minimax extends Search {
 				if(		board[col][row] != p_empty_space_number &&
 						board[col][row] == board[col-1][row+1] &&
 						board[col][row] == board[col-2][row+2] ){
-					utility += (board[col][row] == p_computer_number ? 3+diagonal_bonus_offset : -3);
+					utility += (board[col][row] == p_computer_number ? three_in_a_row + diagonal_bonus_offset : -1 * three_in_a_row);
 				}
 			}
 		}
@@ -427,7 +438,7 @@ public class Minimax extends Search {
 				if(		board[col][row] != p_empty_space_number &&
 						board[col][row] == board[col][row+1] &&
 						board[col][row] == board[col][row+2] ){
-					utility += (board[col][row] == p_computer_number ? 3 : -3);
+					utility += (board[col][row] == p_computer_number ? three_in_a_row : -1 * three_in_a_row);
 				}
 			}
 		}
@@ -438,7 +449,7 @@ public class Minimax extends Search {
 				if(		board[col][row] != p_empty_space_number &&
 						board[col][row] == board[col+1][row+1] &&
 						board[col][row] == board[col+2][row+2] ){
-					utility += (board[col][row] == p_computer_number ? 3+diagonal_bonus_offset : -3);
+					utility += (board[col][row] == p_computer_number ? three_in_a_row + diagonal_bonus_offset : -1 * three_in_a_row);
 				}
 			}
 		}
@@ -447,9 +458,9 @@ public class Minimax extends Search {
 		for(int col = 0; col < column_count-3; col++){
 			for(int row = 0; row < row_count; row++){
 				if(		board[col][row] != p_empty_space_number &&
-						board[col][row] == board[col+1][row+1] &&
-						board[col][row] == board[col+2][row+2] ){
-					utility += (board[col][row] == p_computer_number ? 3 : -3);
+						board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+2][row] ){
+					utility += (board[col][row] == p_computer_number ? three_in_a_row : -1 * three_in_a_row);
 				}
 			}
 		}		
