@@ -32,10 +32,12 @@ public class Minimax extends Search {
 		}
 		BoardState current_board = new BoardState(current_board_short);
 		final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);	
+		final short move_utilities[] = new short[valid_next_moves.length];
+		int utilities_iter = 0;
 		for(int i = 0; i < valid_next_moves.length; i++){
+			int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop
-				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 				
 				short temp_board[][] = new short[p_column_count][p_row_count];
 				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
@@ -48,6 +50,7 @@ public class Minimax extends Search {
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical drop
 				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
+				move_utilities[utilities_iter++] = temp_score;
 				if(temp_score >= alpha){				
 					alpha = temp_score;
 					best_move = i;
@@ -56,7 +59,6 @@ public class Minimax extends Search {
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
-				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 				short temp_board[][] = new short[p_column_count][p_row_count];
 				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
 					for(int row_iter = 0; row_iter < p_row_count; row_iter++){
@@ -68,6 +70,7 @@ public class Minimax extends Search {
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical pop
 				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
+				move_utilities[utilities_iter++] = temp_score;
 				if(temp_score >= alpha){				
 					alpha = temp_score;
 					best_move = i;
@@ -89,6 +92,9 @@ public class Minimax extends Search {
 			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 		}
+		for(int i = 0; i < valid_next_moves.length; i++){
+			System.out.print(valid_next_moves[i] + "  " + move_utilities[i] + "    ");
+		}
 		System.out.println("");
 	}
 	
@@ -102,7 +108,7 @@ public class Minimax extends Search {
 		}		
 		BoardState current_board = new BoardState(test_board_temp);	
 		
-		if(depth <= 0){
+		if(depth <= 0 || current_board.compute_win() != p_empty_space_number){
 			switch(p_heuristic){
 			case 1:
 				return evaluate_board_one(current_board);
@@ -174,7 +180,7 @@ public class Minimax extends Search {
 			}
 			alpha += 0;
 		}
-		return alpha;
+		return (short) (alpha-2);
 	}
 	
 	

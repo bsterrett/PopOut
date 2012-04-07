@@ -206,9 +206,9 @@ public abstract class Search {
 		final short board[][] = target_board.get_state();
 		final int column_count = board.length;
 		final int row_count = board[0].length;
-		final int connect_4 = 600;
-		final int three_in_a_row = 3;
-		final int scary_loss_factor = 10;
+		final int connect_4 = -100;
+		final int three_in_a_row = -3;
+		final int scary_loss_factor = 0;
 		short utility = 0;
 		
 		//check up and left for 4 in a row
@@ -218,7 +218,7 @@ public abstract class Search {
 						board[col][row] == board[col-1][row+1] &&
 						board[col][row] == board[col-2][row+2] &&
 						board[col][row] == board[col-3][row+3] ){
-					utility += (board[col][row] == p_computer_number ? connect_4  : -1 * connect_4 - scary_loss_factor);
+					utility += (board[col][row] == p_player_number ? connect_4  : -1 * connect_4 );
 				}
 			}
 		}
@@ -230,7 +230,7 @@ public abstract class Search {
 						board[col][row] == board[col][row+1] &&
 						board[col][row] == board[col][row+2] &&
 						board[col][row] == board[col][row+3] ){
-					utility += (board[col][row] == p_computer_number ? connect_4 : -1 * connect_4 - scary_loss_factor );
+					utility += (board[col][row] == p_player_number ? connect_4 : -1 * connect_4 );
 				}
 			}
 		}
@@ -242,7 +242,7 @@ public abstract class Search {
 						board[col][row] == board[col+1][row+1] &&
 						board[col][row] == board[col+2][row+2] &&
 						board[col][row] == board[col+3][row+3] ){
-					utility += (board[col][row] == p_computer_number ? connect_4 : -1 * connect_4 - scary_loss_factor );
+					utility += (board[col][row] == p_player_number ? connect_4 : -1 * connect_4 );
 				}
 			}
 		}
@@ -255,7 +255,7 @@ public abstract class Search {
 						board[col][row] == board[col+1][row] &&
 						board[col][row] == board[col+2][row] &&
 						board[col][row] == board[col+3][row] ){
-					utility += (board[col][row] == p_computer_number ? connect_4 : -1 * connect_4 - scary_loss_factor);
+					utility += (board[col][row] == p_player_number ? connect_4 : -1 * connect_4 );
 				}
 			}
 		}
@@ -266,7 +266,7 @@ public abstract class Search {
 				if(		board[col][row] != p_empty_space_number &&
 						board[col][row] == board[col-1][row+1] &&
 						board[col][row] == board[col-2][row+2] ){
-					utility += (board[col][row] == p_computer_number ? three_in_a_row : -1 * three_in_a_row);
+					utility += (board[col][row] == p_player_number ? three_in_a_row : -1 * three_in_a_row);
 				}
 			}
 		}
@@ -277,7 +277,7 @@ public abstract class Search {
 				if(		board[col][row] != p_empty_space_number &&
 						board[col][row] == board[col][row+1] &&
 						board[col][row] == board[col][row+2] ){
-					utility += (board[col][row] == p_computer_number ? three_in_a_row : -1 * three_in_a_row);
+					utility += (board[col][row] == p_player_number ? three_in_a_row : -1 * three_in_a_row);
 				}
 			}
 		}
@@ -288,7 +288,7 @@ public abstract class Search {
 				if(		board[col][row] != p_empty_space_number &&
 						board[col][row] == board[col+1][row+1] &&
 						board[col][row] == board[col+2][row+2] ){
-					utility += (board[col][row] == p_computer_number ? three_in_a_row : -1 * three_in_a_row);
+					utility += (board[col][row] == p_player_number ? three_in_a_row : -1 * three_in_a_row);
 				}
 			}
 		}
@@ -299,7 +299,7 @@ public abstract class Search {
 				if(		board[col][row] != p_empty_space_number &&
 						board[col][row] == board[col+1][row] &&
 						board[col][row] == board[col+2][row] ){
-					utility += (board[col][row] == p_computer_number ? three_in_a_row : -1 * three_in_a_row);
+					utility += (board[col][row] == p_player_number ? three_in_a_row : -1 * three_in_a_row);
 				}
 			}
 		}		
