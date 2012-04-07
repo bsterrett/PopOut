@@ -10,7 +10,7 @@ public class Minimax extends Search {
 	public Minimax(BoardState board){
 		super(board);
 		p_heuristic = 3;
-		p_depth = 6;
+		p_depth = 5;
 	}
 	
 	public Minimax(BoardState board, short depth, short heuristic){
@@ -21,7 +21,6 @@ public class Minimax extends Search {
 	
 	public void make_next_move(){
 		// Call this to make the computer move
-		short depth = p_depth;
 		short alpha = -32000;
 		int best_move = -1;		
 		short current_board_short[][] = new short[p_column_count][p_row_count];
@@ -36,9 +35,9 @@ public class Minimax extends Search {
 		int utilities_iter = 0;
 		for(int i = 0; i < valid_next_moves.length; i++){
 			int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+			short temp_score = 0; //evaluate_move_two(current_board, valid_next_moves[i]);
 			if('D' == valid_next_moves[i].charAt(0)){
-				//this move is a drop
-				
+				//this move is a drop				
 				short temp_board[][] = new short[p_column_count][p_row_count];
 				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
 					for(int row_iter = 0; row_iter < p_row_count; row_iter++){
@@ -49,13 +48,8 @@ public class Minimax extends Search {
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical drop
-				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
-				move_utilities[utilities_iter++] = temp_score;
-				if(temp_score >= alpha){				
-					alpha = temp_score;
-					best_move = i;
-				}
-						
+				temp_score = minimax(next_board, p_depth, p_player_number, valid_next_moves[i]);
+				move_utilities[utilities_iter++] = temp_score;						
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
@@ -69,18 +63,19 @@ public class Minimax extends Search {
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical pop
-				short temp_score = minimax(next_board, depth-1, p_player_number, valid_next_moves[i]);
+				temp_score += minimax(next_board, p_depth, p_player_number, valid_next_moves[i]);
 				move_utilities[utilities_iter++] = temp_score;
-				if(temp_score >= alpha){				
-					alpha = temp_score;
-					best_move = i;
-				}
 			}
 			else{
 				//this move is not recognized
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
+			}			
+			if(temp_score > alpha){	
+				//if this move is better than the best known move so far, update it to this move
+				alpha = temp_score;
+				best_move = i;
 			}
-			if(p_depth > 6 && i != valid_next_moves.length-1 )	System.out.printf("Computer is %2d percent done with search.%n", ((100*(i+1))/valid_next_moves.length));
+			if(p_depth > 5 && i != valid_next_moves.length-1 )	System.out.printf("Computer is %2d percent done with search.%n", ((100*(i+1))/valid_next_moves.length));
 		}
 		
 		if(best_move == -1){
@@ -111,11 +106,11 @@ public class Minimax extends Search {
 		if(depth <= 0 || current_board.compute_win() != p_empty_space_number){
 			switch(p_heuristic){
 			case 1:
-				return evaluate_board_one(current_board);
+				return (short) (p_computer_number == turn ? evaluate_board_one(current_board) : -1 * evaluate_board_one(current_board));
 			case 2:
 				return evaluate_board_two(current_board);
 			case 3:
-				return evaluate_board_three(current_board, move);
+				return (short) (p_computer_number == turn ? evaluate_board_three(current_board, move) : -1 * evaluate_board_three(current_board, move));
 			case 101:
 				return evaluate_move_one(move);
 			case 102:
@@ -127,12 +122,8 @@ public class Minimax extends Search {
 		
 		
 		short alpha = 0;
-		if(p_player_number == turn){
-			alpha = 20000;
-		}
-		else if(p_computer_number == turn){
-			alpha = -20000;
-		}
+		if(		p_player_number == turn)	alpha = 20000;
+		else if(p_computer_number == turn)	alpha = -20000;
 		else{
 			System.err.println("Minimax is unsure of whose turn it is!");
 			return 0;
@@ -141,9 +132,10 @@ public class Minimax extends Search {
 		
 		final String valid_next_moves[] = current_board.get_available_moves(turn);
 		for(int i = 0; i < valid_next_moves.length; i++){
+			short temp_score = 0;
+			final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 			if('D' == valid_next_moves[i].charAt(0)){
-				//this move is a drop
-				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+				//this move is a drop				
 				short temp_board[][] = new short[p_column_count][p_row_count];
 				for(int col = 0; col < p_column_count; col++){
 					for(int row = 0; row < p_row_count; row++){
@@ -154,12 +146,10 @@ public class Minimax extends Search {
 				current_board.drop(move_col, turn);
 				current_board.set_state(temp_board);
 				//recursive call
-				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
-				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));	
+				temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);	
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
-				int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 				short temp_board[][] = new short[p_column_count][p_row_count];
 				for(int col = 0; col < p_column_count; col++){
 					for(int row = 0; row < p_row_count; row++){
@@ -170,19 +160,17 @@ public class Minimax extends Search {
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				//recursive call
-				short temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
-				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
+				temp_score = minimax(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);				
 			}
 			else{
 				//this move is not recognized
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 				return 0;
 			}
+			alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
 			alpha += 0;
 		}
-		return (short) (alpha-2);
-	}
-	
-	
+		return (short) (alpha);
+	}	
 
 }
