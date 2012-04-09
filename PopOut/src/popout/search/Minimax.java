@@ -108,7 +108,7 @@ public class Minimax extends Search {
 			case 1:
 				return (short) (p_computer_number == turn ? evaluate_board_one(current_board) : -1 * evaluate_board_one(current_board));
 			case 2:
-				return evaluate_board_two(current_board);
+				return (short) (p_computer_number == turn ? evaluate_board_two(current_board) : -1 * evaluate_board_two(current_board));
 			case 3:
 				return (short) (p_computer_number == turn ? evaluate_board_three(current_board, move) : -1 * evaluate_board_three(current_board, move));
 			case 101:
@@ -116,7 +116,7 @@ public class Minimax extends Search {
 			case 102:
 				return evaluate_move_two(current_board, move);
 			default:
-				return evaluate_board_three(current_board, move);
+				return (short) (p_computer_number == turn ? evaluate_board_three(current_board, move) : -1 * evaluate_board_three(current_board, move));
 			}			
 		}
 		
