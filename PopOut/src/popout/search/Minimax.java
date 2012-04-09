@@ -11,8 +11,8 @@ public class Minimax extends Search {
 	
 	public Minimax(BoardState board){
 		super(board);
-		p_heuristic = 3;
-		p_depth = 4;
+		p_heuristic = 500;
+		p_depth = 3;
 		debug_leaf = 0;
 		debug_node = 0;
 	}

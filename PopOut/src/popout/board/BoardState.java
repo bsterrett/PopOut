@@ -205,7 +205,7 @@ public class BoardState {
 			return_size = 1;
 			break;
 		default:
-			return_size = 1;
+			return_size = -1;
 			break;
 		}
 		String return_string[] = new String[return_size];

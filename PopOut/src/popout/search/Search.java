@@ -358,6 +358,7 @@ public abstract class Search {
 	}
 	
 	protected final short fake_utility(int debug_leaf){
+		debug_leaf += 0;
 		switch(debug_leaf){
 		case 0:
 			return 5;
