@@ -6,17 +6,23 @@ public class Minimax extends Search {
 	
 	protected final short p_heuristic;
 	protected final short p_depth;
+	protected int debug_leaf;
+	protected int debug_node;
 	
 	public Minimax(BoardState board){
 		super(board);
 		p_heuristic = 3;
 		p_depth = 5;
+		debug_leaf = 0;
+		debug_node = 0;
 	}
 	
 	public Minimax(BoardState board, short depth, short heuristic){
 		super(board);
 		p_heuristic = heuristic;
 		p_depth = depth;
+		debug_leaf = 0;
+		debug_node = 0;
 	}
 	
 	public void make_next_move(){
@@ -115,6 +121,9 @@ public class Minimax extends Search {
 				return evaluate_move_one(move);
 			case 102:
 				return evaluate_move_two(current_board, move);
+			case 500:
+				//debugging utility function
+				return fake_utility(debug_leaf++);
 			default:
 				return (short) (p_computer_number == turn ? evaluate_board_three(current_board, move) : -1 * evaluate_board_three(current_board, move));
 			}			
