@@ -307,56 +307,6 @@ public abstract class Search {
 		return utility;
 	}
 	
-	protected final short evaluate_move_one(final String move){
-		// This is only valid for 7 column boards
-		// This was designed for Connect 4, not Pop Out
-		// In fact, this is probably a horrible heuristic for Pop Out
-		int move_col = Integer.parseInt(move.substring(2));
-		switch(move_col){
-		case 0:
-			return 3;
-		case 1:
-			return 4;
-		case 2:
-			return 5;
-		case 3:
-			return 7;
-		case 4:
-			return 5;
-		case 5:
-			return 4;
-		case 6:
-			return 3;
-		default:
-			System.err.println("Tried to evaluate a move into an invalid column!");
-			return 0;			
-		}
-	}
-	
-	protected final short evaluate_move_two(final BoardState target_board, final String move){
-		//This gives small points for drops which will allow for a pop in the future
-		//or for pops which will not prevent a pop in the future.
-		
-		//Since target_board already has the move applied, this will check for an empty space in the second-lowest row, not lowest row
-		int move_col = Integer.parseInt(move.substring(2));
-		if(		p_empty_space_number == target_board.get_state()[move_col][1] &&
-				'D' == move.charAt(0)){
-			//The computer must have just put its chip in board[move_col][0]
-			return 2;
-		}
-		else if('P' == move.charAt(0)){
-			if(		p_computer_number == target_board.get_state()[move_col][1]){
-				//This is a somewhat safe pop because it will allow for another pop in the future
-				return 1;
-			}
-			else if(p_player_number == target_board.get_state()[move_col][1]){
-				//This is not a safe pop because it allows the opposing player the ability to pop this column
-				return -1;
-			}
-		}
-		return 0;
-	}
-	
 	public final short evaluate_board_four(final BoardState target_board, final String move){
 		final short board[][] = target_board.get_state();
 		final int column_count = board.length;
@@ -514,7 +464,57 @@ public abstract class Search {
 		utility += 0;
 		return utility;
 	}
-
+	
+	protected final short evaluate_move_one(final String move){
+		// This is only valid for 7 column boards
+		// This was designed for Connect 4, not Pop Out
+		// In fact, this is probably a horrible heuristic for Pop Out
+		int move_col = Integer.parseInt(move.substring(2));
+		switch(move_col){
+		case 0:
+			return 3;
+		case 1:
+			return 4;
+		case 2:
+			return 5;
+		case 3:
+			return 7;
+		case 4:
+			return 5;
+		case 5:
+			return 4;
+		case 6:
+			return 3;
+		default:
+			System.err.println("Tried to evaluate a move into an invalid column!");
+			return 0;			
+		}
+	}
+	
+	protected final short evaluate_move_two(final BoardState target_board, final String move){
+		//This gives small points for drops which will allow for a pop in the future
+		//or for pops which will not prevent a pop in the future.
+		
+		//Since target_board already has the move applied, this will check for an empty space in the second-lowest row, not lowest row
+		int move_col = Integer.parseInt(move.substring(2));
+		if(		p_empty_space_number == target_board.get_state()[move_col][1] &&
+				'D' == move.charAt(0)){
+			//The computer must have just put its chip in board[move_col][0]
+			return 2;
+		}
+		else if('P' == move.charAt(0)){
+			if(		p_computer_number == target_board.get_state()[move_col][1]){
+				//This is a somewhat safe pop because it will allow for another pop in the future
+				return 1;
+			}
+			else if(p_player_number == target_board.get_state()[move_col][1]){
+				//This is not a safe pop because it allows the opposing player the ability to pop this column
+				return -1;
+			}
+		}
+		return 0;
+	}
+	
 }
 
 
