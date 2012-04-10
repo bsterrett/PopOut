@@ -7,81 +7,42 @@ import popout.search.*;
 import popout.ui.*;
 
 public class Control {
-
-	public static void main(String[] args) {
-		final short empty_space_number = 0;
-		final short player_number = 1;
-		final short computer_number = 2;
-		
-		BoardState B = new BoardState(6, 7);
-		CLDisplay C = new CLDisplay(6, 7, B);
-		Search M = new Minimax(B, empty_space_number, player_number, computer_number);
-		Scanner scan = new Scanner(System.in); 
-
-
-		while(B.compute_win() == 0){
-			System.out.println("Next move? (Format: 'X Y' where X is D or P and Y is 0-6)");
-			boolean user_input_valid = false;
-			while(!user_input_valid){
-				String user_input = scan.nextLine();
-				if(user_input.length() > 0 && 'D' == user_input.toUpperCase().charAt(0)){
-					user_input_valid = B.drop(Integer.parseInt(user_input.substring(1).trim()), player_number);					
-				}
-				else if(user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)){
-					user_input_valid = B.pop(Integer.parseInt(user_input.substring(1).trim()), player_number);					
-				}
-				else{
-					System.err.println("Invalid user input!");
-				}
+	private static BoardState p_board;
+	private static CLDisplay p_display;
+	private static Search p_search;
+	private static short p_empty_space_number;
+	private static short p_player_number;
+	private static short p_computer_number;
+	
+	private static void init(){
+		p_empty_space_number = 0;
+		p_player_number = 1;
+		p_computer_number = 2;		
+		p_board = new BoardState(6, 7);
+		p_display = new CLDisplay(6, 7, p_board);
+		p_search = new Minimax(p_board, p_empty_space_number, p_player_number, p_computer_number);
+	}
+	
+	private static void get_player_move(){
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Next move? (Format: 'X Y' where X is D or P and Y is 0-6)");
+		boolean user_input_valid = false;
+		while(!user_input_valid){
+			String user_input = scan.nextLine();
+			if(user_input.length() > 0 && 'D' == user_input.toUpperCase().charAt(0)){
+				user_input_valid = p_board.drop(Integer.parseInt(user_input.substring(1).trim()), p_player_number);					
 			}
-			if(B.compute_win() != 0){
-				System.out.println(C.toString());
-				break;
+			else if(user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)){
+				user_input_valid = p_board.pop(Integer.parseInt(user_input.substring(1).trim()), p_player_number);					
 			}
-			M.make_next_move();
-			System.out.println(C.toString());			
+			else{
+				System.err.println("Invalid user input!");
+			}
 		}
-		
-/*		while(B.compute_win() != 4){
-			System.out.println("Player move? (Format: 'X Y' where X is D or P and Y is 0-6)");
-			boolean user_input_valid = false;
-			while(!user_input_valid){
-				String user_input = scan.nextLine();
-				if(user_input.length() > 0 && 'D' == user_input.toUpperCase().charAt(0)){
-					user_input_valid = B.drop(Integer.parseInt(user_input.substring(1).trim()), player_number);					
-				}
-				else if(user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)){
-					user_input_valid = B.pop(Integer.parseInt(user_input.substring(1).trim()), player_number);					
-				}
-				else if(user_input.length() > 0 && 'E' == user_input.toUpperCase().charAt(0)){
-					System.out.println("Current board utility for computer: " + M.evaluate_board_four(B, ""));
-				}
-				else{
-					System.err.println("Invalid user input!");
-				}
-			}
-			System.out.println(C.toString());
-			System.out.println("Computer move? (Format: 'X Y' where X is D or P and Y is 0-6)");
-			user_input_valid = false;
-			while(!user_input_valid){
-				String user_input = scan.nextLine();
-				if(user_input.length() > 0 && 'D' == user_input.toUpperCase().charAt(0)){
-					user_input_valid = B.drop(Integer.parseInt(user_input.substring(1).trim()), computer_number);					
-				}
-				else if(user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)){
-					user_input_valid = B.pop(Integer.parseInt(user_input.substring(1).trim()), computer_number);					
-				}
-				else if(user_input.length() > 0 && 'E' == user_input.toUpperCase().charAt(0)){
-					System.out.println("Current board utility for computer: " + M.evaluate_board_four(B, ""));
-				}
-				else{
-					System.err.println("Invalid user input!");
-				}
-			}
-			System.out.println(C.toString());			
-		}*/
-		
-		switch(B.compute_win()){
+	}
+	
+	private static void print_winner(){
+		switch(p_board.compute_win()){
 		case 0:
 			System.out.println("No winner. Maybe a draw. Who knows. This shouldn't happen.");
 			break;
@@ -94,6 +55,20 @@ public class Control {
 		default:
 			System.err.println("Not sure who won.");				
 		}
+	}
+
+	public static void main(String[] args) {
+		init();
+		while(p_board.compute_win() == 0){
+			get_player_move();
+			if(p_board.compute_win() != 0){
+				System.out.println(p_display.toString());
+				break;
+			}
+			p_search.get_computer_move();
+			System.out.println(p_display.toString());			
+		}
+		print_winner();
 	}
 
 }

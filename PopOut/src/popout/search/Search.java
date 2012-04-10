@@ -23,7 +23,7 @@ public abstract class Search {
 		p_random = new Random(System.nanoTime());
 	}
 	
-	public void make_next_move(){
+	public void get_computer_move(){
 		//this should do something if called by a particular search algorithm
 		System.err.println("Called generic Search.make_next_move(), need to specify search type!");
 	}

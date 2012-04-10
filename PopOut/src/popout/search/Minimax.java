@@ -21,7 +21,7 @@ public class Minimax extends Search {
 		p_depth = depth;
 	}
 	
-	public void make_next_move(){
+	public void get_computer_move(){
 		// Call this to make the computer move
 		short alpha = -32000;
 		ArrayList<String> best_moves = new ArrayList<String>();
