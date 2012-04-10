@@ -7,23 +7,17 @@ public class Minimax extends Search {
 	
 	protected final short p_heuristic;
 	protected final short p_depth;
-	protected int debug_leaf;
-	protected int debug_node;
 	
 	public Minimax(BoardState board){
 		super(board);
 		p_heuristic = 4;
-		p_depth = 5;
-		debug_leaf = 0;
-		debug_node = 0;
+		p_depth = 6;
 	}
 	
 	public Minimax(BoardState board, short depth, short heuristic){
 		super(board);
 		p_heuristic = heuristic;
 		p_depth = depth;
-		debug_leaf = 0;
-		debug_node = 0;
 	}
 	
 	public void make_next_move(){
@@ -96,13 +90,14 @@ public class Minimax extends Search {
 			System.err.println("Something bad happened during minimax search!");
 		}
 		else{
-			//the search returned a best move, now carrying it out on the actual game board
+			//the search found one or more best moves, committing to a random one
 			int random_best = p_random.nextInt(best_moves.size());
 			if('D' == best_moves.get(random_best).charAt(0)) p_board.drop(Integer.parseInt(best_moves.get(random_best).substring(2)), p_computer_number);
 			if('P' == best_moves.get(random_best).charAt(0)) p_board.pop(Integer.parseInt(best_moves.get(random_best).substring(2)), p_computer_number);
 		}
 		for(int i = 0; i < valid_next_moves.length; i++){
-			System.out.print(valid_next_moves[i] + "  " + move_utilities[i] + "    ");
+			//for debugging
+			System.out.print(valid_next_moves[i] + " : " + move_utilities[i] + "     ");
 		}
 		System.out.println("");
 	}
@@ -120,20 +115,17 @@ public class Minimax extends Search {
 		if(depth <= 0 || current_board.compute_win() != p_empty_space_number){
 			switch(p_heuristic){
 			case 1:
-				return (short) (p_computer_number == turn ? evaluate_board_one(current_board) : -1 * evaluate_board_one(current_board));
+				return evaluate_board_one(current_board);
 			case 2:
-				return (short) (p_computer_number == turn ? evaluate_board_two(current_board) : -1 * evaluate_board_two(current_board));
+				return evaluate_board_two(current_board);
 			case 3:
-				return (short) (p_computer_number == turn ? evaluate_board_three(current_board, move) : -1 * evaluate_board_three(current_board, move));
+				return evaluate_board_three(current_board, move);
 			case 4:
 				return evaluate_board_four(current_board, move);
 			case 101:
 				return evaluate_move_one(move);
 			case 102:
 				return evaluate_move_two(current_board, move);
-			case 500:
-				//debugging utility function
-				return fake_utility(debug_leaf++);
 			default:
 				return evaluate_board_four(current_board, move);
 			}
@@ -189,7 +181,7 @@ public class Minimax extends Search {
 			alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
 			alpha += 0;
 		}
-		return (short) (alpha-0);
+		return alpha;
 	}	
 
 }

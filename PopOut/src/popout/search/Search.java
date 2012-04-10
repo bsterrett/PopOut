@@ -339,11 +339,12 @@ public abstract class Search {
 		//or for pops which will not prevent a pop in the future.
 		
 		//Since target_board already has the move applied, this will check for an empty space in the second-lowest row, not lowest row
-		
+		int dumb = 0;
 		int move_col = Integer.parseInt(move.substring(2));
 		if(		p_empty_space_number == target_board.get_state()[move_col][1] &&
 				'D' == move.charAt(0)){
 			//The computer must have just put its chip in board[move_col][0]
+			dumb += 0;
 			return 2;
 		}
 		else if('P' == move.charAt(0)){
@@ -366,8 +367,8 @@ public abstract class Search {
 		final int connect_3 = 3;
 		final int connect_4 = 100;
 		final int connect_5 = (short) (-1 * connect_4 + 10);
-		short utility = 0;
-		//short utility = evaluate_move_two(target_board, move);
+		//short utility = 0;
+		short utility = evaluate_move_two(target_board, move);
 		
 		//check up and left for 5 in a row
 		for(int col = 4; col < column_count; col++){
@@ -515,42 +516,7 @@ public abstract class Search {
 		utility += 0;
 		return utility;
 	}
-	
-	protected final short fake_utility(int debug_leaf){
-		debug_leaf += 0;
-		switch(debug_leaf){
-		case 0:
-			return 5;
-		case 1:
-			return 6;
-		case 2:
-			return 7;
-		case 3:
-			return 4;
-		case 4:
-			return 5;
-		case 5:
-			return 3;
-		case 6:
-			return 6;
-		case 7:
-			return 6;
-		case 8:
-			return 9;
-		case 9:
-			return 7;
-		case 10:
-			return 5;
-		case 11:
-			return 9;
-		case 12:
-			return 8;
-		case 13:
-			return 6;
-		default:
-			return -1;
-		}
-	}
+
 }
 
 
