@@ -357,6 +357,162 @@ public abstract class Search {
 		return 0;
 	}
 	
+	public final short evaluate_board_four(final BoardState target_board, final String move){
+		final short board[][] = target_board.get_state();
+		final int column_count = board.length;
+		final int row_count = board[0].length;
+		final int connect_3 = 3;
+		final int connect_4 = 100;
+		final int connect_5 = -90;
+		short utility = 0;
+		//short utility = evaluate_move_two(target_board, move);
+		
+		//check up and left for 5 in a row
+		for(int col = 4; col < column_count; col++){
+			for(int row = 0; row < row_count-4; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col-1][row+1] &&
+						board[col][row] == board[col-2][row+2] &&
+						board[col][row] == board[col-3][row+3] &&
+						board[col][row] == board[col-4][row+4] ){
+					utility += (board[col][row] == p_computer_number ? connect_5 : -1 * connect_5 );
+				}
+			}
+		}
+		
+		//check straight up for 5 in a row
+		for(int col = 0; col < column_count; col++){
+			for(int row = 0; row < row_count-4; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col][row+1] &&
+						board[col][row] == board[col][row+2] &&
+						board[col][row] == board[col][row+3] &&
+						board[col][row] == board[col][row+4] ){
+					utility += (board[col][row] == p_computer_number ? connect_5 : -1 * connect_5 );
+				}
+			}
+		}
+		
+		//check up and right for 5 in a row
+		for(int col = 0; col < column_count-4; col++){
+			for(int row = 0; row < row_count-4; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col+1][row+1] &&
+						board[col][row] == board[col+2][row+2] &&
+						board[col][row] == board[col+3][row+3] &&
+						board[col][row] == board[col+4][row+4] ){
+					utility += (board[col][row] == p_computer_number ? connect_5 : -1 * connect_5 );
+				}
+			}
+		}
+		
+		//check straight right for 5 in a row
+		for(int col = 0; col < column_count-4; col++){
+			for(int row = 0; row < row_count; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+2][row] &&
+						board[col][row] == board[col+3][row] &&
+						board[col][row] == board[col+4][row] ){
+					utility += (board[col][row] == p_computer_number ? connect_5 : -1 * connect_5 );
+				}
+			}
+		}
+		
+		//check up and left for 4 in a row
+		for(int col = 3; col < column_count; col++){
+			for(int row = 0; row < row_count-3; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col-1][row+1] &&
+						board[col][row] == board[col-2][row+2] &&
+						board[col][row] == board[col-3][row+3] ){
+					utility += (board[col][row] == p_computer_number ? connect_4  : -1 * connect_4 );
+				}
+			}
+		}
+		
+		//check straight up for 4 in a row
+		for(int col = 0; col < column_count; col++){
+			for(int row = 0; row < row_count-3; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col][row+1] &&
+						board[col][row] == board[col][row+2] &&
+						board[col][row] == board[col][row+3] ){
+					utility += (board[col][row] == p_computer_number ? connect_4 : -1 * connect_4 );
+				}
+			}
+		}
+		
+		//check up and right for 4 in a row
+		for(int col = 0; col < column_count-3; col++){
+			for(int row = 0; row < row_count-3; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col+1][row+1] &&
+						board[col][row] == board[col+2][row+2] &&
+						board[col][row] == board[col+3][row+3] ){
+					utility += (board[col][row] == p_computer_number ? connect_4 : -1 * connect_4 );
+				}
+			}
+		}
+		
+		//check right for 4 in a row		
+		for(int col = 0; col < column_count-3; col++){
+			for(int row = 0; row < row_count; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+2][row] &&
+						board[col][row] == board[col+3][row] ){
+					utility += (board[col][row] == p_computer_number ? connect_4 : -1 * connect_4 );
+				}
+			}
+		}
+		
+		//check up and left for 3 in a row
+		for(int col = 2; col < column_count; col++){
+			for(int row = 0; row < row_count-2; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col-1][row+1] &&
+						board[col][row] == board[col-2][row+2] ){
+					utility += (board[col][row] == p_computer_number ? connect_3 : -1 * connect_3);
+				}
+			}
+		}
+		
+		//check straight up for 3 in a row
+		for(int col = 0; col < column_count; col++){
+			for(int row = 0; row < row_count-2; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col][row+1] &&
+						board[col][row] == board[col][row+2] ){
+					utility += (board[col][row] == p_computer_number ? connect_3 : -1 * connect_3);
+				}
+			}
+		}
+		
+		//check up and right for 3 in a row
+		for(int col = 0; col < column_count-2; col++){
+			for(int row = 0; row < row_count-2; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col+1][row+1] &&
+						board[col][row] == board[col+2][row+2] ){
+					utility += (board[col][row] == p_computer_number ? connect_3 : -1 * connect_3);
+				}
+			}
+		}
+		
+		//check right for 3 in a row
+		for(int col = 0; col < column_count-3; col++){
+			for(int row = 0; row < row_count; row++){
+				if(		board[col][row] != p_empty_space_number &&
+						board[col][row] == board[col+1][row] &&
+						board[col][row] == board[col+2][row] ){
+					utility += (board[col][row] == p_computer_number ? connect_3 : -1 * connect_3);
+				}
+			}
+		}		
+		return utility;
+	}
+	
 	protected final short fake_utility(int debug_leaf){
 		debug_leaf += 0;
 		switch(debug_leaf){

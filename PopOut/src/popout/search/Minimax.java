@@ -11,8 +11,8 @@ public class Minimax extends Search {
 	
 	public Minimax(BoardState board){
 		super(board);
-		p_heuristic = 500;
-		p_depth = 3;
+		p_heuristic = 4;
+		p_depth = 5;
 		debug_leaf = 0;
 		debug_node = 0;
 	}
@@ -36,8 +36,8 @@ public class Minimax extends Search {
 			}
 		}
 		BoardState current_board = new BoardState(current_board_short);
-		final String valid_next_moves[] = current_board.fake_next_moves(debug_node++, p_computer_number);
-		//final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);	
+		//final String valid_next_moves[] = current_board.fake_next_moves(debug_node++, p_computer_number);
+		final String valid_next_moves[] = current_board.get_available_moves(p_computer_number);	
 		final short move_utilities[] = new short[valid_next_moves.length];
 		int utilities_iter = 0;
 		for(int i = 0; i < valid_next_moves.length; i++){
@@ -118,6 +118,8 @@ public class Minimax extends Search {
 				return (short) (p_computer_number == turn ? evaluate_board_two(current_board) : -1 * evaluate_board_two(current_board));
 			case 3:
 				return (short) (p_computer_number == turn ? evaluate_board_three(current_board, move) : -1 * evaluate_board_three(current_board, move));
+			case 4:
+				return (short) (p_computer_number == turn ? evaluate_board_four(current_board, move) : -1 * evaluate_board_four(current_board, move));
 			case 101:
 				return evaluate_move_one(move);
 			case 102:
@@ -140,8 +142,8 @@ public class Minimax extends Search {
 		}
 		
 		
-		//final String valid_next_moves[] = current_board.get_available_moves(turn);
-		final String valid_next_moves[] = current_board.fake_next_moves(debug_node++, turn);
+		final String valid_next_moves[] = current_board.get_available_moves(turn);
+		//final String valid_next_moves[] = current_board.fake_next_moves(debug_node++, turn);
 		for(int i = 0; i < valid_next_moves.length; i++){
 			short temp_score = 0;
 			final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
