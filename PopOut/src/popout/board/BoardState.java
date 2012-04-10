@@ -129,19 +129,47 @@ public class BoardState {
 		int valid_move_count = 0;
 		for(int i = 0; i < p_column_count; i++){
 			if(valid_pop(i,player)) valid_move_count++;
-		}
-		for(int i = 0; i < p_column_count; i++){
 			if(valid_drop(i)) valid_move_count++;
 		}
 		String move_list[] = new String[valid_move_count];
 		int move_write_count = 0;
 		for(int i = 0; i < p_column_count; i++){
 			if(valid_pop(i,player)) move_list[move_write_count++] = "P " + String.valueOf(i);
-		}
-		for(int i = 0; i < p_column_count; i++){
 			if(valid_drop(i)) move_list[move_write_count++] = "D " + String.valueOf(i); 
 		}
 		return move_list;		
+	}
+	
+	public String[] get_ordered_available_moves(short player){
+		//This only works if there are 7 columns!
+		if(p_column_count != 7){
+			System.err.println("Tried to get an ordered list of moves with a strange board size!");
+			return get_available_moves(player);
+		}
+		else{
+			int valid_move_count = 0;
+			int best_order[] = new int[7];
+			best_order[0] = 3;
+			best_order[1] = 4;
+			best_order[2] = 2;
+			best_order[3] = 1;
+			best_order[4] = 5;
+			best_order[5] = 6;
+			best_order[6] = 0;
+			for(int i = 0; i < 7; i++){
+				if(valid_drop(best_order[i])) 		valid_move_count++;
+				if(valid_pop(best_order[i],player))	valid_move_count++;
+			}
+			String move_list[] = new String[valid_move_count];
+			int move_write_count = 0;
+			for(int i = 0; i < 7; i++){
+				if(valid_drop(best_order[i]))		move_list[move_write_count++] = "D " + String.valueOf(best_order[i]);
+			}
+			for(int i = 0; i < 7; i++){
+				if(valid_pop(best_order[i],player))	move_list[move_write_count++] = "P " + String.valueOf(best_order[i]);
+			}
+			return move_list;
+		}
 	}
 
 }
