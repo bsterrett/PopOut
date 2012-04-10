@@ -1,7 +1,7 @@
 package popout.search;
 
 import popout.board.BoardState;
-import popout.ui.CLDisplay;
+import java.util.ArrayList;
 
 public class Minimax extends Search {
 	
@@ -29,7 +29,7 @@ public class Minimax extends Search {
 	public void make_next_move(){
 		// Call this to make the computer move
 		short alpha = -32000;
-		int best_move = -1;		
+		ArrayList<String> best_moves = new ArrayList<String>();
 		short current_board_short[][] = new short[p_column_count][p_row_count];
 		for(int col_iter = 0; col_iter < p_column_count; col_iter++){
 			for(int row_iter = 0; row_iter < p_row_count; row_iter++){
@@ -79,21 +79,27 @@ public class Minimax extends Search {
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 			}			
 			if(temp_score > alpha){	
-				//if this move is better than the best known move so far, update it to this move
+				//if this move is better than the best known move so far, change the list of best moves to be only this move
 				alpha = temp_score;
-				best_move = i;
+				best_moves.clear();
+				best_moves.add(valid_next_moves[i]);
+			}
+			else if(temp_score == alpha){
+				//if this move equals the best known move so far, add it to the list of best moves
+				best_moves.add(valid_next_moves[i]);
 			}
 			if(p_depth > 5 && i != valid_next_moves.length-1 )	System.out.printf("Computer is %2d percent done with search.%n", ((100*(i+1))/valid_next_moves.length));
 		}
 		
-		if(best_move == -1){
+		if(1 > best_moves.size()){
 			//couldn't find a best move or something
 			System.err.println("Something bad happened during minimax search!");
 		}
 		else{
 			//the search returned a best move, now carrying it out on the actual game board
-			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
-			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
+			int random_best = p_random.nextInt(best_moves.size());
+			if('D' == best_moves.get(random_best).charAt(0)) p_board.drop(Integer.parseInt(best_moves.get(random_best).substring(2)), p_computer_number);
+			if('P' == best_moves.get(random_best).charAt(0)) p_board.pop(Integer.parseInt(best_moves.get(random_best).substring(2)), p_computer_number);
 		}
 		for(int i = 0; i < valid_next_moves.length; i++){
 			System.out.print(valid_next_moves[i] + "  " + move_utilities[i] + "    ");

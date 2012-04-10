@@ -1,6 +1,7 @@
 package popout.search;
 
 import popout.board.BoardState;
+import java.util.Random;
 
 public abstract class Search {
 
@@ -10,6 +11,7 @@ public abstract class Search {
 	protected final short p_empty_space_number;
 	protected final int p_column_count;
 	protected final int p_row_count;
+	protected Random p_random;
 	
 	public Search(BoardState board){
 		p_board = board;
@@ -18,7 +20,7 @@ public abstract class Search {
 		p_computer_number = 2;
 		p_column_count = p_board.get_state().length;
 		p_row_count = p_board.get_state()[0].length;
-		
+		p_random = new Random(System.nanoTime());
 	}
 	
 	public void make_next_move(){
