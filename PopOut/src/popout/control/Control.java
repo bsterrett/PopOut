@@ -9,12 +9,15 @@ import popout.ui.*;
 public class Control {
 
 	public static void main(String[] args) {
-		BoardState B = new BoardState(6, 7);
-		CLDisplay C = new CLDisplay(6, 7, B);
-		Search M = new Minimax(B);
-		Scanner scan = new Scanner(System.in); 
+		final short empty_space_number = 0;
 		final short player_number = 1;
 		final short computer_number = 2;
+		
+		BoardState B = new BoardState(6, 7);
+		CLDisplay C = new CLDisplay(6, 7, B);
+		Search M = new Minimax(B, empty_space_number, player_number, computer_number);
+		Scanner scan = new Scanner(System.in); 
+
 
 		while(B.compute_win() == 0){
 			System.out.println("Next move? (Format: 'X Y' where X is D or P and Y is 0-6)");

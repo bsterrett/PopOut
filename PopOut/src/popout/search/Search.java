@@ -13,11 +13,11 @@ public abstract class Search {
 	protected final int p_row_count;
 	protected Random p_random;
 	
-	public Search(BoardState board){
+	public Search(BoardState board, final short empty_space_number, final short player_number, final short computer_number){
 		p_board = board;
-		p_empty_space_number = 0;
-		p_player_number = 1;
-		p_computer_number = 2;
+		p_empty_space_number = empty_space_number;
+		p_player_number = player_number;
+		p_computer_number = computer_number;
 		p_column_count = p_board.get_state().length;
 		p_row_count = p_board.get_state()[0].length;
 		p_random = new Random(System.nanoTime());
@@ -210,7 +210,6 @@ public abstract class Search {
 		final int row_count = board[0].length;
 		final int connect_4 = 100;
 		final int three_in_a_row = 3;
-		final int scary_loss_factor = 0;
 		short utility = 0;
 		
 		//check up and left for 4 in a row

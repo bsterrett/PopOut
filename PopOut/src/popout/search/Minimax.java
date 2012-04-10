@@ -8,14 +8,15 @@ public class Minimax extends Search {
 	protected final short p_heuristic;
 	protected final short p_depth;
 	
-	public Minimax(BoardState board){
-		super(board);
+	public Minimax(BoardState board, final short empty_space_number, final short player_number, final short computer_number){
+		super(board, empty_space_number, player_number, computer_number);
 		p_heuristic = 4;
 		p_depth = 5;
 	}
 	
-	public Minimax(BoardState board, short depth, short heuristic){
-		super(board);
+	public Minimax(	BoardState board, final short empty_space_number, final short player_number, final short computer_number,
+					final short depth, final short heuristic){
+		super(board, empty_space_number, player_number, computer_number);
 		p_heuristic = heuristic;
 		p_depth = depth;
 	}
