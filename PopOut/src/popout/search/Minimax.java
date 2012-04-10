@@ -32,7 +32,6 @@ public class Minimax extends Search {
 			}
 		}
 		BoardState current_board = new BoardState(current_board_short);
-		//final String valid_next_moves[] = current_board.fake_next_moves(debug_node++, p_computer_number);
 		final String valid_next_moves[] = current_board.get_ordered_available_moves(p_computer_number);	
 		final short move_utilities[] = new short[valid_next_moves.length];
 		int utilities_iter = 0;
@@ -180,7 +179,6 @@ public class Minimax extends Search {
 				return 0;
 			}
 			alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
-			alpha += 0;
 		}
 		return alpha;
 	}	

@@ -21,6 +21,7 @@ public class Control {
 		p_board = new BoardState(6, 7);
 		p_display = new CLDisplay(6, 7, p_board);
 		p_search = new Minimax(p_board, p_empty_space_number, p_player_number, p_computer_number);
+		//p_search = new AlphaBeta(p_board, p_empty_space_number, p_player_number, p_computer_number);
 	}
 	
 	private static void get_player_move(){
