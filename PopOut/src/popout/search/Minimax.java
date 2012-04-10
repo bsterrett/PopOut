@@ -1,6 +1,7 @@
 package popout.search;
 
 import popout.board.BoardState;
+import popout.ui.CLDisplay;
 
 public class Minimax extends Search {
 	
@@ -119,7 +120,7 @@ public class Minimax extends Search {
 			case 3:
 				return (short) (p_computer_number == turn ? evaluate_board_three(current_board, move) : -1 * evaluate_board_three(current_board, move));
 			case 4:
-				return (short) (p_computer_number == turn ? evaluate_board_four(current_board, move) : -1 * evaluate_board_four(current_board, move));
+				return evaluate_board_four(current_board, move);
 			case 101:
 				return evaluate_move_one(move);
 			case 102:
@@ -128,10 +129,9 @@ public class Minimax extends Search {
 				//debugging utility function
 				return fake_utility(debug_leaf++);
 			default:
-				return (short) (p_computer_number == turn ? evaluate_board_three(current_board, move) : -1 * evaluate_board_three(current_board, move));
-			}			
-		}
-		
+				return evaluate_board_four(current_board, move);
+			}
+		}		
 		
 		short alpha = 0;
 		if(		p_player_number == turn)	alpha = 20000;
@@ -183,7 +183,7 @@ public class Minimax extends Search {
 			alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
 			alpha += 0;
 		}
-		return (short) (alpha);
+		return (short) (alpha-0);
 	}	
 
 }

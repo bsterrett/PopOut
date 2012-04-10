@@ -363,7 +363,7 @@ public abstract class Search {
 		final int row_count = board[0].length;
 		final int connect_3 = 3;
 		final int connect_4 = 100;
-		final int connect_5 = -90;
+		final int connect_5 = (short) (-1 * connect_4 + 10);
 		short utility = 0;
 		//short utility = evaluate_move_two(target_board, move);
 		
@@ -501,7 +501,7 @@ public abstract class Search {
 		}
 		
 		//check right for 3 in a row
-		for(int col = 0; col < column_count-3; col++){
+		for(int col = 0; col < column_count-2; col++){
 			for(int row = 0; row < row_count; row++){
 				if(		board[col][row] != p_empty_space_number &&
 						board[col][row] == board[col+1][row] &&
@@ -509,7 +509,8 @@ public abstract class Search {
 					utility += (board[col][row] == p_computer_number ? connect_3 : -1 * connect_3);
 				}
 			}
-		}		
+		}
+		utility += 0;
 		return utility;
 	}
 	
