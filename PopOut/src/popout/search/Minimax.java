@@ -14,7 +14,7 @@ public class Minimax extends Search {
 		super(board, empty_space_number, player_number, computer_number);
 		p_heuristic = 4;
 		p_depth = 5;
-		p_multithreaded = true;
+		p_multithreaded = false;
 		p_max_thread_runtime = 10000;
 	}
 	
