@@ -28,7 +28,7 @@ public abstract class Search {
 		System.err.println("Called generic Search.make_next_move(), need to specify search type!");
 	}
 	
-	protected final short evaluate_board_one(final BoardState target_board){
+	public final short evaluate_board_one(final BoardState target_board){
 		//Returns a poorly adjusted utility for the computer player
 		// 20 for computer win, -20 for player win
 		// 5, 10, 15   for    1, 2, 3   three-in-a-rows   respectively
@@ -99,7 +99,7 @@ public abstract class Search {
 		return (short) (positive_board_utility + negative_board_utility);
 	}
 	
-	protected final short evaluate_board_two(final BoardState target_board){
+	public final short evaluate_board_two(final BoardState target_board){
 		
 		// Dont use this, its bad!
 		
@@ -204,7 +204,7 @@ public abstract class Search {
 		return utility;
 	}
 	
-	protected final short evaluate_board_three(final BoardState target_board, final String move){
+	public final short evaluate_board_three(final BoardState target_board, final String move){
 		final short board[][] = target_board.get_state();
 		final int column_count = board.length;
 		final int row_count = board[0].length;
@@ -465,7 +465,7 @@ public abstract class Search {
 		return utility;
 	}
 	
-	protected final short evaluate_move_one(final String move){
+	public final short evaluate_move_one(final String move){
 		// This is only valid for 7 column boards
 		// This was designed for Connect 4, not Pop Out
 		// In fact, this is probably a horrible heuristic for Pop Out
@@ -491,7 +491,7 @@ public abstract class Search {
 		}
 	}
 	
-	protected final short evaluate_move_two(final BoardState target_board, final String move){
+	public final short evaluate_move_two(final BoardState target_board, final String move){
 		//This gives small points for drops which will allow for a pop in the future
 		//or for pops which will not prevent a pop in the future.
 		

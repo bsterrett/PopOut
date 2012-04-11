@@ -1,6 +1,5 @@
 package popout.search;
 
-import java.util.ArrayList;
 import popout.board.BoardState;
 
 public class AlphaBeta extends Search{
@@ -11,7 +10,7 @@ public class AlphaBeta extends Search{
 	public AlphaBeta(BoardState board, final short empty_space_number, final short player_number, final short computer_number){
 		super(board, empty_space_number, player_number, computer_number);
 		p_heuristic = 4;
-		p_depth = 5;
+		p_depth = 9;
 	}
 	
 	public AlphaBeta(	BoardState board, final short empty_space_number, final short player_number, final short computer_number,
@@ -24,7 +23,7 @@ public class AlphaBeta extends Search{
 	public void get_computer_move(){
 		short alpha = Short.MIN_VALUE;
 		short beta = Short.MAX_VALUE;
-		ArrayList<String> best_moves = new ArrayList<String>();
+		int best_move = -1;
 		short current_board_short[][] = new short[p_column_count][p_row_count];
 		for(int col_iter = 0; col_iter < p_column_count; col_iter++){
 			for(int row_iter = 0; row_iter < p_row_count; row_iter++){
@@ -76,25 +75,19 @@ public class AlphaBeta extends Search{
 			if(temp_score > alpha){	
 				//if this move is better than the best known move so far, change the list of best moves to be only this move
 				alpha = temp_score;
-				best_moves.clear();
-				best_moves.add(valid_next_moves[i]);
-			}
-			else if(temp_score == alpha){
-				//if this move equals the best known move so far, add it to the list of best moves
-				best_moves.add(valid_next_moves[i]);
+				best_move = i;
 			}
 			if(p_depth > 5 && i != valid_next_moves.length-1 )	System.out.printf("Computer is %2d percent done with search.%n", ((100*(i+1))/valid_next_moves.length));
 		}
 		
-		if(1 > best_moves.size()){
+		if(-1 == best_move){
 			//couldn't find a best move or something
 			System.err.println("Something bad happened during minimax search!");
 		}
 		else{
 			//the search found one or more best moves, committing to a random one
-			int random_best = p_random.nextInt(best_moves.size());
-			if('D' == best_moves.get(random_best).charAt(0)) p_board.drop(Integer.parseInt(best_moves.get(random_best).substring(2)), p_computer_number);
-			if('P' == best_moves.get(random_best).charAt(0)) p_board.pop(Integer.parseInt(best_moves.get(random_best).substring(2)), p_computer_number);
+			if('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
+			if('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 		}
 		for(int i = 0; i < valid_next_moves.length; i++){
 			//for debugging
@@ -135,7 +128,7 @@ public class AlphaBeta extends Search{
 		short alpha = start_alpha;
 		short beta = start_beta;
 		
-		final String valid_next_moves[] = current_board.get_available_moves(turn);
+		final String valid_next_moves[] = current_board.get_ordered_available_moves(turn);
 		//final String valid_next_moves[] = current_board.fake_next_moves(debug_node++, turn);
 		for(int i = 0; i < valid_next_moves.length; i++){
 			short temp_score = 0;
