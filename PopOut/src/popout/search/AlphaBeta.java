@@ -21,6 +21,88 @@ public class AlphaBeta extends Search{
 		p_depth = depth;
 	}
 	
+	public void get_computer_move(){
+		short alpha = Short.MIN_VALUE;
+		short beta = Short.MAX_VALUE;
+		ArrayList<String> best_moves = new ArrayList<String>();
+		short current_board_short[][] = new short[p_column_count][p_row_count];
+		for(int col_iter = 0; col_iter < p_column_count; col_iter++){
+			for(int row_iter = 0; row_iter < p_row_count; row_iter++){
+				current_board_short[col_iter][row_iter] = p_board.get_state()[col_iter][row_iter];
+			}
+		}
+		BoardState current_board = new BoardState(current_board_short);
+		final String valid_next_moves[] = current_board.get_ordered_available_moves(p_computer_number);	
+		final short move_utilities[] = new short[valid_next_moves.length];
+		int utilities_iter = 0;
+		for(int i = 0; i < valid_next_moves.length; i++){
+			int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+			short temp_score = 0; //evaluate_move_two(current_board, valid_next_moves[i]);
+			if('D' == valid_next_moves[i].charAt(0)){
+				//this move is a drop				
+				short temp_board[][] = new short[p_column_count][p_row_count];
+				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
+					for(int row_iter = 0; row_iter < p_row_count; row_iter++){
+						temp_board[col_iter][row_iter] = current_board.get_state()[col_iter][row_iter];
+					}
+				}
+				current_board.drop(move_col, p_computer_number);
+				short next_board[][] = current_board.get_state();
+				current_board.set_state(temp_board);
+				// recursively call minimax() for this hypothetical drop
+				temp_score = alpha_beta(next_board, p_depth, p_player_number, valid_next_moves[i], alpha, beta);
+				move_utilities[utilities_iter++] = temp_score;						
+			}
+			else if('P' == valid_next_moves[i].charAt(0)){
+				//this move is a pop
+				short temp_board[][] = new short[p_column_count][p_row_count];
+				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
+					for(int row_iter = 0; row_iter < p_row_count; row_iter++){
+						temp_board[col_iter][row_iter] = current_board.get_state()[col_iter][row_iter];
+					}
+				}
+				current_board.pop(move_col,p_computer_number);
+				short next_board[][] = current_board.get_state();
+				current_board.set_state(temp_board);
+				// recursively call minimax() for this hypothetical pop
+				temp_score += alpha_beta(next_board, p_depth, p_player_number, valid_next_moves[i], alpha, beta);
+				move_utilities[utilities_iter++] = temp_score;
+			}
+			else{
+				//this move is not recognized
+				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
+			}
+			
+			if(temp_score > alpha){	
+				//if this move is better than the best known move so far, change the list of best moves to be only this move
+				alpha = temp_score;
+				best_moves.clear();
+				best_moves.add(valid_next_moves[i]);
+			}
+			else if(temp_score == alpha){
+				//if this move equals the best known move so far, add it to the list of best moves
+				best_moves.add(valid_next_moves[i]);
+			}
+			if(p_depth > 5 && i != valid_next_moves.length-1 )	System.out.printf("Computer is %2d percent done with search.%n", ((100*(i+1))/valid_next_moves.length));
+		}
+		
+		if(1 > best_moves.size()){
+			//couldn't find a best move or something
+			System.err.println("Something bad happened during minimax search!");
+		}
+		else{
+			//the search found one or more best moves, committing to a random one
+			int random_best = p_random.nextInt(best_moves.size());
+			if('D' == best_moves.get(random_best).charAt(0)) p_board.drop(Integer.parseInt(best_moves.get(random_best).substring(2)), p_computer_number);
+			if('P' == best_moves.get(random_best).charAt(0)) p_board.pop(Integer.parseInt(best_moves.get(random_best).substring(2)), p_computer_number);
+		}
+		for(int i = 0; i < valid_next_moves.length; i++){
+			//for debugging
+			System.out.print(valid_next_moves[i] + " : " + move_utilities[i] + "     ");
+		}
+		System.out.println("");
+	}
+	
 	private final short alpha_beta(final short[][] test_board_short, final int depth, final short turn, final String move, final short start_alpha, final short start_beta ){
 		// Recursive function which will create a complete game tree up to a certain depth, then search the tree for good moves
 		short test_board_temp[][] = new short[p_column_count][p_row_count];		//paranoid sanitation of references, can probably remove for performance boost
