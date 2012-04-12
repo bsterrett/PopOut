@@ -75,7 +75,13 @@ public class BoardState {
 	}
 
 	public short[][] get_state() {
-		return p_current_state;
+		final short[][] return_state = new short[p_column_count][p_row_count];
+		for(int col = 0; col < p_column_count; col++){
+			for(int row = 0; row < p_row_count; row++){
+				return_state[col][row] = p_current_state[col][row];
+			}
+		}
+		return return_state;
 	}
 	
 	public short get_moves_so_far(){

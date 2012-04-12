@@ -4,19 +4,16 @@ import popout.board.BoardState;
 
 public class AlphaBeta extends Search{
 	
-	protected final short p_heuristic;
 	protected final short p_depth;
 
 	public AlphaBeta(BoardState board, final short empty_space_number, final short player_number, final short computer_number){
 		super(board, empty_space_number, player_number, computer_number);
-		p_heuristic = 4;
 		p_depth = 9;
 	}
 	
 	public AlphaBeta(	BoardState board, final short empty_space_number, final short player_number, final short computer_number,
-						final short depth, final short heuristic){
+						final short depth){
 		super(board, empty_space_number, player_number, computer_number);
-		p_heuristic = heuristic;
 		p_depth = depth;
 	}
 	
@@ -39,12 +36,7 @@ public class AlphaBeta extends Search{
 			short temp_score = 0; //evaluate_move_two(current_board, valid_next_moves[i]);
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop				
-				short temp_board[][] = new short[p_column_count][p_row_count];
-				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
-					for(int row_iter = 0; row_iter < p_row_count; row_iter++){
-						temp_board[col_iter][row_iter] = current_board.get_state()[col_iter][row_iter];
-					}
-				}
+				short temp_board[][] = current_board.get_state();
 				current_board.drop(move_col, p_computer_number);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
@@ -54,12 +46,7 @@ public class AlphaBeta extends Search{
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
-				short temp_board[][] = new short[p_column_count][p_row_count];
-				for(int col_iter = 0; col_iter < p_column_count; col_iter++){
-					for(int row_iter = 0; row_iter < p_row_count; row_iter++){
-						temp_board[col_iter][row_iter] = current_board.get_state()[col_iter][row_iter];
-					}
-				}
+				short temp_board[][] = current_board.get_state();
 				current_board.pop(move_col,p_computer_number);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
@@ -98,31 +85,11 @@ public class AlphaBeta extends Search{
 	
 	private final short alpha_beta(final short[][] test_board_short, final int depth, final short turn, final String move, final short start_alpha, final short start_beta ){
 		// Recursive function which will create a complete game tree up to a certain depth, then search the tree for good moves
-		short test_board_temp[][] = new short[p_column_count][p_row_count];		//paranoid sanitation of references, can probably remove for performance boost
-		for(int col_iter = 0; col_iter < p_column_count; col_iter++){
-			for(int row_iter = 0; row_iter < p_row_count; row_iter++){
-				test_board_temp[col_iter][row_iter] = test_board_short[col_iter][row_iter];
-			}
-		}		
+		short test_board_temp[][] = test_board_short;
 		BoardState current_board = new BoardState(test_board_temp);	
 		
 		if(depth <= 0 || current_board.compute_win() != p_empty_space_number){
-			switch(p_heuristic){
-			case 1:
-				return evaluate_board_one(current_board);
-			case 2:
-				return evaluate_board_two(current_board);
-			case 3:
-				return evaluate_board_three(current_board, move);
-			case 4:
-				return evaluate_board_four(current_board, move);
-			case 101:
-				return evaluate_move_one(move);
-			case 102:
-				return evaluate_move_two(current_board, move);
-			default:
-				return evaluate_board_four(current_board, move);
-			}
+			return p_heuristic_func.evaluate_board(current_board, move);
 		}
 		
 		short alpha = start_alpha;
@@ -135,26 +102,16 @@ public class AlphaBeta extends Search{
 			final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 			if('D' == valid_next_moves[i].charAt(0)){
 				//this move is a drop				
-				short temp_board[][] = new short[p_column_count][p_row_count];
-				for(int col = 0; col < p_column_count; col++){
-					for(int row = 0; row < p_row_count; row++){
-						temp_board[col][row] = current_board.get_state()[col][row];
-					}
-				}				
-				short next_board[][] = current_board.get_state();
-				current_board.drop(move_col, turn);
+				short temp_board[][] = current_board.get_state();
+				current_board.drop(move_col, turn);			
+				short next_board[][] = current_board.get_state();				
 				current_board.set_state(temp_board);
 				//recursive call
 				temp_score = alpha_beta(next_board, depth-1, (turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i], alpha, beta);	
 			}
 			else if('P' == valid_next_moves[i].charAt(0)){
 				//this move is a pop
-				short temp_board[][] = new short[p_column_count][p_row_count];
-				for(int col = 0; col < p_column_count; col++){
-					for(int row = 0; row < p_row_count; row++){
-						temp_board[col][row] = current_board.get_state()[col][row];
-					}
-				}
+				short temp_board[][] = current_board.get_state();
 				current_board.pop(move_col, turn);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
