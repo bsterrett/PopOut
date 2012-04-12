@@ -3,12 +3,18 @@ package popout.search;
 import popout.board.BoardState;
 import java.util.ArrayList;
 
-public class Minimax extends Search {
+public class Minimax extends Search implements Runnable {
 	
 	protected final short p_heuristic;
 	protected final short p_depth;
 	protected final boolean p_multithreaded;
 	protected final short p_max_thread_runtime;
+	protected int p_thread_iter;
+	protected ArrayList<short[][]> p_next_boards;
+	protected ArrayList<String> p_valid_next_moves;
+	protected short[] p_temp_scores;
+	protected short p_thread_depth;
+	protected short p_thread_turn;
 	
 	public Minimax(BoardState board, final short empty_space_number, final short player_number, final short computer_number){
 		super(board, empty_space_number, player_number, computer_number);
@@ -16,6 +22,12 @@ public class Minimax extends Search {
 		p_depth = 5;
 		p_multithreaded = false;
 		p_max_thread_runtime = 10000;
+		p_thread_iter = 0;
+		p_next_boards = new ArrayList<short[][]>();
+		p_valid_next_moves = new ArrayList<String>();
+		p_temp_scores = new short[0];
+		p_thread_depth = 0;
+		p_thread_turn = 0;
 	}
 	
 	public Minimax(	BoardState board, final short empty_space_number, final short player_number, final short computer_number,
@@ -25,6 +37,18 @@ public class Minimax extends Search {
 		p_depth = depth;
 		p_multithreaded = true;
 		p_max_thread_runtime = 10000;
+		p_thread_iter = 0;
+		p_next_boards = new ArrayList<short[][]>();
+		p_valid_next_moves = new ArrayList<String>();
+		p_temp_scores = new short[0];
+		p_thread_depth = 0;
+		p_thread_turn = 0;
+	}
+	
+	public void run(){
+		int thread_iter = p_thread_iter++;
+		short temp_score = minimax(p_next_boards.get(thread_iter),p_thread_depth,p_thread_turn,p_valid_next_moves.get(thread_iter));
+		
 	}
 	
 	public void get_computer_move(){
@@ -150,7 +174,10 @@ public class Minimax extends Search {
 		}
 		else if( (p_depth-2) == depth && p_multithreaded ){
 			//if multithreading is on
-			ArrayList<MinimaxThread> threads = new ArrayList<MinimaxThread>();
+			p_temp_scores = new short[valid_next_moves.length];
+			p_thread_depth = (short) (depth - 1);
+			p_thread_turn = (turn == p_player_number ? p_computer_number : p_player_number);
+			ArrayList<Minimax> threads = new ArrayList<Minimax>();
 			for(int i = 0; i < valid_next_moves.length; i++){
 				final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 				if('D' == valid_next_moves[i].charAt(0)){
@@ -161,13 +188,12 @@ public class Minimax extends Search {
 							temp_board[col][row] = current_board.get_state()[col][row];
 						}
 					}				
-					short next_board[][] = current_board.get_state();
+					p_next_boards.add(current_board.get_state());
+					p_valid_next_moves.add(valid_next_moves[i]);
 					current_board.drop(move_col, turn);
 					current_board.set_state(temp_board);
 					//recursive call
-					MinimaxThread m_t = new MinimaxThread(p_empty_space_number,p_player_number,p_computer_number,next_board,depth-1,(turn == p_player_number ? p_computer_number : p_player_number),valid_next_moves[i]);
-					m_t.run();
-					threads.add(m_t);
+					
 				}
 				else if('P' == valid_next_moves[i].charAt(0)){
 					//this move is a pop
@@ -181,9 +207,6 @@ public class Minimax extends Search {
 					short next_board[][] = current_board.get_state();
 					current_board.set_state(temp_board);
 					//recursive call
-					MinimaxThread m_t = new MinimaxThread(p_empty_space_number,p_player_number,p_computer_number,next_board,depth-1,(turn == p_player_number ? p_computer_number : p_player_number),valid_next_moves[i]);
-					m_t.run();
-					threads.add(m_t);
 				}
 				else{
 					//this move is not recognized
@@ -196,12 +219,12 @@ public class Minimax extends Search {
 			int threads_running = 0;
 			do{
 				threads_running = 0;
-				for(MinimaxThread thread : threads){
+				for(Minimax thread : threads){
 					if(thread.isAlive()) threads_running++;
 				}
 			} while (threads_running > 0);
 			
-			for(MinimaxThread thread : threads){
+			for(Minimax thread : threads){
 				short temp_score = thread.get_alpha();
 				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
 			}

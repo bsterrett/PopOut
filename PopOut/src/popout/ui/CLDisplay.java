@@ -22,7 +22,7 @@ public class CLDisplay {
 	}
 	
 	public String toString(){
-		String return_string = "";
+		String return_string = "\n0 1 2 3 4 5 6\n-------------\n";
 		p_display_state = p_board.get_state();
 		if(p_column_count != p_display_state.length && p_row_count != p_display_state[0].length){
 			System.err.println("Tried to print board state which does not have the correct dimensions!");
@@ -47,6 +47,7 @@ public class CLDisplay {
 				}
 				return_string += "\n";
 			}
+			return_string += "-------------\n0 1 2 3 4 5 6\n";
 		}
 		return return_string;
 	}

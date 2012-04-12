@@ -20,13 +20,13 @@ public class Control {
 		p_computer_number = 2;		
 		p_board = new BoardState(6, 7);
 		p_display = new CLDisplay(6, 7, p_board);
-		//p_search = new Minimax(p_board, p_empty_space_number, p_player_number, p_computer_number);
-		p_search = new AlphaBeta(p_board, p_empty_space_number, p_player_number, p_computer_number);
+		p_search = new Minimax(p_board, p_empty_space_number, p_player_number, p_computer_number);
+		//p_search = new AlphaBeta(p_board, p_empty_space_number, p_player_number, p_computer_number);
 	}
 	
 	private static void get_player_move(){
 		Scanner scan = new Scanner(System.in);
-		System.out.println("Next move? (Format: 'X Y' where X is D or P and Y is 0-6)");
+		System.out.println("Next move? (Format: 'D X' for drops or 'P X' for pops where X is 0-6)");
 		boolean user_input_valid = false;
 		while(!user_input_valid){
 			String user_input = scan.nextLine();
@@ -60,6 +60,7 @@ public class Control {
 
 	public static void main(String[] args) {
 		init();
+		System.out.println(p_display.toString());
 		while(p_board.compute_win() == 0){
 			get_player_move();
 			if(p_board.compute_win() != 0){

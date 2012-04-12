@@ -91,7 +91,7 @@ public class AlphaBeta extends Search{
 		}
 		for(int i = 0; i < valid_next_moves.length; i++){
 			//for debugging
-			System.out.print(valid_next_moves[i] + " : " + move_utilities[i] + "     ");
+			//System.out.print(valid_next_moves[i] + " : " + move_utilities[i] + "     ");
 		}
 		System.out.println("");
 	}
