@@ -20,8 +20,8 @@ public class Control {
 		p_computer_number = 2;
 		p_board = new BoardState(6, 7);
 		p_display = new CLDisplay(6, 7, p_board);
-		p_search = new Minimax(p_board, p_empty_space_number, p_player_number, p_computer_number);
-		//p_search = new AlphaBeta(p_board, p_empty_space_number, p_player_number, p_computer_number);
+		//p_search = new Minimax(p_board, p_empty_space_number, p_player_number, p_computer_number);
+		p_search = new AlphaBeta(p_board, p_empty_space_number, p_player_number, p_computer_number);
 	}
 
 	private static void get_player_move() {
@@ -50,17 +50,17 @@ public class Control {
 	private static void print_winner() {
 		switch (p_board.compute_win()) {
 		case 0:
-			System.out
-					.println("No winner. Maybe a draw. Who knows. This shouldn't happen.");
-			break;
+			System.out.println("No winner. Maybe a draw. Who knows. This shouldn't happen.");
+			return;
 		case 1:
-			System.out
-					.println("You win! The computer must be really REALLY dumb.");
-			break;
+			System.out.println("You win! The computer must be really REALLY dumb.");
+			return;
 		case 2:
-			System.out
-					.println("The computer wins! Societal takeover is imminent!");
-			break;
+			System.out.println("The computer wins! Societal takeover is imminent!");
+			return;
+		case 21:
+			System.out.println("Whoa, you tied! Try again!");
+			return;
 		default:
 			System.err.println("Not sure who won.");
 		}

@@ -10,7 +10,7 @@ public class AlphaBeta extends Search {
 	public AlphaBeta(BoardState board, final short empty_space_number,
 			final short player_number, final short computer_number) {
 		super(board, empty_space_number, player_number, computer_number);
-		p_depth = 3;
+		p_depth = 9;
 	}
 
 	public AlphaBeta(BoardState board, final short empty_space_number,
@@ -28,57 +28,39 @@ public class AlphaBeta extends Search {
 		short alpha = Short.MIN_VALUE;
 		short beta = Short.MAX_VALUE;
 		int best_move = -1;
-		short current_board_short[][] = new short[p_column_count][p_row_count];
-		for (int col_iter = 0; col_iter < p_column_count; col_iter++) {
-			for (int row_iter = 0; row_iter < p_row_count; row_iter++) {
-				current_board_short[col_iter][row_iter] = p_board.get_state()[col_iter][row_iter];
-			}
-		}
+		short current_board_short[][] = p_board.get_state();
 		BoardState current_board = new BoardState(current_board_short);
-		final String valid_next_moves[] = current_board
-				.get_ordered_available_moves(p_computer_number);
+		final String valid_next_moves[] = current_board.get_ordered_available_moves(p_computer_number);
 		final short move_utilities[] = new short[valid_next_moves.length];
 		int utilities_iter = 0;
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-			short temp_score = 0; // evaluate_move_two(current_board,
-									// valid_next_moves[i]);
+			short temp_score = 0;
+			short temp_board[][] = current_board.get_state();
+			short next_board[][] = null;
 			if ('D' == valid_next_moves[i].charAt(0)) {
-				// this move is a drop
-				short temp_board[][] = current_board.get_state();
+				// this move is a drop				
 				current_board.drop(move_col, p_computer_number);
-				short next_board[][] = current_board.get_state();
-				current_board.set_state(temp_board);
-				// recursively call minimax() for this hypothetical drop
-				temp_score = alpha_beta(next_board, p_depth, p_player_number,
-						valid_next_moves[i], alpha, beta);
-				move_utilities[utilities_iter++] = temp_score;
+				next_board = current_board.get_state();
 			} else if ('P' == valid_next_moves[i].charAt(0)) {
 				// this move is a pop
-				short temp_board[][] = current_board.get_state();
 				current_board.pop(move_col, p_computer_number);
-				short next_board[][] = current_board.get_state();
-				current_board.set_state(temp_board);
-				// recursively call minimax() for this hypothetical pop
-				temp_score += alpha_beta(next_board, p_depth, p_player_number,
-						valid_next_moves[i], alpha, beta);
-				move_utilities[utilities_iter++] = temp_score;
+				next_board = current_board.get_state();		
 			} else {
 				// this move is not recognized
-				System.err.println("Unrecognized available move: "
-						+ valid_next_moves[i]);
-			}
-
+				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
+			}			
+			temp_score = alpha_beta(next_board, p_depth, p_player_number, valid_next_moves[i], alpha, beta);
+			move_utilities[utilities_iter++] = temp_score;
+			current_board.set_state(temp_board);
+			
 			if (temp_score > alpha) {
 				// if this move is better than the best known move so far,
 				// change the list of best moves to be only this move
 				alpha = temp_score;
 				best_move = i;
 			}
-			if (p_depth > 5 && i != valid_next_moves.length - 1)
-				System.out.printf(
-						"Computer is %2d percent done with search.%n",
-						((100 * (i + 1)) / valid_next_moves.length));
+			if (p_depth > 5 && i != valid_next_moves.length - 1) System.out.printf("Computer is %2d percent done with search.%n", ((100 * (i + 1)) / valid_next_moves.length));
 		}
 
 		if (-1 == best_move) {
@@ -87,12 +69,8 @@ public class AlphaBeta extends Search {
 		} else {
 			// the search found one or more best moves, committing to a random
 			// one
-			if ('D' == valid_next_moves[best_move].charAt(0))
-				p_board.drop(Integer.parseInt(valid_next_moves[best_move]
-						.substring(2)), p_computer_number);
-			if ('P' == valid_next_moves[best_move].charAt(0))
-				p_board.pop(Integer.parseInt(valid_next_moves[best_move]
-						.substring(2)), p_computer_number);
+			if ('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
+			if ('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
 		}
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			// for debugging
@@ -123,37 +101,26 @@ public class AlphaBeta extends Search {
 		// current_board.fake_next_moves(debug_node++, turn);
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			short temp_score = 0;
-			final int move_col = Integer.parseInt(valid_next_moves[i]
-					.substring(2));
+			final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+			short temp_board[][] = current_board.get_state();
+			short next_board[][] = null;
 			if ('D' == valid_next_moves[i].charAt(0)) {
 				// this move is a drop
-				short temp_board[][] = current_board.get_state();
 				current_board.drop(move_col, turn);
-				short next_board[][] = current_board.get_state();
-				current_board.set_state(temp_board);
-				// recursive call
-				temp_score = alpha_beta(next_board, depth - 1,
-						(turn == p_player_number ? p_computer_number
-								: p_player_number), valid_next_moves[i], alpha,
-						beta);
+				next_board = current_board.get_state();
 			} else if ('P' == valid_next_moves[i].charAt(0)) {
 				// this move is a pop
-				short temp_board[][] = current_board.get_state();
 				current_board.pop(move_col, turn);
-				short next_board[][] = current_board.get_state();
-				current_board.set_state(temp_board);
-				// recursive call
-				temp_score = alpha_beta(next_board, depth - 1,
-						(turn == p_player_number ? p_computer_number
-								: p_player_number), valid_next_moves[i], alpha,
-						beta);
+				next_board = current_board.get_state();
 			} else {
 				// this move is not recognized
-				System.err.println("Unrecognized available move: "
-						+ valid_next_moves[i]);
+				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 				return 0;
 			}
-
+			
+			temp_score = alpha_beta(next_board, depth - 1, (turn == p_player_number ? p_computer_number	: p_player_number), valid_next_moves[i], alpha,	beta);
+			current_board.set_state(temp_board);
+			
 			if (p_computer_number == turn) {
 				alpha = (short) Math.max(alpha, temp_score);
 				if (alpha >= beta)

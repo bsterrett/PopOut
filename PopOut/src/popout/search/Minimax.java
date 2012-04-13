@@ -83,19 +83,19 @@ public class Minimax extends Search {
 			if ('D' == valid_next_moves[i].charAt(0)) {
 				// this move is a drop
 				current_board.drop(move_col, p_thread_turn);
-				next_board = current_board.get_state();
-				current_board.set_state(temp_board);								
+				next_board = current_board.get_state();							
 			} else if ('P' == valid_next_moves[i].charAt(0)) {
 				// this move is a pop				
 				current_board.pop(move_col, p_thread_turn);
 				next_board = current_board.get_state();
-				current_board.set_state(temp_board);				
+								
 			} else {
 				// this move is not recognized
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 				return;
 			}			
 			new_thread = new Minimax(next_board, p_empty_space_number, p_player_number, p_computer_number, p_depth, p_thread_depth-1, (p_thread_turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
+			current_board.set_state(temp_board);
 			threads.add(new_thread);
 			pool.invoke(new_thread);		
 		}	
@@ -233,19 +233,17 @@ public class Minimax extends Search {
 					// this move is a drop
 					current_board.drop(move_col, turn);
 					next_board = current_board.get_state();
-					current_board.set_state(temp_board);
-					// recursive call
 				} else if ('P' == valid_next_moves[i].charAt(0)) {
 					// this move is a pop
 					current_board.pop(move_col, turn);
-					next_board = current_board.get_state();
-					current_board.set_state(temp_board);
-					// recursive call					
+					next_board = current_board.get_state();				
 				} else {
 					// this move is not recognized
 					System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 					return 0;
 				}
+				current_board.set_state(temp_board);
+				//recursive thread call
 				new_thread = new Minimax(next_board, p_empty_space_number, p_player_number, p_computer_number, p_depth, p_thread_depth-1, (p_thread_turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
 				threads.add(new_thread);
 				pool.invoke(new_thread);

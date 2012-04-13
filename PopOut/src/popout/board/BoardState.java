@@ -3,7 +3,6 @@ package popout.board;
 public class BoardState {
 
 	protected short[][] p_current_state;
-	protected short p_moves_so_far;
 	protected final int p_column_count;
 	protected final int p_row_count;
 
@@ -38,11 +37,10 @@ public class BoardState {
 					break;
 				}
 			}
-			p_moves_so_far++;
 			return true;
 		} else {
 			// this column is full and can only be popped!
-			System.err.println("Trying to drop in a full column!");
+			System.err.println("You cannot drop into that column!");
 			return false;
 		}
 	}
@@ -59,11 +57,10 @@ public class BoardState {
 				p_current_state[col][row] = p_current_state[col][row + 1];
 			}
 			p_current_state[col][p_row_count - 1] = 0;
-			p_moves_so_far++;
 			return true;
 		} else {
 			// this column is empty and cannot be popped!
-			System.err.println("Trying to pop an empty column!");
+			System.err.println("You cannot pop from that column!");
 			return false;
 		}
 	}
@@ -83,12 +80,8 @@ public class BoardState {
 		return return_state;
 	}
 
-	public short get_moves_so_far() {
-		return p_moves_so_far;
-	}
-
 	public short compute_win() {
-		// WARNING: THIS CANNOT RECOGNIZE TWO SIMULTANEOUS WINNERS!
+		short connect_4s_by_number[] = new short[10];
 		for (int col = 0; col < p_column_count; col++) {
 			for (int row = 0; row < p_row_count; row++) {
 				final short compare_against = p_current_state[col][row];
@@ -99,14 +92,14 @@ public class BoardState {
 							&& p_current_state[col - 2][row + 2] == compare_against
 							&& p_current_state[col - 3][row + 3] == compare_against) {
 						// check for win by going diagonally up and left
-						return compare_against;
+						connect_4s_by_number[compare_against] += 1;
 					}
 					if (row <= p_row_count - 4
 							&& p_current_state[col][row + 1] == compare_against
 							&& p_current_state[col][row + 2] == compare_against
 							&& p_current_state[col][row + 3] == compare_against) {
 						// check for win by going straight up
-						return compare_against;
+						connect_4s_by_number[compare_against] += 1;
 					}
 					if (col <= p_column_count - 4
 							&& row <= p_row_count - 4
@@ -114,19 +107,32 @@ public class BoardState {
 							&& p_current_state[col + 2][row + 2] == compare_against
 							&& p_current_state[col + 3][row + 3] == compare_against) {
 						// check for win by going diagonally up and right
-						return compare_against;
+						connect_4s_by_number[compare_against] += 1;
 					}
 					if (col <= p_column_count - 4
 							&& p_current_state[col + 1][row] == compare_against
 							&& p_current_state[col + 2][row] == compare_against
 							&& p_current_state[col + 3][row] == compare_against) {
 						// check for win by going straight right
-						return compare_against;
+						connect_4s_by_number[compare_against] += 1;
 					}
 				}
 			}
 		}
-		return 0;
+		
+		short winner = 0;
+		short tied = 0;
+		for(short i = 0; i < 10; i++){
+			if(connect_4s_by_number[i] > connect_4s_by_number[winner]){
+				winner = i;
+				tied = 0;
+			}
+			else if(0 != winner && connect_4s_by_number[i] == connect_4s_by_number[winner]){
+				tied = i;
+			}
+		}
+		return (short) (tied*10+winner);
+		
 	}
 
 	public String[] get_available_moves(short player) {
