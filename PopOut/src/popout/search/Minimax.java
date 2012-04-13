@@ -20,7 +20,7 @@ public class Minimax extends Search {
 	public Minimax(BoardState board, final short empty_space_number,
 			final short player_number, final short computer_number) {
 		super(board, empty_space_number, player_number, computer_number);
-		p_depth = 4;
+		p_depth = 41;
 		p_multithreaded = true;
 		p_max_thread_runtime = 10000;
 
@@ -55,14 +55,12 @@ public class Minimax extends Search {
 		//p_thread_alpha = minimax(p_board.get_state(), p_thread_depth, p_thread_turn, p_thread_move);
 		
 		BoardState current_board = p_board;
-		final String valid_next_moves[] = current_board
-				.get_available_moves(p_thread_turn);
+		final String valid_next_moves[] = current_board.get_ordered_available_moves(p_thread_turn);
 
-		short alpha = 0;
 		if (p_player_number == p_thread_turn)
-			alpha = 20000;
+			p_thread_alpha = Short.MAX_VALUE;
 		else if (p_computer_number == p_thread_turn)
-			alpha = -20000;
+			p_thread_alpha = Short.MIN_VALUE;
 		else {
 			System.err.println("Minimax is unsure of whose turn it is!");
 			return;
@@ -72,54 +70,50 @@ public class Minimax extends Search {
 			// if this board is a terminal node
 			p_thread_alpha = p_heuristic_func.evaluate_board(current_board, p_thread_move);
 			return;
-		}
+		}		
 		
+		
+		ForkJoinPool pool = new ForkJoinPool();			
+		ArrayList<Minimax> threads = new ArrayList<Minimax>();
 		for (int i = 0; i < valid_next_moves.length; i++) {
-			final int move_col = Integer.parseInt(valid_next_moves[i]
-					.substring(2));
+			final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
 			Minimax new_thread = null;
+			short next_board[][] = null;
+			short temp_board[][] = current_board.get_state();
 			if ('D' == valid_next_moves[i].charAt(0)) {
 				// this move is a drop
-				short temp_board[][] = current_board.get_state();
 				current_board.drop(move_col, p_thread_turn);
-				short next_board[][] = current_board.get_state();
-				current_board.set_state(temp_board);
-				
-				new_thread = new Minimax(next_board, p_empty_space_number, p_player_number, p_computer_number, p_depth, p_thread_depth-1, (p_thread_turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
-				new_thread.fork();
-				
-				
+				next_board = current_board.get_state();
+				current_board.set_state(temp_board);								
 			} else if ('P' == valid_next_moves[i].charAt(0)) {
-				// this move is a pop
-				short temp_board[][] = current_board.get_state();
+				// this move is a pop				
 				current_board.pop(move_col, p_thread_turn);
-				short next_board[][] = current_board.get_state();
-				current_board.set_state(temp_board);
-				
-				new_thread = new Minimax(next_board, p_empty_space_number, p_player_number, p_computer_number, p_depth, p_thread_depth-1, (p_thread_turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
-				new_thread.fork();
-				
+				next_board = current_board.get_state();
+				current_board.set_state(temp_board);				
 			} else {
 				// this move is not recognized
-				System.err.println("Unrecognized available move: "
-						+ valid_next_moves[i]);
+				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 				return;
-			}
-			
-			short temp_score = 0;
-			while(new_thread != null){
-				new_thread.join();
-				temp_score = new_thread.get_alpha();
-				alpha = (short) (p_thread_turn == p_player_number ? 
-						Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
-			}				
+			}			
+			new_thread = new Minimax(next_board, p_empty_space_number, p_player_number, p_computer_number, p_depth, p_thread_depth-1, (p_thread_turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
+			threads.add(new_thread);
+			pool.invoke(new_thread);		
+		}	
+		
+		
+		while(pool.getActiveThreadCount() > 0);
+		
+		for(int i = 0; i < threads.size(); i++){
+			threads.get(i).join();
+			short temp_score = threads.get(i).get_alpha();
+			p_thread_alpha = (short) (p_thread_turn == p_player_number ? Math.min(p_thread_alpha, temp_score) : Math.max(p_thread_alpha, temp_score));
 		}
-		p_thread_alpha = alpha;
+
 	}
 
 	public void get_computer_move() {
 		// Call this to make the computer move
-		short alpha = -32000;
+		short alpha = Short.MIN_VALUE;
 		ArrayList<String> best_moves = new ArrayList<String>();
 		short current_board_short[][] = new short[p_column_count][p_row_count];
 		for (int col_iter = 0; col_iter < p_column_count; col_iter++) {
@@ -214,9 +208,9 @@ public class Minimax extends Search {
 
 		short alpha = 0;
 		if (p_player_number == turn)
-			alpha = 20000;
+			alpha = Short.MAX_VALUE;
 		else if (p_computer_number == turn)
-			alpha = -20000;
+			alpha = Short.MIN_VALUE;
 		else {
 			System.err.println("Minimax is unsure of whose turn it is!");
 			return 0;
@@ -225,15 +219,47 @@ public class Minimax extends Search {
 		if (depth <= 0 || current_board.compute_win() != p_empty_space_number) {
 			// if this board is a terminal node
 			return p_heuristic_func.evaluate_board(current_board, move);
-		} else if (p_multithreaded) {
+		} else if (p_multithreaded && depth >= 4) {
 			// if multithreading is on
 
-			Minimax new_thread = new Minimax(p_board.get_state(), p_empty_space_number, p_player_number, p_computer_number, p_depth, p_thread_depth-1, (p_thread_turn == p_player_number ? p_computer_number : p_player_number), move);
-			ForkJoinPool pool = new ForkJoinPool();
-			pool.invoke(new_thread);
+			ForkJoinPool pool = new ForkJoinPool();			
+			ArrayList<Minimax> threads = new ArrayList<Minimax>();
+			for (int i = 0; i < valid_next_moves.length; i++) {
+				final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+				Minimax new_thread = null;
+				short next_board[][] = null;
+				short temp_board[][] = current_board.get_state();
+				if ('D' == valid_next_moves[i].charAt(0)) {
+					// this move is a drop
+					current_board.drop(move_col, turn);
+					next_board = current_board.get_state();
+					current_board.set_state(temp_board);
+					// recursive call
+				} else if ('P' == valid_next_moves[i].charAt(0)) {
+					// this move is a pop
+					current_board.pop(move_col, turn);
+					next_board = current_board.get_state();
+					current_board.set_state(temp_board);
+					// recursive call					
+				} else {
+					// this move is not recognized
+					System.err.println("Unrecognized available move: " + valid_next_moves[i]);
+					return 0;
+				}
+				new_thread = new Minimax(next_board, p_empty_space_number, p_player_number, p_computer_number, p_depth, p_thread_depth-1, (p_thread_turn == p_player_number ? p_computer_number : p_player_number), valid_next_moves[i]);
+				threads.add(new_thread);
+				pool.invoke(new_thread);
+			}
+			
+			
 			while(pool.getActiveThreadCount() > 0);
-			new_thread.join();
-			return new_thread.get_alpha();
+			
+			for(int i = 0; i < threads.size(); i++){
+				threads.get(i).join();
+				short temp_score = threads.get(i).get_alpha();
+				alpha = (short) (turn == p_player_number ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
+			}
+			return alpha;
 			
 		} else {
 			// multithreading is off
@@ -270,6 +296,7 @@ public class Minimax extends Search {
 				alpha = (short) (turn == p_player_number ? Math.min(alpha,
 						temp_score) : Math.max(alpha, temp_score));
 			}
+			alpha += 1;
 			return alpha;
 		}
 

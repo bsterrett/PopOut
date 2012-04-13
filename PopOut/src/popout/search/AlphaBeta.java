@@ -10,7 +10,7 @@ public class AlphaBeta extends Search {
 	public AlphaBeta(BoardState board, final short empty_space_number,
 			final short player_number, final short computer_number) {
 		super(board, empty_space_number, player_number, computer_number);
-		p_depth = 9;
+		p_depth = 3;
 	}
 
 	public AlphaBeta(BoardState board, final short empty_space_number,
@@ -18,6 +18,10 @@ public class AlphaBeta extends Search {
 			final short depth) {
 		super(board, empty_space_number, player_number, computer_number);
 		p_depth = depth;
+	}
+	
+	public void compute(){
+		
 	}
 
 	public void get_computer_move() {
