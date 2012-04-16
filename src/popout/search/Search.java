@@ -26,7 +26,7 @@ public abstract class Search extends RecursiveAction {
 		p_column_count = p_board.get_state().length;
 		p_row_count = p_board.get_state()[0].length;
 		p_random = new Random(System.nanoTime());
-		p_heuristic_num = 4;
+		p_heuristic_num = 5;
 		p_heuristic_func = new Heuristic(empty_space_number, player_number,
 				computer_number, p_heuristic_num);
 	}

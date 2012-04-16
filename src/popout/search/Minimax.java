@@ -55,7 +55,7 @@ public class Minimax extends Search {
 		//p_thread_alpha = minimax(p_board.get_state(), p_thread_depth, p_thread_turn, p_thread_move);
 		
 		BoardState current_board = p_board;
-		final String valid_next_moves[] = current_board.get_ordered_available_moves(p_thread_turn);
+		final String valid_next_moves[] = current_board.get_cheap_ordered_available_moves(p_thread_turn);
 
 		if (p_player_number == p_thread_turn)
 			p_thread_alpha = Short.MAX_VALUE;
@@ -123,7 +123,7 @@ public class Minimax extends Search {
 		}
 		BoardState current_board = new BoardState(current_board_short);
 		final String valid_next_moves[] = current_board
-				.get_ordered_available_moves(p_computer_number);
+				.get_cheap_ordered_available_moves(p_computer_number);
 		final short move_utilities[] = new short[valid_next_moves.length];
 		int utilities_iter = 0;
 		for (int i = 0; i < valid_next_moves.length; i++) {
