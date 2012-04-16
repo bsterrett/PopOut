@@ -1,5 +1,6 @@
 package popout.ui;
 
+import popout.PlayerNum;
 import popout.board.BoardState;
 
 public class CLDisplay {
@@ -32,13 +33,13 @@ public class CLDisplay {
 			for (int row = (p_row_count - 1); row >= 0; row--) {
 				for (int col = 0; col < p_column_count; col++) {
 					switch (p_display_state[col][row]) {
-					case 0:
+					case PlayerNum.empty_space:
 						return_string += "- ";
 						break;
-					case 1:
+					case PlayerNum.human:
 						return_string += "X ";
 						break;
-					case 2:
+					case PlayerNum.computer:
 						return_string += "O ";
 						break;
 					default:

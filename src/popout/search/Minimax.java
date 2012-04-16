@@ -1,5 +1,6 @@
 package popout.search;
 
+import popout.PlayerNum;
 import popout.board.BoardState;
 import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
@@ -68,7 +69,7 @@ public class Minimax extends Search {
 
 		if (p_thread_depth <= 0 || current_board.compute_win() != p_empty_space_number) {
 			// if this board is a terminal node
-			p_thread_alpha = p_heuristic_func.evaluate_board(current_board, p_thread_move);
+			p_thread_alpha = evaluate_board(current_board, p_thread_move);
 			return;
 		}		
 		
@@ -218,7 +219,7 @@ public class Minimax extends Search {
 
 		if (depth <= 0 || current_board.compute_win() != p_empty_space_number) {
 			// if this board is a terminal node
-			return p_heuristic_func.evaluate_board(current_board, move);
+			return evaluate_board(current_board, move);
 		} else if (p_multithreaded && depth >= 4) {
 			// if multithreading is on
 

@@ -1,5 +1,7 @@
 package popout.board;
 
+import popout.PlayerNum;
+
 public class BoardState {
 
 	protected short[][] p_current_state;
@@ -192,115 +194,4 @@ public class BoardState {
 			return move_list;
 		}
 	}
-	
-	public final String[] get_expensive_ordered_available_moves(final short player){
-		final int connect_4 = 100;
-		final int pop_4 = 5;
-		final int drop_4 = 5;
-		
-		int pop_interest[] = new int[p_column_count];
-		for(int col = 0; col < p_column_count; col++){
-			pop_interest[col] = 0;
-		}
-		
-		int drop_interest[] = new int[p_column_count];
-		for(int col = 0; col < p_column_count; col++){
-			drop_interest[col] = 0;
-		}
-		
-		for(int col = 0; col < p_column_count; col++){
-			for(int row = 0; row < p_row_count; row++){
-				if(p_current_state[col][row] != 0){
-					//checking up and left
-					if(	col >= 3 && row <= p_row_count - 4
-							&& p_current_state[col][row] == p_current_state[col-1][row+1]
-							&& p_current_state[col][row] == p_current_state[col-2][row+2] ){
-						if(p_current_state[col][row] == p_current_state[col-3][row+3]){
-							//currently a connect 4
-						}
-						else if( row <= p_row_count-5 && p_current_state[col][row] == p_current_state[col-3][row+4]
-									&& p_current_state[col][row] == p_current_state[col-3][0]){
-							//can pop for a connect 4
-							pop_interest[col-3] += (p_current_state[col][row] == player ? pop_4 : -1 * pop_4 );
-						}
-						else if( p_current_state[col-3][row+2] != 0 && p_current_state[col-3][row+3] == 0){
-							//can drop for a connect 4
-							drop_interest[col-3] += (p_current_state[col][row] == player ? drop_4 : -1 * drop_4 );
-						}
-					}
-									
-					//checking straight up
-					if( row <= p_row_count - 4
-							&& p_current_state[col][row] == p_current_state[col][row+1]
-							&& p_current_state[col][row] == p_current_state[col][row+2] ){
-						if(p_current_state[col][row] == p_current_state[col][row+3]){
-							//currently a connect 4
-						}
-						else if(p_current_state[col][row+3] == 0){
-							//can drop for a connect 4
-							drop_interest[col] += (p_current_state[col][row] == player ? drop_4 : -1 * drop_4 );
-						}
-					}
-					
-					//checking up and right
-					if( col <= p_column_count - 4 && row <= p_row_count - 4
-							&& p_current_state[col][row] == p_current_state[col+1][row+1]
-							&& p_current_state[col][row] == p_current_state[col+2][row+2] ){
-						if(p_current_state[col][row] == p_current_state[col+3][row+3]){
-							//currently a connect 4
-						}
-						else if( row <= p_row_count-5 && p_current_state[col][row] == p_current_state[col+3][row+4]
-									&& p_current_state[col][row] == p_current_state[col+3][0]){
-							//can pop for a connect 4
-							pop_interest[col+3] += (p_current_state[col][row] == player ? pop_4 : -1 * pop_4 );
-						}
-						else if( p_current_state[col+3][row+2] != 0 && p_current_state[col+3][row+3] == 0){
-							//can drop for a connect 4
-							drop_interest[col+3] += (p_current_state[col][row] == player ? drop_4 : -1 * drop_4 );
-						}						
-					}
-					
-					//checking straight right
-					if( col <= p_column_count - 4
-							&& p_current_state[col][row] == p_current_state[col+1][row]
-							&& p_current_state[col][row] == p_current_state[col+2][row] ){
-						if(p_current_state[col][row] == p_current_state[col+3][row]){
-							//currently a connect 4
-						}
-						else if( row <= p_row_count-2 && p_current_state[col][row] == p_current_state[col+3][row+1]
-									&& p_current_state[col][row] == p_current_state[col+3][0]){
-							//can pop for a connect 4
-							pop_interest[col+3] += (p_current_state[col][row] == player ? pop_4 : -1 * pop_4 );
-						}
-						else if( row >= 1 && p_current_state[col+3][row-1] != 0 && p_current_state[col+3][row] == 0){
-							//can drop for a connect 4
-							drop_interest[col+3] += (p_current_state[col][row] == player ? drop_4 : -1 * drop_4 );
-						}
-					}
-				}				
-			}
-		}
-		final int available_move_count = get_available_moves(player).length; 
-		String move_list[] = new String[available_move_count];
-		int move_list_counter = 0;
-		int last_best_drop = Integer.MAX_VALUE;
-		int last_best_pop = Integer.MAX_VALUE;
-		while(move_list_counter < available_move_count){
-			int next_best_drop = Integer.MIN_VALUE;
-			for(int col = 0; col < p_column_count; col++){
-				if(drop_interest[col] >= next_best_drop && drop_interest[col] <= last_best_drop){
-					next_best_drop = col;
-				}
-			}
-			int next_best_pop = Integer.MIN_VALUE;
-			for(int col = 0; col < p_column_count; col++){
-				if(pop_interest[col] >= next_best_pop && pop_interest[col] <= last_best_pop){
-					next_best_pop = col;
-				}
-			}
-		}
-		
-		return get_cheap_ordered_available_moves(player);
-	}
-
 }

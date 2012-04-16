@@ -1,5 +1,6 @@
 package popout.control;
 
+import popout.PlayerNum;
 import java.util.Scanner;
 
 import popout.board.*;
