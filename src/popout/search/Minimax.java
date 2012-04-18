@@ -135,8 +135,7 @@ public class Minimax extends Search {
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical drop
-				temp_score = minimax(next_board, p_depth, PlayerNum.human,
-						valid_next_moves[i]);
+				temp_score = minimax(next_board, p_depth, PlayerNum.human, valid_next_moves[i]);
 				move_utilities[utilities_iter++] = temp_score;
 			} else if ('P' == valid_next_moves[i].charAt(0)) {
 				// this move is a pop
@@ -145,13 +144,11 @@ public class Minimax extends Search {
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical pop
-				temp_score += minimax(next_board, p_depth, PlayerNum.human,
-						valid_next_moves[i]);
+				temp_score += minimax(next_board, p_depth, PlayerNum.human, valid_next_moves[i]);
 				move_utilities[utilities_iter++] = temp_score;
 			} else {
 				// this move is not recognized
-				System.err.println("Unrecognized available move: "
-						+ valid_next_moves[i]);
+				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 			}
 			if (temp_score > alpha) {
 				// if this move is better than the best known move so far,
@@ -165,9 +162,7 @@ public class Minimax extends Search {
 				best_moves.add(valid_next_moves[i]);
 			}
 			if (p_depth > 5 && i != valid_next_moves.length - 1)
-				System.out.printf(
-						"Computer is %2d percent done with search.%n",
-						((100 * (i + 1)) / valid_next_moves.length));
+				System.out.printf("Computer is %2d percent done with search.%n",((100 * (i + 1)) / valid_next_moves.length));
 		}
 
 		if (1 > best_moves.size()) {
@@ -178,19 +173,14 @@ public class Minimax extends Search {
 			// one
 			int random_best = p_random.nextInt(best_moves.size());
 			if ('D' == best_moves.get(random_best).charAt(0))
-				p_board.drop(
-						Integer.parseInt(best_moves.get(random_best).substring(
-								2)), PlayerNum.computer);
+				p_board.drop(Integer.parseInt(best_moves.get(random_best).substring(2)), PlayerNum.computer);
 			if ('P' == best_moves.get(random_best).charAt(0))
-				p_board.pop(
-						Integer.parseInt(best_moves.get(random_best).substring(
-								2)), PlayerNum.computer);
+				p_board.pop(Integer.parseInt(best_moves.get(random_best).substring(2)), PlayerNum.computer);
 		}
 
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			// for debugging
-			System.out.print(valid_next_moves[i] + " : " + move_utilities[i]
-					+ "     ");
+			System.out.print(valid_next_moves[i] + " : " + move_utilities[i] + "     ");
 		}
 		System.out.println("");
 	}

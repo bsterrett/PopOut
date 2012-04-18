@@ -5,17 +5,10 @@ import popout.board.BoardState;
 
 public class AlphaBeta extends Search {
 
-	protected final short p_depth;
 	private static final long serialVersionUID = 112358L;
 
 	public AlphaBeta(BoardState board) {
 		super(board);
-		p_depth = 9;
-	}
-
-	public AlphaBeta(BoardState board, final short depth) {
-		super(board);
-		p_depth = depth;
 	}
 	
 	public void compute(){
@@ -65,26 +58,17 @@ public class AlphaBeta extends Search {
 			// couldn't find a best move or something
 			System.err.println("Something bad happened during minimax search!");
 		} else {
-			// the search found one or more best moves, committing to a random
-			// one
+			// the search found one or more best moves, committing to a random one
 			if ('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.computer);
 			if ('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.computer);
-		}
-		for (int i = 0; i < valid_next_moves.length; i++) {
-			// for debugging
-			// System.out.print(valid_next_moves[i] + " : " + move_utilities[i]
-			// + "     ");
 		}
 		System.out.println("");
 	}
 
-	private final short alpha_beta(final short[][] test_board_short,
-			final int depth, final short turn, final String move,
-			final short start_alpha, final short start_beta) {
+	private final short alpha_beta(final short[][] test_board_short, final int depth, final short turn, final String move, final short start_alpha, final short start_beta) {
 		// Recursive function which will create a complete game tree up to a
 		// certain depth, then search the tree for good moves
-		short test_board_temp[][] = test_board_short;
-		BoardState current_board = new BoardState(test_board_temp);
+		BoardState current_board = new BoardState(test_board_short);
 
 		if (depth <= 0 || current_board.compute_win() != PlayerNum.empty_space) {
 			return evaluate_board(current_board, move);

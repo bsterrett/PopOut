@@ -3,27 +3,33 @@ package popout.search;
 import popout.PlayerNum;
 import popout.BoardSize;
 import popout.board.BoardState;
+import popout.search.AlphaBeta;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.RecursiveAction;
 
-public abstract class Search extends RecursiveAction {
+public class Search extends RecursiveAction {
 
 	protected BoardState p_board;
 	protected Random p_random;
 	protected final short p_heuristic_num;
+	protected final short p_depth;
 	private static final long serialVersionUID = 1337L;
 
 	public Search(BoardState board) {
 		p_board = board;
 		p_random = new Random(System.nanoTime());
 		p_heuristic_num = 5;
+		p_depth = 9;
+	}
+	
+	public void compute(){
+		
 	}
 
 	public void get_computer_move() {
-		// this should do something if called by a particular search algorithm
-		System.err.println("Called generic Search.make_next_move(), need to specify search type!");
+
 	}
 	
 	public final String[] get_heuristic_ordered_moves(final BoardState input_board, final short player){
