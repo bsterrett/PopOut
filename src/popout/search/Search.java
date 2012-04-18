@@ -3,7 +3,6 @@ package popout.search;
 import popout.PlayerNum;
 import popout.BoardSize;
 import popout.board.BoardState;
-import popout.search.AlphaBeta;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -46,11 +45,11 @@ public class Search extends RecursiveAction {
 			if ('D' == move.charAt(0)) {
 				// this move is a drop				
 				board.drop(move_col, player);
-				temp_score = evaluate_board_four_lite(board);
+				temp_score = evaluate_board_four_lite(board, move);
 			} else if ('P' == move.charAt(0)) {
 				// this move is a pop
 				board.pop(move_col, player);	
-				temp_score = evaluate_board_four_lite(board);
+				temp_score = evaluate_board_four_lite(board, move);
 			} else {
 				// this move is not recognized
 				System.err.println("Unrecognized available move: " + move);
@@ -95,7 +94,7 @@ public class Search extends RecursiveAction {
 		case 102:
 			return evaluate_move_two(current_board, move);
 		default:
-			return evaluate_board_four(current_board, move);
+			return evaluate_board_five(current_board, move);
 		}
 	}
 
@@ -547,12 +546,12 @@ public class Search extends RecursiveAction {
 		return utility;
 	}
 	
-	public final short evaluate_board_four_lite(final BoardState target_board) {
+	public final short evaluate_board_four_lite(final BoardState target_board, final String move) {
 		final short board[][] = target_board.get_state();
 		final int connect_4 = 100;
 
 		// using move utility instead of 0 to start with
-		short utility = 0;
+		short utility = (short) (evaluate_move_one(move) + evaluate_move_two(target_board, move));
 
 		// check up and left for 4 in a row
 		for (int col = 3; col < BoardSize.column_count; col++) {
