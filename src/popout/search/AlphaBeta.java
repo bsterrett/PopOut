@@ -8,16 +8,13 @@ public class AlphaBeta extends Search {
 	protected final short p_depth;
 	private static final long serialVersionUID = 112358L;
 
-	public AlphaBeta(BoardState board, final short empty_space_number,
-			final short player_number, final short computer_number) {
-		super(board, empty_space_number, player_number, computer_number);
+	public AlphaBeta(BoardState board) {
+		super(board);
 		p_depth = 9;
 	}
 
-	public AlphaBeta(BoardState board, final short empty_space_number,
-			final short player_number, final short computer_number,
-			final short depth) {
-		super(board, empty_space_number, player_number, computer_number);
+	public AlphaBeta(BoardState board, final short depth) {
+		super(board);
 		p_depth = depth;
 	}
 	
@@ -31,7 +28,7 @@ public class AlphaBeta extends Search {
 		int best_move = -1;
 		short current_board_short[][] = p_board.get_state();
 		BoardState current_board = new BoardState(current_board_short);
-		final String valid_next_moves[] = current_board.get_cheap_ordered_available_moves(p_computer_number);
+		final String valid_next_moves[] = current_board.get_cheap_ordered_available_moves(PlayerNum.computer);
 		final short move_utilities[] = new short[valid_next_moves.length];
 		int utilities_iter = 0;
 		for (int i = 0; i < valid_next_moves.length; i++) {
@@ -41,17 +38,17 @@ public class AlphaBeta extends Search {
 			short next_board[][] = null;
 			if ('D' == valid_next_moves[i].charAt(0)) {
 				// this move is a drop				
-				current_board.drop(move_col, p_computer_number);
+				current_board.drop(move_col, PlayerNum.computer);
 				next_board = current_board.get_state();
 			} else if ('P' == valid_next_moves[i].charAt(0)) {
 				// this move is a pop
-				current_board.pop(move_col, p_computer_number);
+				current_board.pop(move_col, PlayerNum.computer);
 				next_board = current_board.get_state();		
 			} else {
 				// this move is not recognized
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 			}			
-			temp_score = alpha_beta(next_board, p_depth, p_player_number, valid_next_moves[i], alpha, beta);
+			temp_score = alpha_beta(next_board, p_depth, PlayerNum.human, valid_next_moves[i], alpha, beta);
 			move_utilities[utilities_iter++] = temp_score;
 			current_board.set_state(temp_board);
 			
@@ -70,8 +67,8 @@ public class AlphaBeta extends Search {
 		} else {
 			// the search found one or more best moves, committing to a random
 			// one
-			if ('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
-			if ('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), p_computer_number);
+			if ('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.computer);
+			if ('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.computer);
 		}
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			// for debugging
@@ -89,7 +86,7 @@ public class AlphaBeta extends Search {
 		short test_board_temp[][] = test_board_short;
 		BoardState current_board = new BoardState(test_board_temp);
 
-		if (depth <= 0 || current_board.compute_win() != p_empty_space_number) {
+		if (depth <= 0 || current_board.compute_win() != PlayerNum.empty_space) {
 			return evaluate_board(current_board, move);
 		}
 
@@ -125,23 +122,21 @@ public class AlphaBeta extends Search {
 				return 0;
 			}
 			
-			temp_score = alpha_beta(next_board, depth - 1, (turn == p_player_number ? p_computer_number	: p_player_number), valid_next_moves[i], alpha,	beta);
+			temp_score = alpha_beta(next_board, depth - 1, (turn == PlayerNum.human ? PlayerNum.computer : PlayerNum.human), valid_next_moves[i], alpha, beta);
 			current_board.set_state(temp_board);
 			
-			if (p_computer_number == turn) {
+			if (PlayerNum.computer == turn) {
 				alpha = (short) Math.max(alpha, temp_score);
-				if (alpha >= beta)
-					return alpha;
-			} else if (p_player_number == turn) {
+				if (alpha >= beta) return alpha;
+			} else if (PlayerNum.human == turn) {
 				beta = (short) Math.min(beta, temp_score);
-				if (alpha >= beta)
-					return beta;
+				if (alpha >= beta) return beta;
 			} else {
 				System.err.println("Alpha Beta doesn't know whose turn it is!");
 			}
 		}
 
-		if (p_computer_number == turn) {
+		if (PlayerNum.computer == turn) {
 			return alpha;
 		} else {
 			return beta;

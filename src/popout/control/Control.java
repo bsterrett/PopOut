@@ -11,37 +11,24 @@ public class Control {
 	private static BoardState p_board;
 	private static CLDisplay p_display;
 	private static Search p_search;
-	private static short p_empty_space_number;
-	private static short p_player_number;
-	private static short p_computer_number;
 
 	private static void init() {
-		p_empty_space_number = 0;
-		p_player_number = 1;
-		p_computer_number = 2;
-		p_board = new BoardState(6, 7);
-		p_display = new CLDisplay(6, 7, p_board);
-		//p_search = new Minimax(p_board, p_empty_space_number, p_player_number, p_computer_number);
-		p_search = new AlphaBeta(p_board, p_empty_space_number, p_player_number, p_computer_number);
+		p_board = new BoardState();
+		p_display = new CLDisplay(p_board);
+		//p_search = new Minimax(p_board);
+		p_search = new AlphaBeta(p_board);
 	}
 
 	private static void get_player_move() {
 		Scanner scan = new Scanner(System.in);
-		System.out
-				.println("Next move? (Format: 'D X' for drops or 'P X' for pops where X is 0-6)");
+		System.out.println("Next move? (Format: 'D X' for drops or 'P X' for pops where X is 0-6)");
 		boolean user_input_valid = false;
 		while (!user_input_valid) {
 			String user_input = scan.nextLine();
-			if (user_input.length() > 0
-					&& 'D' == user_input.toUpperCase().charAt(0)) {
-				user_input_valid = p_board.drop(
-						Integer.parseInt(user_input.substring(1).trim()),
-						p_player_number);
-			} else if (user_input.length() > 0
-					&& 'P' == user_input.toUpperCase().charAt(0)) {
-				user_input_valid = p_board.pop(
-						Integer.parseInt(user_input.substring(1).trim()),
-						p_player_number);
+			if (user_input.length() > 0	&& 'D' == user_input.toUpperCase().charAt(0)) {
+				user_input_valid = p_board.drop(Integer.parseInt(user_input.substring(1).trim()), PlayerNum.human);
+			} else if (user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)) {
+				user_input_valid = p_board.pop(Integer.parseInt(user_input.substring(1).trim()), PlayerNum.human);
 			} else {
 				System.err.println("Invalid user input!");
 			}
@@ -50,16 +37,16 @@ public class Control {
 
 	private static void print_winner() {
 		switch (p_board.compute_win()) {
-		case 0:
+		case PlayerNum.empty_space:
 			System.out.println("No winner. Maybe a draw. Who knows. This shouldn't happen.");
 			return;
-		case 1:
+		case PlayerNum.human:
 			System.out.println("You win! The computer must be really REALLY dumb.");
 			return;
-		case 2:
+		case PlayerNum.computer:
 			System.out.println("The computer wins! Societal takeover is imminent!");
 			return;
-		case 21:
+		case (short) (10*PlayerNum.computer + PlayerNum.human):
 			System.out.println("Whoa, you tied! Try again!");
 			return;
 		default:
@@ -70,9 +57,9 @@ public class Control {
 	public static void main(String[] args) {
 		init();
 		System.out.println(p_display.toString());
-		while (p_board.compute_win() == 0) {
+		while (p_board.compute_win() == PlayerNum.empty_space) {
 			get_player_move();
-			if (p_board.compute_win() != 0) {
+			if (p_board.compute_win() != PlayerNum.empty_space) {
 				System.out.println(p_display.toString());
 				break;
 			}

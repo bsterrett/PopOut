@@ -1,38 +1,33 @@
 package popout.board;
 
+import popout.BoardSize;
 import popout.PlayerNum;
 
 public class BoardState {
 
 	protected short[][] p_current_state;
-	protected final int p_column_count;
-	protected final int p_row_count;
 
-	public BoardState(int board_height, int board_width) {
-		p_column_count = board_width;
-		p_row_count = board_height;
-		p_current_state = new short[p_column_count][p_row_count];
-		for (int col = 0; col < p_column_count; col++) {
-			for (int row = 0; row < p_row_count; row++) {
-				p_current_state[col][row] = 0;
+	public BoardState() {
+		p_current_state = new short[BoardSize.column_count][BoardSize.row_count];
+		for (int col = 0; col < BoardSize.column_count; col++) {
+			for (int row = 0; row < BoardSize.row_count; row++) {
+				p_current_state[col][row] = PlayerNum.empty_space;
 			}
 		}
 	}
 
 	public BoardState(short[][] board_state) {
-		p_column_count = board_state.length;
-		p_row_count = board_state[0].length;
 		p_current_state = board_state;
 	}
 
 	public boolean valid_drop(final int col) {
-		return (col >= 0 && col <= p_column_count - 1 && 0 == p_current_state[col][p_row_count - 1]);
+		return (col >= 0 && col <= BoardSize.column_count - 1 && PlayerNum.empty_space == p_current_state[col][BoardSize.row_count - 1]);
 	}
 
 	public boolean drop(final int col, short player) {
 		if (valid_drop(col)) {
 			// this column has an empty space and can be played
-			for (int row = 0; row < p_row_count; row++) {
+			for (int row = 0; row < BoardSize.row_count; row++) {
 				// search up from the bottom to find where the chip will go
 				if (0 == p_current_state[col][row]) {
 					p_current_state[col][row] = player;
@@ -48,17 +43,17 @@ public class BoardState {
 	}
 
 	public boolean valid_pop(final int col, final short player) {
-		return (col >= 0 && col <= p_column_count - 1 && player == p_current_state[col][0]);
+		return (col >= 0 && col <= BoardSize.column_count - 1 && player == p_current_state[col][0]);
 	}
 
 	public boolean pop(final int col, final short player) {
 		if (valid_pop(col, player)) {
-			for (int row = 0; row < (p_row_count - 1); row++) {
+			for (int row = 0; row < (BoardSize.row_count - 1); row++) {
 				// drops chip from space above into current space, going from
 				// bottom to top
 				p_current_state[col][row] = p_current_state[col][row + 1];
 			}
-			p_current_state[col][p_row_count - 1] = 0;
+			p_current_state[col][BoardSize.row_count - 1] = PlayerNum.empty_space;
 			return true;
 		} else {
 			// this column is empty and cannot be popped!
@@ -73,9 +68,9 @@ public class BoardState {
 	}
 
 	public short[][] get_state() {
-		final short[][] return_state = new short[p_column_count][p_row_count];
-		for (int col = 0; col < p_column_count; col++) {
-			for (int row = 0; row < p_row_count; row++) {
+		final short[][] return_state = new short[BoardSize.column_count][BoardSize.row_count];
+		for (int col = 0; col < BoardSize.column_count; col++) {
+			for (int row = 0; row < BoardSize.row_count; row++) {
 				return_state[col][row] = p_current_state[col][row];
 			}
 		}
@@ -83,35 +78,35 @@ public class BoardState {
 	}
 
 	public short compute_win() {
-		short connect_4s_by_number[] = new short[10];
-		for (int col = 0; col < p_column_count; col++) {
-			for (int row = 0; row < p_row_count; row++) {
+		short connect_4s_by_number[] = new short[10];	//this isn't initialized to 0, should it be?
+		for (int col = 0; col < BoardSize.column_count; col++) {
+			for (int row = 0; row < BoardSize.row_count; row++) {
 				final short compare_against = p_current_state[col][row];
-				if (0 != compare_against) {
+				if (PlayerNum.empty_space != compare_against) {
 					if (col >= 3
-							&& row <= p_row_count - 4
+							&& row <= BoardSize.row_count - 4
 							&& p_current_state[col - 1][row + 1] == compare_against
 							&& p_current_state[col - 2][row + 2] == compare_against
 							&& p_current_state[col - 3][row + 3] == compare_against) {
 						// check for win by going diagonally up and left
 						connect_4s_by_number[compare_against] += 1;
 					}
-					if (row <= p_row_count - 4
+					if (row <= BoardSize.row_count - 4
 							&& p_current_state[col][row + 1] == compare_against
 							&& p_current_state[col][row + 2] == compare_against
 							&& p_current_state[col][row + 3] == compare_against) {
 						// check for win by going straight up
 						connect_4s_by_number[compare_against] += 1;
 					}
-					if (col <= p_column_count - 4
-							&& row <= p_row_count - 4
+					if (col <= BoardSize.column_count - 4
+							&& row <= BoardSize.row_count - 4
 							&& p_current_state[col + 1][row + 1] == compare_against
 							&& p_current_state[col + 2][row + 2] == compare_against
 							&& p_current_state[col + 3][row + 3] == compare_against) {
 						// check for win by going diagonally up and right
 						connect_4s_by_number[compare_against] += 1;
 					}
-					if (col <= p_column_count - 4
+					if (col <= BoardSize.column_count - 4
 							&& p_current_state[col + 1][row] == compare_against
 							&& p_current_state[col + 2][row] == compare_against
 							&& p_current_state[col + 3][row] == compare_against) {
@@ -129,7 +124,7 @@ public class BoardState {
 				winner = i;
 				tied = 0;
 			}
-			else if(0 != winner && connect_4s_by_number[i] == connect_4s_by_number[winner]){
+			else if(PlayerNum.empty_space != winner && connect_4s_by_number[i] == connect_4s_by_number[winner]){
 				tied = i;
 			}
 		}
@@ -140,7 +135,7 @@ public class BoardState {
 	public final String[] get_available_moves(final short player) {
 		// returns a list of available moves that the next player can make
 		int valid_move_count = 0;
-		for (int i = 0; i < p_column_count; i++) {
+		for (int i = 0; i < BoardSize.column_count; i++) {
 			if (valid_pop(i, player))
 				valid_move_count++;
 			if (valid_drop(i))
@@ -148,7 +143,7 @@ public class BoardState {
 		}
 		String move_list[] = new String[valid_move_count];
 		int move_write_count = 0;
-		for (int i = 0; i < p_column_count; i++) {
+		for (int i = 0; i < BoardSize.column_count; i++) {
 			if (valid_pop(i, player))
 				move_list[move_write_count++] = "P " + String.valueOf(i);
 			if (valid_drop(i))
@@ -159,9 +154,8 @@ public class BoardState {
 
 	public final String[] get_cheap_ordered_available_moves(final short player) {
 		// This only works if there are 7 columns!
-		if (p_column_count != 7) {
-			System.err
-					.println("Tried to get an ordered list of moves with a strange board size!");
+		if (7 != BoardSize.column_count) {
+			System.err.println("Tried to get an ordered list of moves with a strange board size!");
 			return get_available_moves(player);
 		} else {
 			int valid_move_count = 0;
