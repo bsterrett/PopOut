@@ -56,7 +56,7 @@ public class Search extends RecursiveAction {
 			}
 			board.set_state(temp_board);
 			move_utilities.add(temp_score);
-		}		
+		}
 		String ordered_moves[] = new String[moves.size()];
 		int move_counter = 0;
 		while(moves.size() > 0){
@@ -619,7 +619,7 @@ public class Search extends RecursiveAction {
 		
 		for(int col = 0; col < BoardSize.column_count; col++){
 			for(int row = 0; row < BoardSize.row_count; row++){
-				if(board[col][row] == PlayerNum.empty_space){
+				if(PlayerNum.empty_space == board[col][row]){
 					utility += empty_space;
 				}
 			}

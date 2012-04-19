@@ -92,7 +92,7 @@ public class Minimax extends Search {
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 				return;
 			}			
-			new_thread = new Minimax(next_board, p_depth, p_thread_depth-1, (p_thread_turn == PlayerNum.human ? PlayerNum.computer : PlayerNum.human), valid_next_moves[i]);
+			new_thread = new Minimax(next_board, p_depth, p_thread_depth-1, PlayerNum.opposite(p_thread_turn), valid_next_moves[i]);
 			current_board.set_state(temp_board);
 			threads.add(new_thread);
 			pool.invoke(new_thread);		
@@ -232,7 +232,7 @@ public class Minimax extends Search {
 				}
 				current_board.set_state(temp_board);
 				//recursive thread call
-				new_thread = new Minimax(next_board, p_depth, p_thread_depth-1, (p_thread_turn == PlayerNum.human ? PlayerNum.computer : PlayerNum.human), valid_next_moves[i]);
+				new_thread = new Minimax(next_board, p_depth, p_thread_depth-1, PlayerNum.opposite(p_thread_turn), valid_next_moves[i]);
 				threads.add(new_thread);
 				pool.invoke(new_thread);
 			}
@@ -260,7 +260,7 @@ public class Minimax extends Search {
 					short next_board[][] = current_board.get_state();
 					current_board.set_state(temp_board);
 					// recursive call
-					temp_score = minimax(next_board, depth - 1, (turn == PlayerNum.human ? PlayerNum.computer : PlayerNum.human), valid_next_moves[i]);
+					temp_score = minimax(next_board, depth - 1, PlayerNum.opposite(turn), valid_next_moves[i]);
 				} else if ('P' == valid_next_moves[i].charAt(0)) {
 					// this move is a pop
 					short temp_board[][] = current_board.get_state();

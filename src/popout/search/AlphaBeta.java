@@ -62,6 +62,11 @@ public class AlphaBeta extends Search {
 			if ('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.computer);
 			if ('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.computer);
 		}
+		
+		for (int i = 0; i < valid_next_moves.length; i++) {
+			// for debugging
+			System.out.print(valid_next_moves[i] + " : " + move_utilities[i] + "     ");
+		}
 		System.out.println("");
 	}
 
@@ -78,7 +83,7 @@ public class AlphaBeta extends Search {
 		short beta = start_beta;
 
 		String valid_next_moves[] = null;
-		if( depth > 2 ){
+		if( depth > 4 ){
 			valid_next_moves = get_heuristic_ordered_moves(current_board, turn);
 		}
 		else{
@@ -106,7 +111,7 @@ public class AlphaBeta extends Search {
 				return 0;
 			}
 			
-			temp_score = alpha_beta(next_board, depth - 1, (turn == PlayerNum.human ? PlayerNum.computer : PlayerNum.human), valid_next_moves[i], alpha, beta);
+			temp_score = alpha_beta(next_board, depth - 1, PlayerNum.opposite(turn), valid_next_moves[i], alpha, beta);
 			current_board.set_state(temp_board);
 			
 			if (PlayerNum.computer == turn) {
