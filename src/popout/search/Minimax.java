@@ -93,7 +93,45 @@ public class Minimax extends Search {
 
 	protected final short minimax(final short[][] test_board_short,
 			final int depth, final short turn, final String move) {
-
+		BoardState current_board = new BoardState(test_board_short);
+		
+		if (depth <= 0 || current_board.compute_win() != PlayerNum.EMPTY_SPACE) {
+			return evaluate_board(current_board, move);
+		}
+		
+		short alpha = (PlayerNum.COMPUTER == turn ? Short.MIN_VALUE : Short.MAX_VALUE);
+		String valid_next_moves[] = current_board.get_available_moves(turn);
+		
+		for(int i = 0; i < valid_next_moves.length; i++){
+			short temp_score = 0;
+			final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
+			short temp_board[][] = current_board.get_state();
+			short next_board[][] = null;
+			if ('D' == valid_next_moves[i].charAt(0)) {
+				// this move is a drop
+				current_board.drop(move_col, turn);
+				next_board = current_board.get_state();
+			} else if ('P' == valid_next_moves[i].charAt(0)) {
+				// this move is a pop
+				current_board.pop(move_col, turn);
+				next_board = current_board.get_state();
+			} else {
+				// this move is not recognized
+				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
+				return 0;
+			}
+			
+			temp_score = minimax(next_board, depth - 1, PlayerNum.opposite(turn), valid_next_moves[i]);
+			current_board.set_state(temp_board);
+			
+			if(PlayerNum.COMPUTER == turn){
+				alpha = (short) Math.max(alpha, temp_score);
+			}
+			else{
+				alpha = (short) Math.min(alpha, temp_score);
+			}
+		}
+		return alpha;
 	}
 
 }
