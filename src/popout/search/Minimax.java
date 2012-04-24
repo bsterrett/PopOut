@@ -55,16 +55,16 @@ public class Minimax extends Search {
 		BoardState current_board = p_board;
 		final String valid_next_moves[] = current_board.get_cheap_ordered_available_moves(p_thread_turn);
 
-		if (PlayerNum.human == p_thread_turn)
+		if (PlayerNum.HUMAN == p_thread_turn)
 			p_thread_alpha = Short.MAX_VALUE;
-		else if (PlayerNum.computer == p_thread_turn)
+		else if (PlayerNum.COMPUTER == p_thread_turn)
 			p_thread_alpha = Short.MIN_VALUE;
 		else {
 			System.err.println("Minimax is unsure of whose turn it is!");
 			return;
 		}
 
-		if (p_thread_depth <= 0 || current_board.compute_win() != PlayerNum.empty_space) {
+		if (p_thread_depth <= 0 || current_board.compute_win() != PlayerNum.EMPTY_SPACE) {
 			// if this board is a terminal node
 			p_thread_alpha = evaluate_board(current_board, p_thread_move);
 			return;
@@ -104,7 +104,7 @@ public class Minimax extends Search {
 		for(int i = 0; i < threads.size(); i++){
 			threads.get(i).join();
 			short temp_score = threads.get(i).get_alpha();
-			p_thread_alpha = (short) (p_thread_turn == PlayerNum.human ? Math.min(p_thread_alpha, temp_score) : Math.max(p_thread_alpha, temp_score));
+			p_thread_alpha = (short) (p_thread_turn == PlayerNum.HUMAN ? Math.min(p_thread_alpha, temp_score) : Math.max(p_thread_alpha, temp_score));
 		}
 
 	}
@@ -113,15 +113,15 @@ public class Minimax extends Search {
 		// Call this to make the computer move
 		short alpha = Short.MIN_VALUE;
 		ArrayList<String> best_moves = new ArrayList<String>();
-		short current_board_short[][] = new short[BoardSize.column_count][BoardSize.row_count];
-		for (int col_iter = 0; col_iter < BoardSize.column_count; col_iter++) {
-			for (int row_iter = 0; row_iter < BoardSize.row_count; row_iter++) {
+		short current_board_short[][] = new short[BoardSize.COLUMN_COUNT][BoardSize.ROW_COUNT];
+		for (int col_iter = 0; col_iter < BoardSize.COLUMN_COUNT; col_iter++) {
+			for (int row_iter = 0; row_iter < BoardSize.ROW_COUNT; row_iter++) {
 				current_board_short[col_iter][row_iter] = p_board.get_state()[col_iter][row_iter];
 			}
 		}
 		BoardState current_board = new BoardState(current_board_short);
 		final String valid_next_moves[] = current_board
-				.get_cheap_ordered_available_moves(PlayerNum.computer);
+				.get_cheap_ordered_available_moves(PlayerNum.COMPUTER);
 		final short move_utilities[] = new short[valid_next_moves.length];
 		int utilities_iter = 0;
 		for (int i = 0; i < valid_next_moves.length; i++) {
@@ -131,20 +131,20 @@ public class Minimax extends Search {
 			if ('D' == valid_next_moves[i].charAt(0)) {
 				// this move is a drop
 				short temp_board[][] = current_board.get_state();
-				current_board.drop(move_col, PlayerNum.computer);
+				current_board.drop(move_col, PlayerNum.COMPUTER);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical drop
-				temp_score = minimax(next_board, p_depth, PlayerNum.human, valid_next_moves[i]);
+				temp_score = minimax(next_board, p_depth, PlayerNum.HUMAN, valid_next_moves[i]);
 				move_utilities[utilities_iter++] = temp_score;
 			} else if ('P' == valid_next_moves[i].charAt(0)) {
 				// this move is a pop
 				short temp_board[][] = current_board.get_state();
-				current_board.pop(move_col, PlayerNum.computer);
+				current_board.pop(move_col, PlayerNum.COMPUTER);
 				short next_board[][] = current_board.get_state();
 				current_board.set_state(temp_board);
 				// recursively call minimax() for this hypothetical pop
-				temp_score += minimax(next_board, p_depth, PlayerNum.human, valid_next_moves[i]);
+				temp_score += minimax(next_board, p_depth, PlayerNum.HUMAN, valid_next_moves[i]);
 				move_utilities[utilities_iter++] = temp_score;
 			} else {
 				// this move is not recognized
@@ -173,9 +173,9 @@ public class Minimax extends Search {
 			// one
 			int random_best = p_random.nextInt(best_moves.size());
 			if ('D' == best_moves.get(random_best).charAt(0))
-				p_board.drop(Integer.parseInt(best_moves.get(random_best).substring(2)), PlayerNum.computer);
+				p_board.drop(Integer.parseInt(best_moves.get(random_best).substring(2)), PlayerNum.COMPUTER);
 			if ('P' == best_moves.get(random_best).charAt(0))
-				p_board.pop(Integer.parseInt(best_moves.get(random_best).substring(2)), PlayerNum.computer);
+				p_board.pop(Integer.parseInt(best_moves.get(random_best).substring(2)), PlayerNum.COMPUTER);
 		}
 
 		for (int i = 0; i < valid_next_moves.length; i++) {
@@ -195,16 +195,16 @@ public class Minimax extends Search {
 				.get_available_moves(turn);
 
 		short alpha = 0;
-		if (PlayerNum.human == turn)
+		if (PlayerNum.HUMAN == turn)
 			alpha = Short.MAX_VALUE;
-		else if (PlayerNum.computer == turn)
+		else if (PlayerNum.COMPUTER == turn)
 			alpha = Short.MIN_VALUE;
 		else {
 			System.err.println("Minimax is unsure of whose turn it is!");
 			return 0;
 		}
 
-		if (depth <= 0 || current_board.compute_win() != PlayerNum.empty_space) {
+		if (depth <= 0 || current_board.compute_win() != PlayerNum.EMPTY_SPACE) {
 			// if this board is a terminal node
 			return evaluate_board(current_board, move);
 		} else if (p_multithreaded && depth >= 4) {
@@ -243,7 +243,7 @@ public class Minimax extends Search {
 			for(int i = 0; i < threads.size(); i++){
 				threads.get(i).join();
 				short temp_score = threads.get(i).get_alpha();
-				alpha = (short) (turn == PlayerNum.human ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
+				alpha = (short) (turn == PlayerNum.HUMAN ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
 			}
 			return alpha;
 			
@@ -269,13 +269,13 @@ public class Minimax extends Search {
 					current_board.set_state(temp_board);
 					// recursive call
 					temp_score = minimax(next_board, depth - 1,
-							(turn == PlayerNum.human ? PlayerNum.computer : PlayerNum.human), valid_next_moves[i]);
+							(turn == PlayerNum.HUMAN ? PlayerNum.COMPUTER : PlayerNum.HUMAN), valid_next_moves[i]);
 				} else {
 					// this move is not recognized
 					System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 					return 0;
 				}
-				alpha = (short) (turn == PlayerNum.human ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
+				alpha = (short) (turn == PlayerNum.HUMAN ? Math.min(alpha, temp_score) : Math.max(alpha, temp_score));
 			}
 			alpha += 1;
 			return alpha;

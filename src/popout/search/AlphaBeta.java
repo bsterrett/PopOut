@@ -21,7 +21,7 @@ public class AlphaBeta extends Search {
 		int best_move = -1;
 		short current_board_short[][] = p_board.get_state();
 		BoardState current_board = new BoardState(current_board_short);
-		final String valid_next_moves[] = current_board.get_cheap_ordered_available_moves(PlayerNum.computer);
+		final String valid_next_moves[] = current_board.get_cheap_ordered_available_moves(PlayerNum.COMPUTER);
 		final short move_utilities[] = new short[valid_next_moves.length];
 		int utilities_iter = 0;
 		for (int i = 0; i < valid_next_moves.length; i++) {
@@ -31,17 +31,17 @@ public class AlphaBeta extends Search {
 			short next_board[][] = null;
 			if ('D' == valid_next_moves[i].charAt(0)) {
 				// this move is a drop				
-				current_board.drop(move_col, PlayerNum.computer);
+				current_board.drop(move_col, PlayerNum.COMPUTER);
 				next_board = current_board.get_state();
 			} else if ('P' == valid_next_moves[i].charAt(0)) {
 				// this move is a pop
-				current_board.pop(move_col, PlayerNum.computer);
+				current_board.pop(move_col, PlayerNum.COMPUTER);
 				next_board = current_board.get_state();		
 			} else {
 				// this move is not recognized
 				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
 			}			
-			temp_score = alpha_beta(next_board, p_depth, PlayerNum.human, valid_next_moves[i], alpha, beta);
+			temp_score = alpha_beta(next_board, p_depth, PlayerNum.HUMAN, valid_next_moves[i], alpha, beta);
 			move_utilities[utilities_iter++] = temp_score;
 			current_board.set_state(temp_board);
 			
@@ -59,8 +59,8 @@ public class AlphaBeta extends Search {
 			System.err.println("Something bad happened during minimax search!");
 		} else {
 			// the search found one or more best moves, committing to a random one
-			if ('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.computer);
-			if ('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.computer);
+			if ('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.COMPUTER);
+			if ('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.COMPUTER);
 		}
 		
 		for (int i = 0; i < valid_next_moves.length; i++) {
@@ -75,7 +75,7 @@ public class AlphaBeta extends Search {
 		// certain depth, then search the tree for good moves
 		BoardState current_board = new BoardState(test_board_short);
 
-		if (depth <= 0 || current_board.compute_win() != PlayerNum.empty_space) {
+		if (depth <= 0 || current_board.compute_win() != PlayerNum.EMPTY_SPACE) {
 			return evaluate_board(current_board, move);
 		}
 
@@ -114,10 +114,10 @@ public class AlphaBeta extends Search {
 			temp_score = alpha_beta(next_board, depth - 1, PlayerNum.opposite(turn), valid_next_moves[i], alpha, beta);
 			current_board.set_state(temp_board);
 			
-			if (PlayerNum.computer == turn) {
+			if (PlayerNum.COMPUTER == turn) {
 				alpha = (short) Math.max(alpha, temp_score);
 				if (alpha >= beta) return alpha;
-			} else if (PlayerNum.human == turn) {
+			} else if (PlayerNum.HUMAN == turn) {
 				beta = (short) Math.min(beta, temp_score);
 				if (alpha >= beta) return beta;
 			} else {
@@ -125,7 +125,7 @@ public class AlphaBeta extends Search {
 			}
 		}
 
-		if (PlayerNum.computer == turn) {
+		if (PlayerNum.COMPUTER == turn) {
 			return alpha;
 		} else {
 			return beta;

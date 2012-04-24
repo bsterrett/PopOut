@@ -106,66 +106,66 @@ public class Search extends RecursiveAction {
 		// This sucks, dont use it
 
 		short current_winner = target_board.compute_win();
-		if (PlayerNum.human == current_winner)
+		if (PlayerNum.HUMAN == current_winner)
 			return -20;
-		if (PlayerNum.computer == current_winner)
+		if (PlayerNum.COMPUTER == current_winner)
 			return 20;
 		final short board[][] = target_board.get_state();
 		short positive_board_utility = 0;
 		short negative_board_utility = 0;
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
 				final short compare_against = board[col][row];
-				if (PlayerNum.human == compare_against) {
+				if (PlayerNum.HUMAN == compare_against) {
 					// compute the utility of this position if owned by the
 					// player
-					if (col >= 2 && row <= BoardSize.row_count - 3
+					if (col >= 2 && row <= BoardSize.ROW_COUNT - 3
 							&& board[col - 1][row + 1] == compare_against
 							&& board[col - 2][row + 1] == compare_against) {
 						negative_board_utility += negative_board_utility < -10 ? 0
 								: -5;
 					}
-					if (row <= BoardSize.row_count - 3
+					if (row <= BoardSize.ROW_COUNT - 3
 							&& board[col][row + 1] == compare_against
 							&& board[col][row + 2] == compare_against) {
 						negative_board_utility += negative_board_utility < -10 ? 0
 								: -5;
 					}
-					if (col <= BoardSize.column_count - 3 && row <= BoardSize.row_count - 3
+					if (col <= BoardSize.COLUMN_COUNT - 3 && row <= BoardSize.ROW_COUNT - 3
 							&& board[col + 1][row + 1] == compare_against
 							&& board[col + 2][row + 2] == compare_against) {
 						negative_board_utility += negative_board_utility < -10 ? 0
 								: -5;
 					}
-					if (col <= BoardSize.column_count - 3
+					if (col <= BoardSize.COLUMN_COUNT - 3
 							&& board[col + 1][row] == compare_against
 							&& board[col + 2][row] == compare_against) {
 						negative_board_utility += negative_board_utility < -10 ? 0
 								: -5;
 					}
 				}
-				if (PlayerNum.computer == compare_against) {
+				if (PlayerNum.COMPUTER == compare_against) {
 					// compute the utility of this position if owned by the
 					// computer
-					if (col >= 2 && row <= BoardSize.row_count - 3
+					if (col >= 2 && row <= BoardSize.ROW_COUNT - 3
 							&& board[col - 1][row + 1] == compare_against
 							&& board[col - 2][row + 1] == compare_against) {
 						positive_board_utility += positive_board_utility > 10 ? 0
 								: 5;
 					}
-					if (row <= BoardSize.row_count - 3
+					if (row <= BoardSize.ROW_COUNT - 3
 							&& board[col][row + 1] == compare_against
 							&& board[col][row + 2] == compare_against) {
 						positive_board_utility += positive_board_utility > 10 ? 0
 								: 5;
 					}
-					if (col <= BoardSize.column_count - 3 && row <= BoardSize.row_count - 3
+					if (col <= BoardSize.COLUMN_COUNT - 3 && row <= BoardSize.ROW_COUNT - 3
 							&& board[col + 1][row + 1] == compare_against
 							&& board[col + 2][row + 2] == compare_against) {
 						positive_board_utility += positive_board_utility > 10 ? 0
 								: 5;
 					}
-					if (col <= BoardSize.column_count - 3
+					if (col <= BoardSize.COLUMN_COUNT - 3
 							&& board[col + 1][row] == compare_against
 							&& board[col + 2][row] == compare_against) {
 						positive_board_utility += positive_board_utility > 10 ? 0
@@ -186,83 +186,83 @@ public class Search extends RecursiveAction {
 		// Don't use this, its bad!
 
 		short current_winner = target_board.compute_win();
-		if (PlayerNum.human == current_winner)
+		if (PlayerNum.HUMAN == current_winner)
 			return -19000;
-		if (PlayerNum.computer == current_winner)
+		if (PlayerNum.COMPUTER == current_winner)
 			return 19000;
 		final short board[][] = target_board.get_state();
 		short utility = 0;
 
 		// iterate over all columns, looking for 3 in a row with an empty space
 		// on top
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]
-						&& board[col][row + 3] == PlayerNum.empty_space) {
-					utility += (board[col][row] == PlayerNum.human ? -12 : 12);
+						&& board[col][row + 3] == PlayerNum.EMPTY_SPACE) {
+					utility += (board[col][row] == PlayerNum.HUMAN ? -12 : 12);
 				}
 			}
 		}
 
 		// iterate over all rows, looking for 3 in a row with an empty space OR
 		// a chip that could be popped to make a connect 4
-		for (int row = 0; row < BoardSize.row_count; row++) {
-			for (int col = 0; col < BoardSize.column_count - 3; col++) {
-				if (BoardSize.row_count - 1 > row
-						&& board[col][row] != PlayerNum.empty_space
+		for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+			for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+				if (BoardSize.ROW_COUNT - 1 > row
+						&& board[col][row] != PlayerNum.EMPTY_SPACE
 						&& ((board[col][row] == board[col + 1][row]
-								&& board[col][row] == board[col + 2][row] && (board[col + 3][row] == PlayerNum.empty_space || board[col][row] == board[col + 3][row + 1]))
+								&& board[col][row] == board[col + 2][row] && (board[col + 3][row] == PlayerNum.EMPTY_SPACE || board[col][row] == board[col + 3][row + 1]))
 								|| (board[col][row] == board[col + 1][row]
-										&& board[col][row] == board[col + 3][row] && (board[col + 2][row] == PlayerNum.empty_space || board[col][row] == board[col + 2][row + 1])) || (board[col][row] == board[col + 3][row]
-								&& board[col][row] == board[col + 2][row] && (board[col + 1][row] == PlayerNum.empty_space || board[col][row] == board[col + 1][row + 1])))) {
+										&& board[col][row] == board[col + 3][row] && (board[col + 2][row] == PlayerNum.EMPTY_SPACE || board[col][row] == board[col + 2][row + 1])) || (board[col][row] == board[col + 3][row]
+								&& board[col][row] == board[col + 2][row] && (board[col + 1][row] == PlayerNum.EMPTY_SPACE || board[col][row] == board[col + 1][row + 1])))) {
 					// this could be broken up to look for a good pop and a good
 					// drop separately
 					// could increase the efficacy of the evaluation function
-					utility += (board[col][row] == PlayerNum.human ? -14 : 14);
-				} else if (BoardSize.row_count - 1 == row
-						&& board[col][row] != PlayerNum.empty_space
+					utility += (board[col][row] == PlayerNum.HUMAN ? -14 : 14);
+				} else if (BoardSize.ROW_COUNT - 1 == row
+						&& board[col][row] != PlayerNum.EMPTY_SPACE
 						&& ((board[col][row] == board[col + 1][row]
-								&& board[col][row] == board[col + 2][row] && board[col + 3][row] == PlayerNum.empty_space)
+								&& board[col][row] == board[col + 2][row] && board[col + 3][row] == PlayerNum.EMPTY_SPACE)
 								|| (board[col][row] == board[col + 1][row]
-										&& board[col][row] == board[col + 3][row] && board[col + 2][row] == PlayerNum.empty_space) || (board[col][row] == board[col + 3][row]
-								&& board[col][row] == board[col + 2][row] && board[col + 1][row] == PlayerNum.empty_space))) {
-					utility += (board[col][row] == PlayerNum.human ? -12 : 12);
+										&& board[col][row] == board[col + 3][row] && board[col + 2][row] == PlayerNum.EMPTY_SPACE) || (board[col][row] == board[col + 3][row]
+								&& board[col][row] == board[col + 2][row] && board[col + 1][row] == PlayerNum.EMPTY_SPACE))) {
+					utility += (board[col][row] == PlayerNum.HUMAN ? -12 : 12);
 				}
 			}
 		}
 
 		// iterate over all left-up diagonals
-		for (int col = 3; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 3; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& (board[col][row] == board[col - 1][row + 1]
 								&& board[col][row] == board[col - 2][row + 2]
-								&& (board[col - 3][row + 3] == PlayerNum.empty_space || (BoardSize.row_count - 4 > row && board[col - 3][row + 4] == board[col][row]))
+								&& (board[col - 3][row + 3] == PlayerNum.EMPTY_SPACE || (BoardSize.ROW_COUNT - 4 > row && board[col - 3][row + 4] == board[col][row]))
 								|| board[col][row] == board[col - 1][row + 1]
 								&& board[col][row] == board[col - 3][row + 3]
-								&& (board[col - 2][row + 2] == PlayerNum.empty_space || board[col][row] == board[col - 2][row + 3]) || board[col][row] == board[col - 2][row + 2]
+								&& (board[col - 2][row + 2] == PlayerNum.EMPTY_SPACE || board[col][row] == board[col - 2][row + 3]) || board[col][row] == board[col - 2][row + 2]
 								&& board[col][row] == board[col - 3][row + 3]
-								&& (board[col - 1][row + 1] == PlayerNum.empty_space || board[col][row] == board[col - 1][row + 2]))) {
-					utility += (board[col][row] == PlayerNum.human ? -14 : 14);
+								&& (board[col - 1][row + 1] == PlayerNum.EMPTY_SPACE || board[col][row] == board[col - 1][row + 2]))) {
+					utility += (board[col][row] == PlayerNum.HUMAN ? -14 : 14);
 				}
 			}
 		}
 
 		// iterate over all right-up diagonals
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& (board[col][row] == board[col + 1][row + 1]
 								&& board[col][row] == board[col + 2][row + 2]
-								&& (board[col + 3][row + 3] == PlayerNum.empty_space || (BoardSize.row_count - 4 > row && board[col + 3][row + 4] == board[col][row]))
+								&& (board[col + 3][row + 3] == PlayerNum.EMPTY_SPACE || (BoardSize.ROW_COUNT - 4 > row && board[col + 3][row + 4] == board[col][row]))
 								|| board[col][row] == board[col + 1][row + 1]
 								&& board[col][row] == board[col + 3][row + 3]
-								&& (board[col + 2][row + 2] == PlayerNum.empty_space || board[col][row] == board[col + 2][row + 3]) || board[col][row] == board[col + 2][row + 2]
+								&& (board[col + 2][row + 2] == PlayerNum.EMPTY_SPACE || board[col][row] == board[col + 2][row + 3]) || board[col][row] == board[col + 2][row + 2]
 								&& board[col][row] == board[col + 3][row + 3]
-								&& (board[col + 1][row + 1] == PlayerNum.empty_space || board[col][row] == board[col + 1][row + 2]))) {
-					utility += (board[col][row] == PlayerNum.human ? -14 : 14);
+								&& (board[col + 1][row + 1] == PlayerNum.EMPTY_SPACE || board[col][row] == board[col + 1][row + 2]))) {
+					utility += (board[col][row] == PlayerNum.HUMAN ? -14 : 14);
 				}
 			}
 		}
@@ -277,39 +277,39 @@ public class Search extends RecursiveAction {
 		short utility = 0;
 
 		// check up and left for 4 in a row
-		for (int col = 3; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 3; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]
 						&& board[col][row] == board[col - 3][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check straight up for 4 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]
 						&& board[col][row] == board[col][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check up and right for 4 in a row
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]
 						&& board[col][row] == board[col + 3][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
@@ -317,61 +317,61 @@ public class Search extends RecursiveAction {
 
 		// check right for 4 in a row
 
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]
 						&& board[col][row] == board[col + 3][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check up and left for 3 in a row
-		for (int col = 2; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 2; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? three_in_a_row
+					utility += (board[col][row] == PlayerNum.COMPUTER ? three_in_a_row
 							: -1 * three_in_a_row);
 				}
 			}
 		}
 
 		// check straight up for 3 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? three_in_a_row
+					utility += (board[col][row] == PlayerNum.COMPUTER ? three_in_a_row
 							: -1 * three_in_a_row);
 				}
 			}
 		}
 
 		// check up and right for 3 in a row
-		for (int col = 0; col < BoardSize.column_count - 2; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 2; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? three_in_a_row
+					utility += (board[col][row] == PlayerNum.COMPUTER ? three_in_a_row
 							: -1 * three_in_a_row);
 				}
 			}
 		}
 
 		// check right for 3 in a row
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? three_in_a_row
+					utility += (board[col][row] == PlayerNum.COMPUTER ? three_in_a_row
 							: -1 * three_in_a_row);
 				}
 			}
@@ -389,156 +389,156 @@ public class Search extends RecursiveAction {
 		short utility = evaluate_move_two(target_board, move);
 
 		// check up and left for 5 in a row
-		for (int col = 4; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 4; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 4; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 4; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]
 						&& board[col][row] == board[col - 3][row + 3]
 						&& board[col][row] == board[col - 4][row + 4]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_5
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_5
 							: -1 * connect_5);
 				}
 			}
 		}
 
 		// check straight up for 5 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 4; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 4; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]
 						&& board[col][row] == board[col][row + 3]
 						&& board[col][row] == board[col][row + 4]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_5
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_5
 							: -1 * connect_5);
 				}
 			}
 		}
 
 		// check up and right for 5 in a row
-		for (int col = 0; col < BoardSize.column_count - 4; col++) {
-			for (int row = 0; row < BoardSize.row_count - 4; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 4; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 4; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]
 						&& board[col][row] == board[col + 3][row + 3]
 						&& board[col][row] == board[col + 4][row + 4]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_5
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_5
 							: -1 * connect_5);
 				}
 			}
 		}
 
 		// check straight right for 5 in a row
-		for (int col = 0; col < BoardSize.column_count - 4; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 4; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]
 						&& board[col][row] == board[col + 3][row]
 						&& board[col][row] == board[col + 4][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_5
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_5
 							: -1 * connect_5);
 				}
 			}
 		}
 
 		// check up and left for 4 in a row
-		for (int col = 3; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 3; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]
 						&& board[col][row] == board[col - 3][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check straight up for 4 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]
 						&& board[col][row] == board[col][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check up and right for 4 in a row
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]
 						&& board[col][row] == board[col + 3][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check right for 4 in a row
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]
 						&& board[col][row] == board[col + 3][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check up and left for 3 in a row
-		for (int col = 2; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 2; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_3
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_3
 							: -1 * connect_3);
 				}
 			}
 		}
 
 		// check straight up for 3 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_3
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_3
 							: -1 * connect_3);
 				}
 			}
 		}
 
 		// check up and right for 3 in a row
-		for (int col = 0; col < BoardSize.column_count - 2; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 2; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_3
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_3
 							: -1 * connect_3);
 				}
 			}
 		}
 
 		// check right for 3 in a row
-		for (int col = 0; col < BoardSize.column_count - 2; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 2; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_3
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_3
 							: -1 * connect_3);
 				}
 			}
@@ -554,52 +554,52 @@ public class Search extends RecursiveAction {
 		short utility = (short) (evaluate_move_one(move) + evaluate_move_two(target_board, move));
 
 		// check up and left for 4 in a row
-		for (int col = 3; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 3; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]
 						&& board[col][row] == board[col - 3][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check straight up for 4 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]
 						&& board[col][row] == board[col][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check up and right for 4 in a row
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]
 						&& board[col][row] == board[col + 3][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check right for 4 in a row
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]
 						&& board[col][row] == board[col + 3][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
@@ -617,165 +617,165 @@ public class Search extends RecursiveAction {
 		// using move utility instead of 0 to start with
 		short utility = evaluate_move_two(target_board, move);
 		
-		for(int col = 0; col < BoardSize.column_count; col++){
-			for(int row = 0; row < BoardSize.row_count; row++){
-				if(PlayerNum.empty_space == board[col][row]){
+		for(int col = 0; col < BoardSize.COLUMN_COUNT; col++){
+			for(int row = 0; row < BoardSize.ROW_COUNT; row++){
+				if(PlayerNum.EMPTY_SPACE == board[col][row]){
 					utility += empty_space;
 				}
 			}
 		}
 
 		// check up and left for 5 in a row
-		for (int col = 4; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 4; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 4; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 4; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]
 						&& board[col][row] == board[col - 3][row + 3]
 						&& board[col][row] == board[col - 4][row + 4]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_5
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_5
 							: -1 * connect_5);
 				}
 			}
 		}
 
 		// check straight up for 5 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 4; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 4; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]
 						&& board[col][row] == board[col][row + 3]
 						&& board[col][row] == board[col][row + 4]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_5
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_5
 							: -1 * connect_5);
 				}
 			}
 		}
 
 		// check up and right for 5 in a row
-		for (int col = 0; col < BoardSize.column_count - 4; col++) {
-			for (int row = 0; row < BoardSize.row_count - 4; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 4; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 4; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]
 						&& board[col][row] == board[col + 3][row + 3]
 						&& board[col][row] == board[col + 4][row + 4]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_5
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_5
 							: -1 * connect_5);
 				}
 			}
 		}
 
 		// check straight right for 5 in a row
-		for (int col = 0; col < BoardSize.column_count - 4; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 4; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]
 						&& board[col][row] == board[col + 3][row]
 						&& board[col][row] == board[col + 4][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_5
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_5
 							: -1 * connect_5);
 				}
 			}
 		}
 
 		// check up and left for 4 in a row
-		for (int col = 3; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 3; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]
 						&& board[col][row] == board[col - 3][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check straight up for 4 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]
 						&& board[col][row] == board[col][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check up and right for 4 in a row
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count - 3; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]
 						&& board[col][row] == board[col + 3][row + 3]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check right for 4 in a row
-		for (int col = 0; col < BoardSize.column_count - 3; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]
 						&& board[col][row] == board[col + 3][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_4
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
 							: -1 * connect_4);
 				}
 			}
 		}
 
 		// check up and left for 3 in a row
-		for (int col = 2; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 2; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col - 1][row + 1]
 						&& board[col][row] == board[col - 2][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_3
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_3
 							: -1 * connect_3);
 				}
 			}
 		}
 
 		// check straight up for 3 in a row
-		for (int col = 0; col < BoardSize.column_count; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col][row + 1]
 						&& board[col][row] == board[col][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_3
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_3
 							: -1 * connect_3);
 				}
 			}
 		}
 
 		// check up and right for 3 in a row
-		for (int col = 0; col < BoardSize.column_count - 2; col++) {
-			for (int row = 0; row < BoardSize.row_count - 2; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 2; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 2; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row + 1]
 						&& board[col][row] == board[col + 2][row + 2]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_3
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_3
 							: -1 * connect_3);
 				}
 			}
 		}
 
 		// check right for 3 in a row
-		for (int col = 0; col < BoardSize.column_count - 2; col++) {
-			for (int row = 0; row < BoardSize.row_count; row++) {
-				if (board[col][row] != PlayerNum.empty_space
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 2; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
 						&& board[col][row] == board[col + 1][row]
 						&& board[col][row] == board[col + 2][row]) {
-					utility += (board[col][row] == PlayerNum.computer ? connect_3
+					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_3
 							: -1 * connect_3);
 				}
 			}
@@ -818,16 +818,16 @@ public class Search extends RecursiveAction {
 		// Since target_board already has the move applied, this will check for
 		// an empty space in the second-lowest row, not lowest row
 		int move_col = Integer.parseInt(move.substring(2));
-		if (PlayerNum.empty_space == target_board.get_state()[move_col][1]
+		if (PlayerNum.EMPTY_SPACE == target_board.get_state()[move_col][1]
 				&& 'D' == move.charAt(0)) {
 			// The computer must have just put its chip in board[move_col][0]
 			return 2;
 		} else if ('P' == move.charAt(0)) {
-			if (PlayerNum.computer == target_board.get_state()[move_col][1]) {
+			if (PlayerNum.COMPUTER == target_board.get_state()[move_col][1]) {
 				// This is a somewhat safe pop because it will allow for another
 				// pop in the future
 				return 1;
-			} else if (PlayerNum.human == target_board.get_state()[move_col][1]) {
+			} else if (PlayerNum.HUMAN == target_board.get_state()[move_col][1]) {
 				// This is not a safe pop because it allows the opposing player
 				// the ability to pop this column
 				return -1;

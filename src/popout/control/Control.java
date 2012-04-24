@@ -26,9 +26,9 @@ public class Control {
 		while (!user_input_valid) {
 			String user_input = scan.nextLine();
 			if (user_input.length() > 0	&& 'D' == user_input.toUpperCase().charAt(0)) {
-				user_input_valid = p_board.drop(Integer.parseInt(user_input.substring(1).trim()), PlayerNum.human);
+				user_input_valid = p_board.drop(Integer.parseInt(user_input.substring(1).trim()), PlayerNum.HUMAN);
 			} else if (user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)) {
-				user_input_valid = p_board.pop(Integer.parseInt(user_input.substring(1).trim()), PlayerNum.human);
+				user_input_valid = p_board.pop(Integer.parseInt(user_input.substring(1).trim()), PlayerNum.HUMAN);
 			} else {
 				System.err.println("Invalid user input!");
 			}
@@ -37,16 +37,16 @@ public class Control {
 
 	private static void print_winner() {
 		switch (p_board.compute_win()) {
-		case PlayerNum.empty_space:
+		case PlayerNum.EMPTY_SPACE:
 			System.out.println("No winner. Maybe a draw. Who knows. This shouldn't happen.");
 			return;
-		case PlayerNum.human:
+		case PlayerNum.HUMAN:
 			System.out.println("You win! The computer must be really REALLY dumb.");
 			return;
-		case PlayerNum.computer:
+		case PlayerNum.COMPUTER:
 			System.out.println("The computer wins! Societal takeover is imminent!");
 			return;
-		case (short) (10*PlayerNum.computer + PlayerNum.human):
+		case (short) (10*PlayerNum.COMPUTER + PlayerNum.HUMAN):
 			System.out.println("Whoa, you tied! Try again!");
 			return;
 		default:
@@ -57,9 +57,9 @@ public class Control {
 	public static void main(String[] args) {
 		init();
 		System.out.println(p_display.toString());
-		while (p_board.compute_win() == PlayerNum.empty_space) {
+		while (p_board.compute_win() == PlayerNum.EMPTY_SPACE) {
 			get_player_move();
-			if (p_board.compute_win() != PlayerNum.empty_space) {
+			if (p_board.compute_win() != PlayerNum.EMPTY_SPACE) {
 				System.out.println(p_display.toString());
 				break;
 			}

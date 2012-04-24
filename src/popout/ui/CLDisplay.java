@@ -16,21 +16,21 @@ public class CLDisplay {
 	public String toString() {
 		String return_string = "\n0 1 2 3 4 5 6\n-------------\n";
 		p_display_state = p_board.get_state();
-		if (BoardSize.column_count != p_display_state.length
-				&& BoardSize.row_count != p_display_state[0].length) {
+		if (BoardSize.COLUMN_COUNT != p_display_state.length
+				&& BoardSize.ROW_COUNT != p_display_state[0].length) {
 			System.err
 					.println("Tried to print board state which does not have the correct dimensions!");
 		} else {
-			for (int row = (BoardSize.row_count - 1); row >= 0; row--) {
-				for (int col = 0; col < BoardSize.column_count; col++) {
+			for (int row = (BoardSize.ROW_COUNT - 1); row >= 0; row--) {
+				for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
 					switch (p_display_state[col][row]) {
-					case PlayerNum.empty_space:
+					case PlayerNum.EMPTY_SPACE:
 						return_string += "- ";
 						break;
-					case PlayerNum.human:
+					case PlayerNum.HUMAN:
 						return_string += "X ";
 						break;
-					case PlayerNum.computer:
+					case PlayerNum.COMPUTER:
 						return_string += "O ";
 						break;
 					default:
