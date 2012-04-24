@@ -61,8 +61,11 @@ public class Search extends RecursiveAction {
 		int move_counter = 0;
 		while(moves.size() > 0){
 			int best_move_so_far = 0;
-			for(int i = 0; i < moves.size(); i++){
-				if(move_utilities.get(i) >= move_utilities.get(best_move_so_far)){
+			for(int i = 1; i < moves.size(); i++){
+				if(PlayerNum.COMPUTER == player && move_utilities.get(i) > move_utilities.get(best_move_so_far)){
+					best_move_so_far = i;
+				}
+				else if(PlayerNum.HUMAN == player && move_utilities.get(i) < move_utilities.get(best_move_so_far)){
 					best_move_so_far = i;
 				}
 			}

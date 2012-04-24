@@ -21,7 +21,7 @@ public class AlphaBeta extends Search {
 		int best_move = -1;
 		short current_board_short[][] = p_board.get_state();
 		BoardState current_board = new BoardState(current_board_short);
-		final String valid_next_moves[] = current_board.get_cheap_ordered_available_moves(PlayerNum.COMPUTER);
+		final String valid_next_moves[] = get_heuristic_ordered_moves(current_board, PlayerNum.COMPUTER);
 		final short move_utilities[] = new short[valid_next_moves.length];
 		int utilities_iter = 0;
 		for (int i = 0; i < valid_next_moves.length; i++) {
