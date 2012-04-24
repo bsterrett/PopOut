@@ -20,7 +20,7 @@ public class Search extends RecursiveAction {
 		p_board = board;
 		p_random = new Random(System.nanoTime());
 		p_heuristic_num = 5;
-		p_depth = 9;
+		p_depth = 5;
 	}
 	
 	public void compute(){

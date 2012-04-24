@@ -95,7 +95,7 @@ public class Minimax extends Search {
 			final int depth, final short turn, final String move) {
 		BoardState current_board = new BoardState(test_board_short);
 		
-		if (depth <= 0 || current_board.compute_win() != PlayerNum.EMPTY_SPACE) {
+		if (depth <= 0) {
 			return evaluate_board(current_board, move);
 		}
 		
