@@ -5,28 +5,10 @@ import popout.board.*;
 
 public class Minimax extends Search {
 	
-	private static final long serialVersionUID = 31415L;
-
-	protected final short p_depth;
-	
-	protected short p_thread_alpha;
-	protected int p_thread_depth;
-	protected short p_thread_turn;
-	protected String p_thread_move;
+	private static final long serialVersionUID = 31415L;	
 
 	public Minimax(BoardState board) {
 		super(board);
-		p_depth = 5;
-
-	}
-	
-	public Minimax(final short[][] target_board, final short target_depth,
-			final int current_depth, final short turn, final String move){
-		super(new BoardState(target_board));
-		p_depth = target_depth;
-		p_thread_depth = current_depth;
-		p_thread_turn = turn;
-		p_thread_move = move;
 	}
 	
 	public void compute(){
