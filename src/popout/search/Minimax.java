@@ -1,10 +1,7 @@
 package popout.search;
 
 import popout.PlayerNum;
-import popout.BoardSize;
-import popout.board.BoardState;
-import java.util.ArrayList;
-import java.util.concurrent.ForkJoinPool;
+import popout.board.*;
 
 public class Minimax extends Search {
 	
@@ -32,10 +29,6 @@ public class Minimax extends Search {
 		p_thread_move = move;
 	}
 	
-	private final short get_alpha(){
-		return p_thread_alpha;
-	}
-	
 	public void compute(){
 	}
 
@@ -44,31 +37,15 @@ public class Minimax extends Search {
 		int best_move = -1;
 		short current_board_short[][] = p_board.get_state();
 		BoardState current_board = new BoardState(current_board_short);
-		final String valid_next_moves[] = current_board.get_available_moves(PlayerNum.COMPUTER);
-		final short move_utilities[] = new short[valid_next_moves.length];
-		int utilities_iter = 0;
-		
+		final Move valid_next_moves[] = get_unordered_moves(current_board,PlayerNum.COMPUTER);		
 		for (int i = 0; i < valid_next_moves.length; i++) {
-			int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-			short temp_score = 0;
-			short temp_board[][] = current_board.get_state();
-			short next_board[][] = null;
-			if ('D' == valid_next_moves[i].charAt(0)) {
-				// this move is a drop				
-				current_board.drop(move_col, PlayerNum.COMPUTER);
-				next_board = current_board.get_state();
-			} else if ('P' == valid_next_moves[i].charAt(0)) {
-				// this move is a pop
-				current_board.pop(move_col, PlayerNum.COMPUTER);
-				next_board = current_board.get_state();		
-			} else {
-				// this move is not recognized
-				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
-			}			
-			temp_score = minimax(next_board, p_depth, PlayerNum.HUMAN, valid_next_moves[i]);
-			move_utilities[utilities_iter++] = temp_score;
-			current_board.set_state(temp_board);
-			
+			Move next_move = valid_next_moves[i];
+			final short temp_board[][] = current_board.get_state();
+			current_board.make_move(next_move, PlayerNum.COMPUTER);
+			final short next_board[][] = current_board.get_state();
+			final short temp_score = minimax(next_board, p_depth, PlayerNum.HUMAN, next_move);
+			next_move.utility = temp_score;
+			current_board.set_state(temp_board);			
 			if(temp_score > alpha){
 				alpha = temp_score;
 				best_move = i;
@@ -80,48 +57,33 @@ public class Minimax extends Search {
 			System.err.println("Something bad happened during minimax search!");
 		} else {
 			// the search found one or more best moves, committing to a random one
-			if ('D' == valid_next_moves[best_move].charAt(0)) p_board.drop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.COMPUTER);
-			if ('P' == valid_next_moves[best_move].charAt(0)) p_board.pop(Integer.parseInt(valid_next_moves[best_move].substring(2)), PlayerNum.COMPUTER);
+			p_board.make_move(valid_next_moves[best_move], PlayerNum.COMPUTER);
 		}
 		
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			// for debugging
-			System.out.print(valid_next_moves[i] + " : " + move_utilities[i] + "     ");
+			System.out.print(valid_next_moves[i].type + "" + valid_next_moves[i].col + " : " + valid_next_moves[i].utility + "     ");
 		}
 		System.out.println("");
 	}
 
 	protected final short minimax(final short[][] test_board_short,
-			final int depth, final short turn, final String move) {
+			final int depth, final short turn, final Move current_move) {
 		BoardState current_board = new BoardState(test_board_short);
 		
 		if (depth <= 0) {
-			return evaluate_board(current_board, move);
+			return evaluate_board(current_board, current_move);
 		}
 		
 		short alpha = (PlayerNum.COMPUTER == turn ? Short.MIN_VALUE : Short.MAX_VALUE);
-		String valid_next_moves[] = current_board.get_available_moves(turn);
+		Move valid_next_moves[] = get_unordered_moves(current_board, turn);
 		
 		for(int i = 0; i < valid_next_moves.length; i++){
-			short temp_score = 0;
-			final int move_col = Integer.parseInt(valid_next_moves[i].substring(2));
-			short temp_board[][] = current_board.get_state();
-			short next_board[][] = null;
-			if ('D' == valid_next_moves[i].charAt(0)) {
-				// this move is a drop
-				current_board.drop(move_col, turn);
-				next_board = current_board.get_state();
-			} else if ('P' == valid_next_moves[i].charAt(0)) {
-				// this move is a pop
-				current_board.pop(move_col, turn);
-				next_board = current_board.get_state();
-			} else {
-				// this move is not recognized
-				System.err.println("Unrecognized available move: " + valid_next_moves[i]);
-				return 0;
-			}
-			
-			temp_score = minimax(next_board, depth - 1, PlayerNum.opposite(turn), valid_next_moves[i]);
+			Move next_move = valid_next_moves[i];
+			final short temp_board[][] = current_board.get_state();
+			current_board.make_move(next_move, turn);
+			final short next_board[][] = current_board.get_state();
+			final short temp_score = minimax(next_board, depth - 1, PlayerNum.opposite(turn), next_move);
 			current_board.set_state(temp_board);
 			
 			if(PlayerNum.COMPUTER == turn){

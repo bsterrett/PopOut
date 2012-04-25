@@ -3,6 +3,8 @@ package popout.search;
 import popout.PlayerNum;
 import popout.BoardSize;
 import popout.board.BoardState;
+import popout.board.Move;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -20,7 +22,7 @@ public class Search extends RecursiveAction {
 		p_board = board;
 		p_random = new Random(System.nanoTime());
 		p_heuristic_num = 5;
-		p_depth = 5;
+		p_depth = 8;
 	}
 	
 	public void compute(){
@@ -30,34 +32,57 @@ public class Search extends RecursiveAction {
 	public void get_computer_move() {
 
 	}
+	public Move[] get_unordered_moves(BoardState input_board, final short player){
+		int length = input_board.get_moves(player).length;
+		Move move_list[] = new Move[length];
+		for(int i = 0; i < length; i++){
+			move_list[i] = input_board.get_moves(player)[i];
+		}
+		return move_list;
+	}
 	
-	public final String[] get_heuristic_ordered_moves(final BoardState input_board, final short player){
+	public Move[] get_cheap_ordered_moves(BoardState input_board, final short player){
+		int valid_move_count = 0;
+		int best_order[] = new int[7];
+		best_order[0] = 3;
+		best_order[1] = 4;
+		best_order[2] = 2;
+		best_order[3] = 1;
+		best_order[4] = 5;
+		best_order[5] = 6;
+		best_order[6] = 0;
+		for (int i = 0; i < 7; i++) {
+			if (input_board.valid_drop(best_order[i])) valid_move_count++;
+			if (input_board.valid_pop(best_order[i], player)) valid_move_count++;
+		}
+		Move move_list[] = new Move[valid_move_count];
+		int move_write_count = 0;
+		for (int i = 0; i < 7; i++) {
+			if (input_board.valid_drop(best_order[i])) move_list[move_write_count++] = new Move(Move.DROP, best_order[i]);
+		}
+		for (int i = 0; i < 7; i++) {
+			if (input_board.valid_pop(best_order[i], player)) move_list[move_write_count++] = new Move(Move.POP, best_order[i]);
+		}
+		return move_list;
+	}
+	
+	public Move[] get_heuristic_ordered_moves(BoardState input_board, final short player){
 		BoardState board = new BoardState(input_board.get_state());
-		final short temp_board[][] = board.get_state();
 		
-		ArrayList<String> moves = new ArrayList<String>(Arrays.asList(board.get_available_moves(player)));
+		
+		ArrayList<Move> moves = new ArrayList<Move>(Arrays.asList(get_cheap_ordered_moves(input_board, player)));
 		ArrayList<Integer> move_utilities = new ArrayList<Integer>();
 		
 		for(int i = 0; i < moves.size(); i++){
-			String move = moves.get(i);
-			int move_col = Integer.parseInt(move.substring(2));
-			int temp_score = 0;			
-			if ('D' == move.charAt(0)) {
-				// this move is a drop				
-				board.drop(move_col, player);
-				temp_score = evaluate_board_four_lite(board, move);
-			} else if ('P' == move.charAt(0)) {
-				// this move is a pop
-				board.pop(move_col, player);	
-				temp_score = evaluate_board_four_lite(board, move);
-			} else {
-				// this move is not recognized
-				System.err.println("Unrecognized available move: " + move);
-			}
+			final short temp_board[][] = board.get_state();
+			Move move = moves.get(i);
+			board.make_move(move, player);
+			move.utility = evaluate_board_four_lite(board, move);
+			int temp_score = 0;
 			board.set_state(temp_board);
 			move_utilities.add(temp_score);
 		}
-		String ordered_moves[] = new String[moves.size()];
+		Move move_list[] = new Move[moves.size()];
 		int move_counter = 0;
 		while(moves.size() > 0){
 			int best_move_so_far = 0;
@@ -69,25 +94,25 @@ public class Search extends RecursiveAction {
 					best_move_so_far = i;
 				}
 			}
-			ordered_moves[move_counter++] = moves.get(best_move_so_far);
+			move_list[move_counter++] = moves.get(best_move_so_far);
 			move_utilities.remove(best_move_so_far);
 			moves.remove(best_move_so_far);
 		}		
-		return ordered_moves;
+		return move_list;
 	}
 	
-	public final short evaluate_board(final BoardState current_board, final String move) {
+	public final short evaluate_board(final BoardState current_board, final Move move) {
 		return evaluate_board(current_board, move, p_heuristic_num);
 	}
 
-	public final short evaluate_board(final BoardState current_board, final String move, final int heuristic) {
+	public final short evaluate_board(final BoardState current_board, final Move move, final int heuristic) {
 		switch (heuristic) {
 		case 1:
 			return evaluate_board_one(current_board);
 		case 2:
 			return evaluate_board_two(current_board);
 		case 3:
-			return evaluate_board_three(current_board, move);
+			return evaluate_board_three(current_board);
 		case 4:
 			return evaluate_board_four(current_board, move);
 		case 5:
@@ -189,10 +214,8 @@ public class Search extends RecursiveAction {
 		// Don't use this, its bad!
 
 		short current_winner = target_board.compute_win();
-		if (PlayerNum.HUMAN == current_winner)
-			return -19000;
-		if (PlayerNum.COMPUTER == current_winner)
-			return 19000;
+		if (PlayerNum.HUMAN == current_winner)	return -19000;
+		if (PlayerNum.COMPUTER == current_winner) return 19000;
 		final short board[][] = target_board.get_state();
 		short utility = 0;
 
@@ -273,7 +296,7 @@ public class Search extends RecursiveAction {
 		return utility;
 	}
 
-	public final short evaluate_board_three(final BoardState target_board, final String move) {
+	public final short evaluate_board_three(final BoardState target_board) {
 		final short board[][] = target_board.get_state();
 		final int connect_4 = 100;
 		final int three_in_a_row = 3;
@@ -382,7 +405,7 @@ public class Search extends RecursiveAction {
 		return utility;
 	}
 
-	public final short evaluate_board_four(final BoardState target_board, final String move) {
+	public final short evaluate_board_four(final BoardState target_board, final Move move) {
 		final short board[][] = target_board.get_state();
 		final int connect_3 = 3;
 		final int connect_4 = 100;
@@ -549,7 +572,7 @@ public class Search extends RecursiveAction {
 		return utility;
 	}
 	
-	public final short evaluate_board_four_lite(final BoardState target_board, final String move) {
+	public final short evaluate_board_four_lite(final BoardState target_board, final Move move) {
 		final short board[][] = target_board.get_state();
 		final int connect_4 = 100;
 
@@ -610,7 +633,7 @@ public class Search extends RecursiveAction {
 		return utility;
 	}
 	
-	public final short evaluate_board_five(final BoardState target_board,final String move) {
+	public final short evaluate_board_five(final BoardState target_board,final Move move) {
 		final short board[][] = target_board.get_state();
 		final int connect_3 = 3;
 		final int connect_4 = 100;
@@ -786,12 +809,11 @@ public class Search extends RecursiveAction {
 		return utility;
 	}
 
-	public final short evaluate_move_one(final String move) {
+	public final short evaluate_move_one(final Move move) {
 		// This is only valid for 7 column boards
 		// This was designed for Connect 4, not Pop Out
 		// In fact, this is probably a horrible heuristic for Pop Out
-		int move_col = Integer.parseInt(move.substring(2));
-		switch (move_col) {
+		switch (move.col) {
 		case 0:
 			return 3;
 		case 1:
@@ -813,24 +835,23 @@ public class Search extends RecursiveAction {
 		}
 	}
 
-	public final short evaluate_move_two(final BoardState target_board, final String move) {
+	public final short evaluate_move_two(final BoardState target_board, final Move move) {
 		// This gives small points for drops which will allow for a pop in the
 		// future
 		// or for pops which will not prevent a pop in the future.
 
 		// Since target_board already has the move applied, this will check for
 		// an empty space in the second-lowest row, not lowest row
-		int move_col = Integer.parseInt(move.substring(2));
-		if (PlayerNum.EMPTY_SPACE == target_board.get_state()[move_col][1]
-				&& 'D' == move.charAt(0)) {
+		if (PlayerNum.EMPTY_SPACE == target_board.get_state()[move.col][1]
+				&& Move.DROP == move.type) {
 			// The computer must have just put its chip in board[move_col][0]
 			return 2;
-		} else if ('P' == move.charAt(0)) {
-			if (PlayerNum.COMPUTER == target_board.get_state()[move_col][1]) {
+		} else if (Move.POP == move.type) {
+			if (PlayerNum.COMPUTER == target_board.get_state()[move.col][1]) {
 				// This is a somewhat safe pop because it will allow for another
 				// pop in the future
 				return 1;
-			} else if (PlayerNum.HUMAN == target_board.get_state()[move_col][1]) {
+			} else if (PlayerNum.HUMAN == target_board.get_state()[move.col][1]) {
 				// This is not a safe pop because it allows the opposing player
 				// the ability to pop this column
 				return -1;

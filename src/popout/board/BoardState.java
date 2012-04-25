@@ -2,6 +2,7 @@ package popout.board;
 
 import popout.BoardSize;
 import popout.PlayerNum;
+import popout.board.Move;
 
 public class BoardState {
 
@@ -18,6 +19,16 @@ public class BoardState {
 
 	public BoardState(short[][] board_state) {
 		p_current_state = board_state;
+	}
+	
+	public boolean make_move(Move input_move, short player){
+		if(Move.DROP == input_move.type){
+			return drop(input_move.col, player);
+		}
+		else if(Move.POP == input_move.type){
+			return pop(input_move.col, player);
+		}
+		else return false;
 	}
 
 	public boolean valid_drop(final int col) {
@@ -150,6 +161,22 @@ public class BoardState {
 				move_list[move_write_count++] = "D " + String.valueOf(i);
 		}
 		return move_list;
+	}
+	
+	public Move[] get_moves(final short player){
+		int valid_move_count = 0;
+		for (int i = 0; i < BoardSize.COLUMN_COUNT; i++) {
+			if (valid_pop(i, player)) valid_move_count++;
+			if (valid_drop(i)) valid_move_count++;
+		}
+		Move available_moves[] = new Move[valid_move_count];
+		int move_write_count = 0;
+		for(int i = 0; i < BoardSize.COLUMN_COUNT; i++){
+			if(valid_drop(i)) available_moves[move_write_count++] = new Move(Move.DROP, i);
+			if(valid_pop(i, player)) available_moves[move_write_count++] = new Move(Move.POP, i);			
+		}
+		valid_move_count = 0;
+		return available_moves;
 	}
 
 	public final String[] get_cheap_ordered_available_moves(final short player) {
