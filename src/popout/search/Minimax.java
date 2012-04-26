@@ -5,16 +5,20 @@ import popout.board.*;
 
 public class Minimax extends Search {
 	
-	private static final long serialVersionUID = 31415L;	
+	//private static final long serialVersionUID = 31415L;	
 
 	public Minimax(BoardState board) {
 		super(board);
 	}
 	
+	public Minimax(final BoardState board, short depth){
+		super(board, depth);
+	}
+	
 	public void compute(){
 	}
 
-	public void get_computer_move() {
+	public Move get_computer_move() {
 		short alpha = Short.MIN_VALUE;
 		int best_move = -1;
 		short current_board_short[][] = p_board.get_state();
@@ -37,18 +41,20 @@ public class Minimax extends Search {
 		if (-1 == best_move) {
 			// couldn't find a best move or something
 			System.err.println("Something bad happened during minimax search!");
-		} else {
-			// the search found one or more best moves, committing to a random one
-			p_board.make_move(valid_next_moves[best_move], PlayerNum.COMPUTER);
-		}
-		
+			return null;
+		}		
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			// for debugging
 			System.out.print(valid_next_moves[i].type + "" + valid_next_moves[i].col + " : " + valid_next_moves[i].utility + "     ");
 		}
 		System.out.println("");
+		return valid_next_moves[best_move];
 	}
 
+	public void make_computer_move(){
+		p_board.make_move(get_computer_move(), PlayerNum.COMPUTER);
+	}
+	
 	protected final short minimax(final short[][] test_board_short,
 			final int depth, final short turn, final Move current_move) {
 		BoardState current_board = new BoardState(test_board_short);

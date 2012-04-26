@@ -5,14 +5,17 @@ import popout.board.*;
 
 public class NegaScout extends Search {
 
-	private static final long serialVersionUID = 12345678910L;
-
+	//private static final long serialVersionUID = 12345678910L;
 
 	public NegaScout(BoardState board) {
 		super(board);
 	}
 	
-	public void get_computer_move(){
+	public NegaScout(final BoardState board, short depth){
+		super(board, depth);
+	}
+	
+	public Move get_computer_move(){
 		int alpha = Short.MIN_VALUE;
 		int beta = Short.MAX_VALUE;
 		int best_move = -1;
@@ -37,9 +40,7 @@ public class NegaScout extends Search {
 		if (-1 == best_move) {
 			// couldn't find a best move or something
 			System.err.println("Something bad happened during minimax search!");
-		} else {
-			// the search found one or more best moves, committing to a random one
-			p_board.make_move(valid_next_moves[best_move], PlayerNum.COMPUTER);
+			return null;
 		}
 		
 		for (int i = 0; i < valid_next_moves.length; i++) {
@@ -47,7 +48,11 @@ public class NegaScout extends Search {
 			System.out.print(valid_next_moves[i].type + "" + valid_next_moves[i].col + " : " + valid_next_moves[i].utility + "     ");
 		}
 		System.out.println("");
-			
+		return valid_next_moves[best_move];
+	}
+	
+	public void make_computer_move(){
+		p_board.make_move(get_computer_move(), PlayerNum.COMPUTER);
 	}
 	
 	private int negascout(final short[][] test_board_short, final int depth, final short turn, final Move current_move, final int start_alpha, final int start_beta){

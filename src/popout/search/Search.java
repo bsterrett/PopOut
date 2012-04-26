@@ -15,7 +15,7 @@ public class Search extends Thread {
 	protected Random p_random;
 	protected final short p_heuristic_num;
 	protected final short p_depth;
-	private static final long serialVersionUID = 1337L;
+	//private static final long serialVersionUID = 1337L;
 
 	public Search(BoardState board) {
 		p_board = board;
@@ -24,13 +24,21 @@ public class Search extends Thread {
 		p_depth = 9;
 	}
 	
-	public void compute(){
-		
+	public Search(BoardState board, short depth){
+		p_board = board;
+		p_random = new Random(System.nanoTime());
+		p_heuristic_num = 5;
+		p_depth = depth;
 	}
 
-	public void get_computer_move() {
-
+	public Move get_computer_move() {
+		return null;
 	}
+	
+	public void make_computer_move(){
+		p_board.make_move(get_computer_move(), PlayerNum.COMPUTER);
+	}
+	
 	public Move[] get_unordered_moves(BoardState input_board, final short player){
 		int length = input_board.get_moves(player).length;
 		Move move_list[] = new Move[length];
@@ -632,12 +640,13 @@ public class Search extends Thread {
 		return utility;
 	}
 	
-	public final short evaluate_board_five(final BoardState target_board,final Move move) {
+	public final short evaluate_board_five(final BoardState target_board, final Move move) {
 		final short board[][] = target_board.get_state();
-		final int connect_3 = 3;
+		final int connect_3 = 2;
 		final int connect_4 = 100;
 		final int connect_5 = (short) (-1 * connect_4 + 10);
 		final int empty_space = 2;
+		final int scary_loss = -5;
 
 		// using move utility instead of 0 to start with
 		short utility = 0;// evaluate_move_two(target_board, move);
@@ -714,7 +723,7 @@ public class Search extends Thread {
 						&& board[col][row] == board[col - 2][row + 2]
 						&& board[col][row] == board[col - 3][row + 3]) {
 					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
-							: -1 * connect_4);
+							: -1 * connect_4 + scary_loss);
 				}
 			}
 		}
@@ -727,7 +736,7 @@ public class Search extends Thread {
 						&& board[col][row] == board[col][row + 2]
 						&& board[col][row] == board[col][row + 3]) {
 					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
-							: -1 * connect_4);
+							: -1 * connect_4 + scary_loss);
 				}
 			}
 		}
@@ -740,7 +749,7 @@ public class Search extends Thread {
 						&& board[col][row] == board[col + 2][row + 2]
 						&& board[col][row] == board[col + 3][row + 3]) {
 					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
-							: -1 * connect_4);
+							: -1 * connect_4 + scary_loss);
 				}
 			}
 		}
@@ -753,7 +762,7 @@ public class Search extends Thread {
 						&& board[col][row] == board[col + 2][row]
 						&& board[col][row] == board[col + 3][row]) {
 					utility += (board[col][row] == PlayerNum.COMPUTER ? connect_4
-							: -1 * connect_4);
+							: -1 * connect_4 + scary_loss);
 				}
 			}
 		}
@@ -808,6 +817,69 @@ public class Search extends Thread {
 		return utility;
 	}
 
+	public short evaluate_board_six(final BoardState target_board, final Move move){
+		final short board[][] = target_board.get_state();
+		int computer_connect_4_forks = 0;
+		int player_connect_4_forks = 0;
+		
+		
+		short utility = 0;
+		
+		//testing straight up for any drop forks
+		for (int col = 0; col < BoardSize.COLUMN_COUNT; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT - 3; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE
+						&& board[col][row] == board[col][row + 1]
+						&& board[col][row] == board[col][row + 2]
+						&& board[col][row + 3] == PlayerNum.EMPTY_SPACE) {
+					if(board[col][row] == PlayerNum.COMPUTER) computer_connect_4_forks += 1;
+					else player_connect_4_forks += 1;
+				}
+			}
+		}
+		
+		//testing straight right for any drop forks
+		for (int col = 0; col < BoardSize.COLUMN_COUNT - 3; col++) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE &&
+						(board[col][row] == board[col + 1][row]
+						&& board[col][row] == board[col + 2][row]
+						&& board[col + 3][row] == PlayerNum.EMPTY_SPACE
+						&& (row == 0 || board[col + 3][row - 1] != PlayerNum.EMPTY_SPACE))
+						||
+						(board[col][row] == board[col + 1][row]
+						&& board[col + 2][row] == PlayerNum.EMPTY_SPACE
+						&& (row == 0 || board[col + 3][row - 1] != PlayerNum.EMPTY_SPACE)
+						&& board[col][row] == board[col + 3][row])) {
+					if(board[col][row] == PlayerNum.COMPUTER) computer_connect_4_forks += 1;
+					else player_connect_4_forks += 1;
+				}
+			}
+		}
+		
+		//testing straight left for any drop forks
+		for (int col = BoardSize.COLUMN_COUNT-1; col > 2; col--) {
+			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
+				if (board[col][row] != PlayerNum.EMPTY_SPACE &&
+						(board[col][row] == board[col - 1][row]
+						&& board[col][row] == board[col - 2][row]
+						&& board[col - 3][row] == PlayerNum.EMPTY_SPACE
+						&& (row == 0 || board[col - 3][row - 1] != PlayerNum.EMPTY_SPACE))
+						||
+						(board[col][row] == board[col - 1][row]
+						&& board[col - 2][row] == PlayerNum.EMPTY_SPACE
+						&& (row == 0 || board[col - 3][row - 1] != PlayerNum.EMPTY_SPACE)
+						&& board[col][row] == board[col - 3][row])) {
+					if(board[col][row] == PlayerNum.COMPUTER) computer_connect_4_forks += 1;
+					else player_connect_4_forks += 1;
+				}
+			}
+		}
+		
+		
+		return utility;
+	}
+	
 	public final short evaluate_move_one(final Move move) {
 		// This is only valid for 7 column boards
 		// This was designed for Connect 4, not Pop Out

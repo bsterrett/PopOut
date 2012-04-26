@@ -64,7 +64,7 @@ public class Control {
 				System.out.println(p_display.toString());
 				break;
 			}
-			p_search.get_computer_move();
+			p_search.make_computer_move();
 			System.out.println(p_display.toString());
 		}
 		print_winner();
