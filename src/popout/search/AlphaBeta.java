@@ -4,6 +4,8 @@ import popout.PlayerNum;
 import popout.board.*;
 
 public class AlphaBeta extends Search {
+	
+	private boolean p_interrupted = false;
 
 	//private static final long serialVersionUID = 112358L;
 
@@ -14,9 +16,13 @@ public class AlphaBeta extends Search {
 	public AlphaBeta(final BoardState board, short depth){
 		super(board, depth);
 	}
+
+	public void run(){
+		get_computer_move();
+	}
 	
-	public void compute(){
-		
+	public void interrupt(){
+		p_interrupted = true;
 	}
 
 	public Move get_computer_move() {
@@ -27,6 +33,7 @@ public class AlphaBeta extends Search {
 		BoardState current_board = new BoardState(current_board_short);
 		final Move valid_next_moves[] = get_heuristic_ordered_moves(current_board, PlayerNum.COMPUTER);
 		for (int i = 0; i < valid_next_moves.length; i++) {
+			if(p_interrupted) return null;
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
 			current_board.make_move(next_move, PlayerNum.COMPUTER);			
@@ -40,7 +47,7 @@ public class AlphaBeta extends Search {
 				alpha = temp_score;
 				best_move = i;
 			}
-			if (p_depth > 5 && i != valid_next_moves.length - 1) System.out.printf("Computer is %2d percent done with search.%n", ((100 * (i + 1)) / valid_next_moves.length));
+			//if (p_depth > 5 && i != valid_next_moves.length - 1) System.out.printf("Computer is %2d percent done with search.%n", ((100 * (i + 1)) / valid_next_moves.length));
 		}
 
 		if (-1 == best_move) {
@@ -50,9 +57,10 @@ public class AlphaBeta extends Search {
 		}		
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			// for debugging
-			System.out.print(valid_next_moves[i].type + "" + valid_next_moves[i].col + " : " + valid_next_moves[i].utility + "     ");
+			//System.out.print(valid_next_moves[i].type + "" + valid_next_moves[i].col + " : " + valid_next_moves[i].utility + "     ");
 		}
-		System.out.println("");
+		//System.out.println("");
+		p_stashed_move = valid_next_moves[best_move];
 		return valid_next_moves[best_move];
 	}
 
@@ -63,6 +71,7 @@ public class AlphaBeta extends Search {
 	private final short alpha_beta(final short[][] test_board_short, final int depth, final short turn, final Move current_move, final short start_alpha, final short start_beta) {
 		// Recursive function which will create a complete game tree up to a
 		// certain depth, then search the tree for good moves
+		
 		BoardState current_board = new BoardState(test_board_short);
 
 		if (depth <= 0 || current_board.compute_win() != PlayerNum.EMPTY_SPACE) {
@@ -76,12 +85,15 @@ public class AlphaBeta extends Search {
 		if( depth > 4 ) valid_next_moves = get_heuristic_ordered_moves(current_board, turn);
 		else valid_next_moves = get_cheap_ordered_moves(current_board, turn);
 		
-		// final String valid_next_moves[] =
-		// current_board.fake_next_moves(debug_node++, turn);
+		if(depth == p_depth){
+			alpha += 0;
+		}
+		
 		for (int i = 0; i < valid_next_moves.length; i++) {
+			if(p_interrupted) return 0;
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
-			current_board.make_move(next_move, turn);			
+			current_board.make_move(next_move, turn);
 			final short next_board[][] = current_board.get_state();			
 			final short temp_score = alpha_beta(next_board, depth - 1, PlayerNum.opposite(turn), next_move, alpha, beta);
 			current_board.set_state(temp_board);
@@ -96,7 +108,6 @@ public class AlphaBeta extends Search {
 				System.err.println("Alpha Beta doesn't know whose turn it is!");
 			}
 		}
-
 		if (PlayerNum.COMPUTER == turn) {
 			return alpha;
 		} else {

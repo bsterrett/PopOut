@@ -2,7 +2,6 @@ package popout.board;
 
 import popout.BoardSize;
 import popout.PlayerNum;
-import popout.board.Move;
 
 public class BoardState {
 

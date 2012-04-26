@@ -2,33 +2,36 @@ package popout.search;
 
 import popout.PlayerNum;
 import popout.BoardSize;
-import popout.board.BoardState;
-import popout.board.Move;
+import popout.board.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
+import java.util.Collections;
 
 public class Search extends Thread {
 
 	protected BoardState p_board;
-	protected Random p_random;
 	protected final short p_heuristic_num;
 	protected final short p_depth;
 	//private static final long serialVersionUID = 1337L;
+	protected Move p_stashed_move;
 
 	public Search(BoardState board) {
 		p_board = board;
-		p_random = new Random(System.nanoTime());
 		p_heuristic_num = 5;
 		p_depth = 9;
+		p_stashed_move = new Move(-1, -1);
 	}
 	
 	public Search(BoardState board, short depth){
 		p_board = board;
-		p_random = new Random(System.nanoTime());
 		p_heuristic_num = 5;
 		p_depth = depth;
+		p_stashed_move = new Move(-1, -1);
+	}
+	
+	public Move get_stashed_move(){
+		return p_stashed_move;
 	}
 
 	public Move get_computer_move() {
@@ -89,22 +92,17 @@ public class Search extends Thread {
 			board.set_state(temp_board);
 			move_utilities.add(temp_score);
 		}
+		if(PlayerNum.COMPUTER == player){
+			Collections.sort(moves, new MoveReverseComparator());
+		}
+		else if(PlayerNum.HUMAN == player){
+			Collections.sort(moves, new MoveComparator());
+		}
 		Move move_list[] = new Move[moves.size()];
 		int move_counter = 0;
-		while(moves.size() > 0){
-			int best_move_so_far = 0;
-			for(int i = 1; i < moves.size(); i++){
-				if(PlayerNum.COMPUTER == player && move_utilities.get(i) > move_utilities.get(best_move_so_far)){
-					best_move_so_far = i;
-				}
-				else if(PlayerNum.HUMAN == player && move_utilities.get(i) < move_utilities.get(best_move_so_far)){
-					best_move_so_far = i;
-				}
-			}
-			move_list[move_counter++] = moves.get(best_move_so_far);
-			move_utilities.remove(best_move_so_far);
-			moves.remove(best_move_so_far);
-		}		
+		for(int i = 0; i < moves.size(); i++){
+			move_list[move_counter++] = moves.get(i);
+		}
 		return move_list;
 	}
 	
@@ -642,7 +640,7 @@ public class Search extends Thread {
 	
 	public final short evaluate_board_five(final BoardState target_board, final Move move) {
 		final short board[][] = target_board.get_state();
-		final int connect_3 = 2;
+		final int connect_3 = 3;
 		final int connect_4 = 100;
 		final int connect_5 = (short) (-1 * connect_4 + 10);
 		final int empty_space = 2;

@@ -11,13 +11,15 @@ public class Control {
 	private static BoardState p_board;
 	private static CLDisplay p_display;
 	private static Search p_search;
+	private static ThreadedIDS p_ids;
 
 	private static void init() {
 		p_board = new BoardState();
 		p_display = new CLDisplay(p_board);
 		//p_search = new Minimax(p_board);
-		p_search = new AlphaBeta(p_board);
+		//p_search = new AlphaBeta(p_board);
 		//p_search = new NegaScout(p_board);
+		p_ids = new ThreadedIDS(p_board, ThreadedIDS.AlphaBeta);
 	}
 
 	private static void get_player_move() {
@@ -64,7 +66,7 @@ public class Control {
 				System.out.println(p_display.toString());
 				break;
 			}
-			p_search.make_computer_move();
+			p_ids.start_search();
 			System.out.println(p_display.toString());
 		}
 		print_winner();
