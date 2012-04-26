@@ -8,9 +8,8 @@ import popout.board.Move;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.concurrent.RecursiveAction;
 
-public class Search extends RecursiveAction {
+public class Search extends Thread {
 
 	protected BoardState p_board;
 	protected Random p_random;
@@ -22,7 +21,7 @@ public class Search extends RecursiveAction {
 		p_board = board;
 		p_random = new Random(System.nanoTime());
 		p_heuristic_num = 5;
-		p_depth = 7;
+		p_depth = 9;
 	}
 	
 	public void compute(){
@@ -641,7 +640,7 @@ public class Search extends RecursiveAction {
 		final int empty_space = 2;
 
 		// using move utility instead of 0 to start with
-		short utility = evaluate_move_two(target_board, move);
+		short utility = 0;// evaluate_move_two(target_board, move);
 		
 		for(int col = 0; col < BoardSize.COLUMN_COUNT; col++){
 			for(int row = 0; row < BoardSize.ROW_COUNT; row++){
