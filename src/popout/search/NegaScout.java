@@ -23,6 +23,7 @@ public class NegaScout extends Search {
 		BoardState current_board = new BoardState(current_board_short);
 		final Move valid_next_moves[] = get_heuristic_ordered_moves(current_board, PlayerNum.COMPUTER);
 		for (int i = 0; i < valid_next_moves.length; i++) {
+			if(p_interrupted) return null;
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
 			current_board.make_move(next_move, PlayerNum.COMPUTER);			
@@ -71,6 +72,7 @@ public class NegaScout extends Search {
 		
 		
 		for (int i = 0; i < valid_next_moves.length; i++) {
+			if(p_interrupted) return 0;
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
 			current_board.make_move(next_move, turn);			

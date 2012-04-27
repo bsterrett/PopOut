@@ -15,7 +15,7 @@ public class ThreadedIDS {
 	private ThreadPoolExecutor p_tpe;
 	private final int p_min_depth = 6;
 	private final int p_depth_increment = 1;
-	private final int thread_pool_size = 7;
+	private final int thread_pool_size = 10;
 	private final long thread_resize_time = 10;
 	private final int thread_search_type;
 	public final static int Minimax = 0;
@@ -74,7 +74,7 @@ public class ThreadedIDS {
 		for(int i = thread_pool_size - 1; i >= 0; i--){
 			if(searches[i].get_stashed_move().col == -1 || searches[i].get_stashed_move().col == -1){
 				searches[i].interrupt();
-				System.out.println("Found a thread that didnt complete!");
+				//System.out.println("Found a thread that didnt complete!");
 			}
 			else{
 				System.out.println("Moved from search of depth: " + String.valueOf(p_min_depth + p_depth_increment*i));
@@ -86,87 +86,3 @@ public class ThreadedIDS {
 	
 }
 
-
-/*
-
-
-
-
-
-public class MainClass {
-
-public static void main(String[] args) {
- int nTasks = 10;
- long n = 30;
- int tpSize = 10;
-
- ThreadPoolExecutor tpe = new ThreadPoolExecutor(tpSize, tpSize, 50000, TimeUnit.MILLISECONDS,
-     new LinkedBlockingQueue<Runnable>());
-
- Task[] tasks = new Task[nTasks];
- for (int i = 0; i < nTasks; i++) {
-   tasks[i] = new Task(n, "Task " + i);
-   n += 3;
-   tpe.execute(tasks[i]);
- }
- tpe.shutdown();
-}
-}
-
-class SingleThreadAccess {
-
-private ThreadPoolExecutor tpe;
-
-public SingleThreadAccess() {
- tpe = new ThreadPoolExecutor(1, 1, 50000L, TimeUnit.SECONDS,
-     new LinkedBlockingQueue<Runnable>());
-}
-
-public void invokeLater(Runnable r) {
- tpe.execute(r);
-}
-
-public void invokeAneWait(Runnable r) throws InterruptedException, ExecutionException {
- FutureTask task = new FutureTask(r, null);
- tpe.execute(task);
- task.get();
-}
-
-public void shutdown() {
- tpe.shutdown();
-}
-}
-
-class Task implements Runnable {
-long n;
-
-String id;
-
-private long fib(long n) {
- if (n == 0)
-   return 0L;
- if (n == 1)
-   return 1L;
- return fib(n - 1) + fib(n - 2);
-}
-
-public Task(long n, String id) {
- this.n = n;
- this.id = id;
-}
-
-public void run() {
- Date d = new Date();
- DateFormat df = new SimpleDateFormat("HH:mm:ss:SSS");
- long startTime = System.currentTimeMillis();
- d.setTime(startTime);
- System.out.println("Starting task " + id + " at " + df.format(d));
- fib(n);
- long endTime = System.currentTimeMillis();
- d.setTime(endTime);
- System.out.println("Ending task " + id + " at " + df.format(d) + " after "
-     + (endTime - startTime) + " milliseconds");
-}
-}
-
-*/

@@ -4,8 +4,6 @@ import popout.PlayerNum;
 import popout.board.*;
 
 public class AlphaBeta extends Search {
-	
-	private boolean p_interrupted = false;
 
 	//private static final long serialVersionUID = 112358L;
 
@@ -19,10 +17,6 @@ public class AlphaBeta extends Search {
 
 	public void run(){
 		get_computer_move();
-	}
-	
-	public void interrupt(){
-		p_interrupted = true;
 	}
 
 	public Move get_computer_move() {
@@ -94,6 +88,13 @@ public class AlphaBeta extends Search {
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
 			current_board.make_move(next_move, turn);
+			if(current_board.compute_win() == turn){
+				alpha += 0;
+				return evaluate_board(current_board, next_move);
+			}
+			else{
+				alpha += 0;
+			}
 			final short next_board[][] = current_board.get_state();			
 			final short temp_score = alpha_beta(next_board, depth - 1, PlayerNum.opposite(turn), next_move, alpha, beta);
 			current_board.set_state(temp_board);

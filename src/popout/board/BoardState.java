@@ -171,8 +171,8 @@ public class BoardState {
 		Move available_moves[] = new Move[valid_move_count];
 		int move_write_count = 0;
 		for(int i = 0; i < BoardSize.COLUMN_COUNT; i++){
-			if(valid_drop(i)) available_moves[move_write_count++] = new Move(Move.DROP, i);
-			if(valid_pop(i, player)) available_moves[move_write_count++] = new Move(Move.POP, i);			
+			if(valid_drop(i)) available_moves[move_write_count++] = new Move(Move.DROP, i, player);
+			if(valid_pop(i, player)) available_moves[move_write_count++] = new Move(Move.POP, i, player);			
 		}
 		valid_move_count = 0;
 		return available_moves;

@@ -19,7 +19,7 @@ public class Control {
 		//p_search = new Minimax(p_board);
 		//p_search = new AlphaBeta(p_board);
 		//p_search = new NegaScout(p_board);
-		p_ids = new ThreadedIDS(p_board, ThreadedIDS.AlphaBeta);
+		p_ids = new ThreadedIDS(p_board, ThreadedIDS.NegaScout);
 	}
 
 	private static void get_player_move() {
@@ -67,6 +67,7 @@ public class Control {
 				break;
 			}
 			p_ids.start_search();
+			//p_search.make_computer_move();
 			System.out.println(p_display.toString());
 		}
 		print_winner();

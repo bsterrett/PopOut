@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+
 public class Search extends Thread {
 
 	protected BoardState p_board;
@@ -15,19 +16,24 @@ public class Search extends Thread {
 	protected final short p_depth;
 	//private static final long serialVersionUID = 1337L;
 	protected Move p_stashed_move;
+	protected boolean p_interrupted = false;
 
 	public Search(BoardState board) {
 		p_board = board;
 		p_heuristic_num = 5;
 		p_depth = 9;
-		p_stashed_move = new Move(-1, -1);
+		p_stashed_move = new Move(-1, -1, (short) -1);
 	}
 	
 	public Search(BoardState board, short depth){
 		p_board = board;
 		p_heuristic_num = 5;
 		p_depth = depth;
-		p_stashed_move = new Move(-1, -1);
+		p_stashed_move = new Move(-1, -1, (short) -1);
+	}
+		
+	public void interrupt(){
+		p_interrupted = true;
 	}
 	
 	public Move get_stashed_move(){
@@ -68,10 +74,10 @@ public class Search extends Thread {
 		Move move_list[] = new Move[valid_move_count];
 		int move_write_count = 0;
 		for (int i = 0; i < 7; i++) {
-			if (input_board.valid_drop(best_order[i])) move_list[move_write_count++] = new Move(Move.DROP, best_order[i]);
+			if (input_board.valid_drop(best_order[i])) move_list[move_write_count++] = new Move(Move.DROP, best_order[i], player);
 		}
 		for (int i = 0; i < 7; i++) {
-			if (input_board.valid_pop(best_order[i], player)) move_list[move_write_count++] = new Move(Move.POP, best_order[i]);
+			if (input_board.valid_pop(best_order[i], player)) move_list[move_write_count++] = new Move(Move.POP, best_order[i], player);
 		}
 		return move_list;
 	}
@@ -644,18 +650,19 @@ public class Search extends Thread {
 		final int connect_4 = 100;
 		final int connect_5 = (short) (-1 * connect_4 + 10);
 		final int empty_space = 2;
-		final int scary_loss = -5;
+		final int scary_loss = 0; //(move.player == PlayerNum.COMPUTER ? -10 : 0 );
+		
 
 		// using move utility instead of 0 to start with
 		short utility = 0;// evaluate_move_two(target_board, move);
 		
-		for(int col = 0; col < BoardSize.COLUMN_COUNT; col++){
+/*		for(int col = 0; col < BoardSize.COLUMN_COUNT; col++){
 			for(int row = 0; row < BoardSize.ROW_COUNT; row++){
 				if(PlayerNum.EMPTY_SPACE == board[col][row]){
 					utility += empty_space;
 				}
 			}
-		}
+		}*/
 
 		// check up and left for 5 in a row
 		for (int col = 4; col < BoardSize.COLUMN_COUNT; col++) {
