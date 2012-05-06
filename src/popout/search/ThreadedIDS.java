@@ -3,8 +3,6 @@ package popout.search;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import popout.PlayerNum;
 import popout.board.*;
 
 //@SuppressWarnings({"unchecked","rawtypes","unused"})
@@ -78,7 +76,7 @@ public class ThreadedIDS {
 			}
 			else{
 				System.out.println("Moved from search of depth: " + String.valueOf(p_min_depth + p_depth_increment*i));
-				p_board.make_move(searches[i].get_stashed_move(), PlayerNum.COMPUTER);
+				p_board.make_move(searches[i].get_stashed_move());
 				return;
 			}
 		}

@@ -28,12 +28,19 @@ public class Control {
 		boolean user_input_valid = false;
 		while (!user_input_valid) {
 			String user_input = scan.nextLine();
+			Move user_move = null;
 			if (user_input.length() > 0	&& 'D' == user_input.toUpperCase().charAt(0)) {
-				user_input_valid = p_board.drop(Integer.parseInt(user_input.substring(1).trim()), PlayerNum.HUMAN);
+				user_move = new Move(Move.DROP, Integer.parseInt(user_input.substring(1).trim()), PlayerNum.HUMAN);
+				user_input_valid = true;
 			} else if (user_input.length() > 0 && 'P' == user_input.toUpperCase().charAt(0)) {
-				user_input_valid = p_board.pop(Integer.parseInt(user_input.substring(1).trim()), PlayerNum.HUMAN);
+				user_move = new Move(Move.POP, Integer.parseInt(user_input.substring(1).trim()), PlayerNum.HUMAN);
+				user_input_valid = true;
 			} else {
 				System.err.println("Invalid user input!");
+			}
+			
+			if(user_input_valid){
+				user_input_valid = p_board.make_move(user_move);
 			}
 		}
 	}

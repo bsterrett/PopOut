@@ -6,6 +6,12 @@ public class PlayerNum {
 	public static final short COMPUTER = 2;
 	
 	public static short opposite(final short player){
-		return (short) (player == HUMAN ? COMPUTER : HUMAN);
+		if(player == HUMAN){
+			return COMPUTER;
+		}
+		if(player == COMPUTER){
+			return HUMAN;
+		}
+		return EMPTY_SPACE;
 	}
 }

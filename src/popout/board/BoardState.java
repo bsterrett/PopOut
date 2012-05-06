@@ -20,12 +20,12 @@ public class BoardState {
 		p_current_state = board_state;
 	}
 	
-	public boolean make_move(Move input_move, short player){
+	public boolean make_move(Move input_move){
 		if(Move.DROP == input_move.type){
-			return drop(input_move.col, player);
+			return drop(input_move.col, input_move.player);
 		}
 		else if(Move.POP == input_move.type){
-			return pop(input_move.col, player);
+			return pop(input_move.col, input_move.player);
 		}
 		else return false;
 	}
@@ -34,7 +34,7 @@ public class BoardState {
 		return (col >= 0 && col <= BoardSize.COLUMN_COUNT - 1 && PlayerNum.EMPTY_SPACE == p_current_state[col][BoardSize.ROW_COUNT - 1]);
 	}
 
-	public boolean drop(final int col, short player) {
+	private boolean drop(final int col, short player) {
 		if (valid_drop(col)) {
 			// this column has an empty space and can be played
 			for (int row = 0; row < BoardSize.ROW_COUNT; row++) {
@@ -56,7 +56,7 @@ public class BoardState {
 		return (col >= 0 && col <= BoardSize.COLUMN_COUNT - 1 && player == p_current_state[col][0]);
 	}
 
-	public boolean pop(final int col, final short player) {
+	private boolean pop(final int col, final short player) {
 		if (valid_pop(col, player)) {
 			for (int row = 0; row < (BoardSize.ROW_COUNT - 1); row++) {
 				// drops chip from space above into current space, going from
@@ -141,26 +141,6 @@ public class BoardState {
 		return (short) (tied*10+winner);
 		
 	}
-
-	public final String[] get_available_moves(final short player) {
-		// returns a list of available moves that the next player can make
-		int valid_move_count = 0;
-		for (int i = 0; i < BoardSize.COLUMN_COUNT; i++) {
-			if (valid_pop(i, player))
-				valid_move_count++;
-			if (valid_drop(i))
-				valid_move_count++;
-		}
-		String move_list[] = new String[valid_move_count];
-		int move_write_count = 0;
-		for (int i = 0; i < BoardSize.COLUMN_COUNT; i++) {
-			if (valid_pop(i, player))
-				move_list[move_write_count++] = "P " + String.valueOf(i);
-			if (valid_drop(i))
-				move_list[move_write_count++] = "D " + String.valueOf(i);
-		}
-		return move_list;
-	}
 	
 	public Move[] get_moves(final short player){
 		int valid_move_count = 0;
@@ -176,36 +156,5 @@ public class BoardState {
 		}
 		valid_move_count = 0;
 		return available_moves;
-	}
-
-	public final String[] get_cheap_ordered_available_moves(final short player) {
-		int valid_move_count = 0;
-		int best_order[] = new int[7];
-		best_order[0] = 3;
-		best_order[1] = 4;
-		best_order[2] = 2;
-		best_order[3] = 1;
-		best_order[4] = 5;
-		best_order[5] = 6;
-		best_order[6] = 0;
-		for (int i = 0; i < 7; i++) {
-			if (valid_drop(best_order[i]))
-				valid_move_count++;
-			if (valid_pop(best_order[i], player))
-				valid_move_count++;
-		}
-		String move_list[] = new String[valid_move_count];
-		int move_write_count = 0;
-		for (int i = 0; i < 7; i++) {
-			if (valid_drop(best_order[i]))
-				move_list[move_write_count++] = "D "
-						+ String.valueOf(best_order[i]);
-		}
-		for (int i = 0; i < 7; i++) {
-			if (valid_pop(best_order[i], player))
-				move_list[move_write_count++] = "P "
-						+ String.valueOf(best_order[i]);
-		}
-		return move_list;
 	}
 }

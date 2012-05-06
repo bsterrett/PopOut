@@ -27,7 +27,7 @@ public class Minimax extends Search {
 		for (int i = 0; i < valid_next_moves.length; i++) {
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
-			current_board.make_move(next_move, PlayerNum.COMPUTER);
+			current_board.make_move(next_move);
 			final short next_board[][] = current_board.get_state();
 			final short temp_score = minimax(next_board, p_depth, PlayerNum.HUMAN, next_move);
 			next_move.utility = temp_score;
@@ -52,7 +52,7 @@ public class Minimax extends Search {
 	}
 
 	public void make_computer_move(){
-		p_board.make_move(get_computer_move(), PlayerNum.COMPUTER);
+		p_board.make_move(get_computer_move());
 	}
 	
 	protected final short minimax(final short[][] test_board_short,
@@ -69,7 +69,7 @@ public class Minimax extends Search {
 		for(int i = 0; i < valid_next_moves.length; i++){
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
-			current_board.make_move(next_move, turn);
+			current_board.make_move(next_move);
 			final short next_board[][] = current_board.get_state();
 			final short temp_score = minimax(next_board, depth - 1, PlayerNum.opposite(turn), next_move);
 			current_board.set_state(temp_board);

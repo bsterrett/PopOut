@@ -26,7 +26,7 @@ public class NegaScout extends Search {
 			if(p_interrupted) return null;
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
-			current_board.make_move(next_move, PlayerNum.COMPUTER);			
+			current_board.make_move(next_move);			
 			final short next_board[][] = current_board.get_state();
 			int temp_score = -1 * negascout(next_board, p_depth, PlayerNum.HUMAN, next_move, -1 * beta, -1 * alpha);
 			next_move.utility = (short) temp_score;
@@ -53,7 +53,7 @@ public class NegaScout extends Search {
 	}
 	
 	public void make_computer_move(){
-		p_board.make_move(get_computer_move(), PlayerNum.COMPUTER);
+		p_board.make_move(get_computer_move());
 	}
 	
 	private int negascout(final short[][] test_board_short, final int depth, final short turn, final Move current_move, final int start_alpha, final int start_beta){
@@ -75,7 +75,7 @@ public class NegaScout extends Search {
 			if(p_interrupted) return 0;
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
-			current_board.make_move(next_move, turn);			
+			current_board.make_move(next_move);			
 			final short next_board[][] = current_board.get_state();			
 			int temp_score = -1 * negascout(next_board, depth - 1, PlayerNum.opposite(turn), next_move, -1 * beta, -1 * alpha);
 			current_board.set_state(temp_board);

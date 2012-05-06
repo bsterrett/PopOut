@@ -30,7 +30,7 @@ public class AlphaBeta extends Search {
 			if(p_interrupted) return null;
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
-			current_board.make_move(next_move, PlayerNum.COMPUTER);			
+			current_board.make_move(next_move);			
 			final short next_board[][] = current_board.get_state();
 			final short temp_score = alpha_beta(next_board, p_depth, PlayerNum.HUMAN, next_move, alpha, beta);
 			next_move.utility = temp_score;
@@ -59,7 +59,7 @@ public class AlphaBeta extends Search {
 	}
 
 	public void make_computer_move(){
-		p_board.make_move(get_computer_move(), PlayerNum.COMPUTER);
+		p_board.make_move(get_computer_move());
 	}
 	
 	private final short alpha_beta(final short[][] test_board_short, final int depth, final short turn, final Move current_move, final short start_alpha, final short start_beta) {
@@ -87,7 +87,7 @@ public class AlphaBeta extends Search {
 			if(p_interrupted) return 0;
 			Move next_move = valid_next_moves[i];
 			final short temp_board[][] = current_board.get_state();
-			current_board.make_move(next_move, turn);
+			current_board.make_move(next_move);
 			if(current_board.compute_win() == turn){
 				alpha += 0;
 				return evaluate_board(current_board, next_move);
