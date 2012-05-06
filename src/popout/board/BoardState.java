@@ -138,7 +138,7 @@ public class BoardState {
 				tied = i;
 			}
 		}
-		if(tied != 0){
+		if(tied == PlayerNum.EMPTY_SPACE){
 			return winner;
 		}
 		else{
