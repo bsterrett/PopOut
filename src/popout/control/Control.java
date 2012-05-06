@@ -56,7 +56,7 @@ public class Control {
 		case PlayerNum.COMPUTER:
 			System.out.println("The computer wins! Societal takeover is imminent!");
 			return;
-		case (short) (10*PlayerNum.COMPUTER + PlayerNum.HUMAN):
+		case PlayerNum.TIE:
 			System.out.println("Whoa, you tied! Try again!");
 			return;
 		default:

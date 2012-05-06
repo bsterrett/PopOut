@@ -138,7 +138,12 @@ public class BoardState {
 				tied = i;
 			}
 		}
-		return (short) (tied*10+winner);
+		if(tied != 0){
+			return winner;
+		}
+		else{
+			return PlayerNum.TIE;
+		}
 		
 	}
 	
