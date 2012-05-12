@@ -10,7 +10,7 @@
 package popout.search.rlearner;
 
 public class ReinforceLearnerAction {
-  private int state_id;   //the state this action was performed in
+  private float state_id;   //the state this action was performed in
   private int action_id;  //the action
   private int reward;     //the immediate reward given for choosing this action
   
@@ -21,14 +21,14 @@ public class ReinforceLearnerAction {
     this.reward = 0;
   }
   
-  public ReinforceLearnerAction(int sid, int aid, int reward){
+  public ReinforceLearnerAction(float sid, int aid, int reward){
     this.state_id = sid;
     this.action_id = aid;
     this.reward = reward;
   }
   
   //getters
-  public int getStateID(){ return state_id; }
+  public float getStateID(){ return state_id; }
   public int getActionID(){ return action_id; }
   public int getReward(){ return reward; }
 }

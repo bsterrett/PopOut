@@ -6,12 +6,20 @@ import popout.BoardSize;
 import popout.PlayerNum;
 
 public class ReinforceLearnerUtils {
+  public static byte FILLED = 0;
+  public static byte P_FILLED = 1;
+  
+  //errors
+  public static byte ROW_ERROR = (byte)-128;
   
   private static final int NUM_COLS = BoardSize.COLUMN_COUNT;
   private static final int NUM_ROWS = BoardSize.ROW_COUNT;
   
   private static final int PRIME_1 = 3;
   private static final int PRIME_2 = 5;
+  
+  
+  
   
   //convert a 2-d array representing a popout board to a state value 
   //represented as a value-pair. The first value is a value 
@@ -49,5 +57,20 @@ public class ReinforceLearnerUtils {
     else
       return (float)(Math.pow(PRIME_1, Math.log10(state.get(0))) * 
           Math.pow(PRIME_2, Math.log10(state.get(1))));
+  }
+  
+  //row is 0-index, where row 0 is the bottom most row of the popout board.
+  //this method returns a byte representing the 7 slots in the given row.
+  //the returned byte, where the bottom 7 bits are used, represent if a 
+  //position is filled. no distinction is made between what piece fills it.
+  //on error, the left most bit is set to 1
+  public static byte shiftToRow(Long board, byte row){
+    
+    if( row > NUM_ROWS-1 )
+      return ROW_ERROR;
+    
+    long row_mask = (long)Math.pow(2, (row+1)*NUM_COLS) - 1; 
+    
+    return (byte)((board & row_mask) >> row*NUM_COLS);
   }
 }
