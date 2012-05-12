@@ -12,6 +12,7 @@
 
 package popout.search.rlearner;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
@@ -27,6 +28,7 @@ public class ReinforceLearner {
   private final int LOSE_REWARD = 200;
   
   private BoardState board; //the game board
+  private short c_player;   //the symbol(piece) used by the computer
   private float alpha;      //learning rate  
   private float gamma;      //discount rate
   private int states;       //number of game states
@@ -37,13 +39,18 @@ public class ReinforceLearner {
   //Tree to keep track of which files states are in. <fid, String>
   private TreeMap<Integer, String> filesys;
   
-  public ReinforceLearner(BoardState board, int states){
+  //Q and PI tables used by RL currently loaded in memory 
+  //maps State ID's -> Reward for State Actions / Probability of State Actions
+  private TreeMap<Float, ArrayList<Float>> active_pi_tbl;
+  private TreeMap<Float, ArrayList<Integer>> active_q_tbl;
+  
+  public ReinforceLearner(BoardState board, int states, short player){
     this.alpha = .6f;
     this.gamma = .9f;
     this.board = board;
   }
   
-  public ReinforceLearner(BoardState board, float alpha, float gamma, int states){
+  public ReinforceLearner(BoardState board, float alpha, float gamma, int states, short player){
     this.alpha = alpha;
     this.gamma = gamma;
     this.board = board;
@@ -59,7 +66,7 @@ public class ReinforceLearner {
   
   //make a move
   public void step(){
-    /*
+     /*
      * read board configuration
      * convert configuration into state id
      * use state id to load file which contains related probabilities
@@ -67,6 +74,11 @@ public class ReinforceLearner {
      * add action to list
      * make the move.
      */
+    ArrayList<Long> state = ReinforceLearnerUtils.boardToState(board.get_state(), c_player);
+    
+    float sid = ReinforceLearnerUtils.stateToStateId(state);
+    
+    
     
     /* states:
      *  each position can be:
