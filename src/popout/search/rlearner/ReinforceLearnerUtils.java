@@ -34,9 +34,9 @@ public class ReinforceLearnerUtils {
     
     for(int i = 0; i < NUM_ROWS; ++i){
       for(int j = 0; j < NUM_COLS; ++j){
-        if( board[i][j] != PlayerNum.EMPTY_SPACE ){
+        if( board[j][i] != PlayerNum.EMPTY_SPACE ){
           filled |= (1 << (i*j)); //shift by some function of i and j
-          if( board[i][j] == player )
+          if( board[j][i] == player )
             filled |= (1 << (i*j)); //shift by some function of i and j
         }
       }

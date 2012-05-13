@@ -19,18 +19,21 @@ import java.util.TreeMap;
 
 import popout.BoardSize;
 import popout.board.BoardState;
+import popout.board.Move;
 
 
 public class ReinforceLearner {
   private final int STATES_PERFILE = 200; //number of game states to store per file
-  
-  private final int TOTAL_ACTIONS = 14; //max 14 possible actions: 7 drops, 7 pop
+  private final int TOTAL_ACTIONS = 14;   //max 14 possible actions: 7 drops, 7 pop
+  private final float MAX_PROB = .8f;     //the maximum likelihood allowed for an action
   
   private final String PI_FILE = "rl_pi-tbl";
   private final String Q_FILE = "rl_q-tbl";
   
-  private final int WIN_REWARD = 1000;
-  private final int LOSE_REWARD = 200;
+
+  
+  private final int WIN_REWARD = 700;
+  private final int LOSE_REWARD = -300;
   
   private BoardState board; //the game board
   private short c_player;   //the symbol(piece) used by the computer
@@ -48,19 +51,20 @@ public class ReinforceLearner {
   
   //Q and PI tables used by RL currently loaded in memory 
   //maps State ID's -> Reward for State Actions / Probability of State Actions
-  private TreeMap<Float, ArrayList<Float>> active_pi_tbl;
-  private TreeMap<Float, ArrayList<Integer>> active_q_tbl;
+  private TreeMap<Float, ArrayList<Float>> active_pi_tbl, active_q_tbl;
   
-  public ReinforceLearner(BoardState board, int states, short player){
+  public ReinforceLearner(BoardState board, short player){
     this.alpha = .6f;
     this.gamma = .9f;
     this.board = board;
+    this.c_player = player;
   }
   
-  public ReinforceLearner(BoardState board, float alpha, float gamma, int states, short player){
+  public ReinforceLearner(BoardState board, float alpha, float gamma, short player){
     this.alpha = alpha;
     this.gamma = gamma;
     this.board = board;
+    this.c_player = player;
   }
   
   
@@ -73,14 +77,6 @@ public class ReinforceLearner {
   
   //make a move
   public void step(){
-     /*
-     * read board configuration
-     * convert configuration into state id
-     * use state id to load file which contains related probabilities
-     * chose an action for the given state id
-     * add action to list
-     * make the move.
-     */
     ArrayList<Long> state = ReinforceLearnerUtils.boardToState(board.get_state(), c_player);
     
     float sid = ReinforceLearnerUtils.stateToStateId(state);
@@ -104,50 +100,82 @@ public class ReinforceLearner {
         }
       }
       
-      ArrayList<Integer> rewards = active_q_tbl.get(sid);
+      ArrayList<Float> rewards = active_q_tbl.get(sid);
       ReinforceLearnerAction chosen = new ReinforceLearnerAction(sid, option, rewards.get(option));
       actions.add(chosen);
+      
+      //drop
+      if( option < 7 ){
+        System.out.println("RL PLAYER: Dropping my piece in column " + option);
+        Move move = new Move(Move.DROP, option, c_player);
+        board.make_move(move);
+      }
+      //pop
+      else{
+        System.out.println("RL PLAYER: Popping my piece in column " + (option - 7));
+        Move move = new Move(Move.POP, option - 7, c_player);
+        board.make_move(move);
+      }
+      
     }
-    
-    
-    /* states:
-     *  each position can be:
-     *    empty 
-     *    contain your piece
-     *    contain opponent piece
-     *    
-     *  state id calculation is a function of what is in each board position.
-     *  state id should range from 0 to N-1
-     */ 
-    
-    /*
-     * actions: 
-     *  pieces can be dropped in any col as long as its not full (7 possible drops)
-     *  pieces can be popped in player piece is at the bottom (7 possible pops)
-     *  
-     *  maximum 14 actions per state, illegal actions have p = 0;
-     */
-    
   }
   
   public void end(boolean learner_wins){
-    int end_prize = ( learner_wins ) ? WIN_REWARD : LOSE_REWARD;
+    float new_reward = ( learner_wins ) ? WIN_REWARD : LOSE_REWARD;
+    float new_prob;
     ReinforceLearnerAction past_action;
     int aid; float sid;
     
     //alter the table values for each action chosen in this game
+    //work backwards through the list
+    ArrayList<Float> cur_rewards;
+    ArrayList<Float> cur_probs;
     while(!actions.isEmpty()){
       past_action = actions.removeLast();
       sid = past_action.getStateID();
       aid = past_action.getActionID();
+      cur_rewards = active_q_tbl.get(sid);
       
+      //update the q values for this state
+      new_reward = (1 - alpha) * cur_rewards.get(aid) + alpha * (gamma * new_reward);
+      cur_rewards.set(aid, new_reward);
       
+      //update the pi values for this state
+      cur_probs = active_pi_tbl.get(sid);
+      float sum = 0;
+      for( float prob : cur_probs)
+        sum += prob;
+      
+      for(int i = 0; i < TOTAL_ACTIONS; ++i){
+        new_prob = cur_probs.get(i) / sum;
+        cur_probs.set(i, new_prob);
+      }
     }
   }
   
   
-  private ArrayList<Integer> initQDataForState(ArrayList<Long> state){
-    return new ArrayList<Integer>(TOTAL_ACTIONS);
+  private ArrayList<Float> initQDataForState(ArrayList<Long> state){
+    //determine which actions are illegal given the state
+    long all_filled = state.get(0);
+    long player_filled = state.get(1);
+    
+    byte top_row = ReinforceLearnerUtils.shiftToRow(all_filled, BoardSize.TOP_ROW);
+    byte bottom_row = ReinforceLearnerUtils.shiftToRow(player_filled, BoardSize.BOTTOM_ROW);
+    
+    if( top_row == ReinforceLearnerUtils.ROW_ERROR ||
+        bottom_row == ReinforceLearnerUtils.ROW_ERROR){
+      System.out.println("ROW ERROR IN PI DATA");
+      return null;
+    }
+    
+    //set initial rewards uniformly
+    ArrayList<Float> rewards = new ArrayList<Float>(TOTAL_ACTIONS);
+    for(int i = 0; i < 7; ++i){
+      if( ((top_row >> i) & 1) == 0 ) rewards.set(i, (.8f * WIN_REWARD));
+      if( ((bottom_row >> i) & 1) == 1 ) rewards.set(i+BoardSize.COLUMN_COUNT, (.8f * WIN_REWARD));
+    }       
+    
+    return rewards;
   }
   
   //the probabilities are list as follows:
@@ -164,7 +192,7 @@ public class ReinforceLearner {
     byte bottom_row = ReinforceLearnerUtils.shiftToRow(player_filled, BoardSize.BOTTOM_ROW);
     
     if( top_row == ReinforceLearnerUtils.ROW_ERROR ||
-        top_row == ReinforceLearnerUtils.ROW_ERROR){
+        bottom_row == ReinforceLearnerUtils.ROW_ERROR){
       System.out.println("ROW ERROR IN PI DATA");
       return null;
     }
