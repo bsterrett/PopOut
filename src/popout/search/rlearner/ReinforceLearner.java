@@ -29,26 +29,27 @@ public class ReinforceLearner {
   private final int STATES_PERFILE = 200; //number of game states to store per file
   private final int TOTAL_ACTIONS = 14;   //max 14 possible actions: 7 drops, 7 pop
   private final float MAX_PROB = .8f;     //the maximum likelihood allowed for an action
+  private final float MIN_REWARD = 20f;
   
   private final String PI_FILE = "rl_pi-tbl";
   private final String Q_FILE = "rl_q-tbl";
  
-  private final int WIN_REWARD = 700;
-  private final int LOSE_REWARD = 100;
+  private final int WIN_REWARD = 900;
+  private final int LOSE_REWARD = -50;
   
   private BoardState board; //the game board
   private short c_player;   //the symbol(piece) used by the computer
   private float alpha;      //learning rate  
   private float gamma;      //discount rate
-  private int states;       //number of game states
   
   private Random generator = new Random(System.currentTimeMillis());
     
   //List to keep track of actions made by learner
   private LinkedList<ReinforceLearnerAction> actions;
   
+  //TODO: implement
   //Tree to keep track of which files states are in. <fid, String>
-  private TreeMap<Float, String> filesys;
+  //private TreeMap<Float, String> filesys;
   
   //Q and PI tables used by RL currently loaded in memory 
   //maps State ID's -> Reward for State Actions / Probability of State Actions
@@ -71,7 +72,7 @@ public class ReinforceLearner {
   
   public void init(){
     actions = new LinkedList<ReinforceLearnerAction>();
-    filesys = new TreeMap<Float, String>();
+    //filesys = new TreeMap<Float, String>();
     
     active_pi_tbl = ReinforceLearnerUtils.loadTable(PI_FILE);
     active_q_tbl = ReinforceLearnerUtils.loadTable(Q_FILE);
@@ -91,6 +92,14 @@ public class ReinforceLearner {
     ArrayList<Long> state = ReinforceLearnerUtils.boardToState(board.get_state(), c_player);
     
     float sid = ReinforceLearnerUtils.stateToStateId(state);
+    
+    if( Float.isNaN(sid) ){
+      System.err.println("step: UNKNOWN STATE");
+      System.out.println(state.toString());
+      System.out.println(Long.toBinaryString(state.get(0)) + " -- " + Long.toBinaryString(state.get(1)));
+      dumpMemory();
+      System.exit(0);
+    }
     
     //never encountered this state before, initialize it (start learning it)
     if( !active_pi_tbl.containsKey(sid) ){
@@ -132,7 +141,7 @@ public class ReinforceLearner {
   public void end(boolean learner_wins){
     float new_reward = ( learner_wins ) ? WIN_REWARD : LOSE_REWARD;
     
-    System.out.println( learner_wins ? "RL Player: I Won!" : "RL Player: I Lost =[");
+    System.out.println("RL Player: " + (learner_wins ? "I Won!" : "I Lost =["));
     
     float new_prob;
     ReinforceLearnerAction past_action;
@@ -149,19 +158,24 @@ public class ReinforceLearner {
       cur_rewards = active_q_tbl.get(sid);
       
       //update the q values for this state
-      new_reward = (1 - alpha) * cur_rewards.get(aid) + alpha * (gamma * new_reward);
+      new_reward = (1 - alpha) * cur_rewards.get(aid) + alpha * (50 + gamma * new_reward);
+      if(new_reward < MIN_REWARD)
+        new_reward = MIN_REWARD;
+      
       cur_rewards.set(aid, new_reward);
+      //active_q_tbl.put(sid, cur_rewards);
       
       //update the pi values for this state
-      cur_probs = active_pi_tbl.get(sid);
       float sum = 0;
-      for( float prob : cur_probs)
-        sum += prob;
-      
+      for( float reward : cur_rewards)
+        sum += reward;
+
+      cur_probs = active_pi_tbl.get(sid);
       for(int i = 0; i < TOTAL_ACTIONS; ++i){
-        new_prob = cur_probs.get(i) / sum;
+        new_prob = cur_rewards.get(i) / sum;
         cur_probs.set(i, new_prob);
       }
+      //active_pi_tbl.put(sid, cur_probs);
     }
   }
   
@@ -180,7 +194,8 @@ public class ReinforceLearner {
     
     if( top_row == ReinforceLearnerUtils.ROW_ERROR ||
         bottom_row == ReinforceLearnerUtils.ROW_ERROR){
-      System.out.println("ROW ERROR IN PI DATA");
+      System.err.println("initQ: ROW ERROR IN TABLE DATA");
+      System.err.println(state.toString());
       return null;
     }
     
@@ -211,7 +226,8 @@ public class ReinforceLearner {
     
     if( top_row == ReinforceLearnerUtils.ROW_ERROR ||
         bottom_row == ReinforceLearnerUtils.ROW_ERROR){
-      System.out.println("ROW ERROR IN PI DATA");
+      System.err.println("initPi: ROW ERROR IN TABLE DATA");
+      System.err.println(state.toString());
       return null;
     }
       
@@ -226,7 +242,8 @@ public class ReinforceLearner {
     
     //no legal actions in state
     if (0 == legal){
-      System.out.println("NOT GOOD");
+      System.err.println("initPi: NO LEGAL ACTIONS IN STATE");
+      System.err.println(state.toString());
       return null;
     }
     
@@ -242,6 +259,13 @@ public class ReinforceLearner {
     }    
     
     return probs;
+  }
+  
+  private void dumpMemory(){
+    System.out.println("==========STATE DUMP==========");
+    System.out.println(actions.toString());
+    System.out.println(active_pi_tbl.toString());
+    System.out.println(active_q_tbl.toString());
   }
 }
 

@@ -13,7 +13,7 @@ public class ThreadedIDS {
 	private ThreadPoolExecutor p_tpe;
 	private final int p_min_depth = 6;
 	private final int p_depth_increment = 1;
-	private final int thread_pool_size = 10;
+	private final int thread_pool_size = 6;
 	private final long thread_resize_time = 10;
 	private final int thread_search_type;
 	public final static int Minimax = 0;
@@ -60,7 +60,7 @@ public class ThreadedIDS {
 		p_tpe.shutdown();
 		
 		try{
-			if(!p_tpe.awaitTermination(20, TimeUnit.SECONDS)){
+			if(!p_tpe.awaitTermination(1, TimeUnit.SECONDS)){
 				p_tpe.shutdownNow();
 			}
 		}

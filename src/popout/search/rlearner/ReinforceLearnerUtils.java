@@ -27,8 +27,6 @@ public class ReinforceLearnerUtils {
   private static final int PRIME_2 = 5;
   
   
-  
-  
   //convert a 2-d array representing a popout board to a state value 
   //represented as a value-pair. The first value is a value 
   //representing the positions of the board which are filled, the second 
@@ -43,9 +41,9 @@ public class ReinforceLearnerUtils {
     for(int i = 0; i < NUM_ROWS; ++i){
       for(int j = 0; j < NUM_COLS; ++j){
         if( board[j][i] != PlayerNum.EMPTY_SPACE ){
-          filled |= (1 << (i * NUM_COLS) + j);
+          filled |= (1l << ((i * NUM_COLS) + j));
           if( board[j][i] == player )
-            p_filled |= (1 << (i * NUM_COLS) + j);
+            p_filled |= (1l << ((i * NUM_COLS) + j));
         }
       }
     }
@@ -60,11 +58,22 @@ public class ReinforceLearnerUtils {
   //state ID is guaranteed to be unique by using prime factorization. log used
   //to reduce memory usage
   public static float stateToStateId(ArrayList<Long> state){
-    if( 2 != state.size() )
+    if( 2 != state.size() ){
+      System.err.println("BROKEN STATE");
+      System.out.println(state.toString());
       return -1;
-    else
-      return (float)(Math.pow(PRIME_1, Math.log10(state.get(0))) * 
-          Math.pow(PRIME_2, Math.log10(state.get(1))));
+    }
+    else{
+      float sid;
+      if( state.get(0) == 0 )
+        sid = (float)Math.pow(PRIME_2, Math.log10(state.get(1)));
+      else if( state.get(1) == 0 )
+        sid = (float)Math.pow(PRIME_1, Math.log10(state.get(0)));
+      else
+        sid = (float)(Math.pow(PRIME_1, Math.log10(state.get(0))) * 
+              Math.pow(PRIME_2, Math.log10(state.get(1))));
+      return sid;
+    }
   }
   
   //row is 0-index, where row 0 is the bottom most row of the popout board.
@@ -110,4 +119,8 @@ public class ReinforceLearnerUtils {
     return data;
   }
   
+  public static void viewTable(String filename){
+    TreeMap<Float, ArrayList<Float>> data = loadTable(filename);
+    System.out.println(data);
+  }
 }

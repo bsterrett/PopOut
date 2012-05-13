@@ -14,13 +14,15 @@ public class Control2 {
   private static ReinforceLearner rlearner;
   
   //keep track of stats
+  private static final int NUM_GAMES = 100;
   private static int wins = 0, losses = 0, ties = 0;
+   
   
   private static void init() {
     p_board = new BoardState();
     p_display = new CLDisplay(p_board);
     p_ids = new ThreadedIDS(p_board, ThreadedIDS.NegaScout);
-    rlearner = new ReinforceLearner(p_board, .9f, .9f, PlayerNum.HUMAN);
+    rlearner = new ReinforceLearner(p_board, .2f, .5f, PlayerNum.HUMAN);
     rlearner.init();
   }
 
@@ -50,19 +52,22 @@ public class Control2 {
   }
 
   public static void main(String[] args) {
-    init();
-    System.out.println(p_display.toString());
-    while (p_board.compute_win() == PlayerNum.EMPTY_SPACE) {
-      rlearner.step();
-      if (p_board.compute_win() != PlayerNum.EMPTY_SPACE) {
-        System.out.println(p_display.toString());
-        break;
-      }
-      p_ids.start_search();
+    for(int g = 0; g < NUM_GAMES; ++g){
+      System.out.println("~~~~~~~~~~~ GAME " + g + " ~~~~~~~~~~~");
+      init();
       System.out.println(p_display.toString());
+      while (p_board.compute_win() == PlayerNum.EMPTY_SPACE) {
+        rlearner.step();
+        if (p_board.compute_win() != PlayerNum.EMPTY_SPACE) {
+          System.out.println(p_display.toString());
+          break;
+        }
+        p_ids.start_search();
+        System.out.println(p_display.toString());
+      }
+      print_winner();
+      rlearner.finish();
     }
-    print_winner();
-    rlearner.finish();
     System.out.println("Wins: " + wins + ", Losses: " + losses + ", Ties: " + ties);
   }
 }
