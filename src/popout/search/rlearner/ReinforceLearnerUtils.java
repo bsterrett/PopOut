@@ -1,6 +1,14 @@
 package popout.search.rlearner;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import popout.BoardSize;
 import popout.PlayerNum;
@@ -35,9 +43,9 @@ public class ReinforceLearnerUtils {
     for(int i = 0; i < NUM_ROWS; ++i){
       for(int j = 0; j < NUM_COLS; ++j){
         if( board[j][i] != PlayerNum.EMPTY_SPACE ){
-          filled |= (1 << (i*j)); //shift by some function of i and j
+          filled |= (1 << (i * NUM_COLS) + j);
           if( board[j][i] == player )
-            filled |= (1 << (i*j)); //shift by some function of i and j
+            p_filled |= (1 << (i * NUM_COLS) + j);
         }
       }
     }
@@ -73,4 +81,33 @@ public class ReinforceLearnerUtils {
     
     return (byte)((board & row_mask) >> row*NUM_COLS);
   }
+  
+  public static void saveTable(TreeMap<Float, ArrayList<Float>> table, String filename){
+    try{
+      FileOutputStream fout = new FileOutputStream(filename); 
+      ByteArrayOutputStream b = new ByteArrayOutputStream();
+      ObjectOutputStream o = new ObjectOutputStream(b);
+      o.writeObject(table);
+      o.close();
+      fout.write(b.toByteArray());
+      fout.close();
+    }catch(FileNotFoundException e1){ e1.printStackTrace(); }
+    catch(IOException e2){ e2.printStackTrace(); }
+  }
+
+  public static TreeMap<Float, ArrayList<Float>> loadTable(String filename){
+    ObjectInputStream o;
+    FileInputStream fin;
+    TreeMap<Float, ArrayList<Float>> data = null;
+    try{
+      fin = new FileInputStream(filename); 
+      o = new ObjectInputStream(fin);
+      data = (TreeMap<Float, ArrayList<Float>>)o.readObject(); 
+    }catch(FileNotFoundException e1){ return null; }
+    catch(IOException e2){ e2.printStackTrace(); }
+    catch(ClassNotFoundException e3){ e3.printStackTrace(); }
+    
+    return data;
+  }
+  
 }

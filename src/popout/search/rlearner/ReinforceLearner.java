@@ -12,6 +12,9 @@
 
 package popout.search.rlearner;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
@@ -29,11 +32,9 @@ public class ReinforceLearner {
   
   private final String PI_FILE = "rl_pi-tbl";
   private final String Q_FILE = "rl_q-tbl";
-  
-
-  
+ 
   private final int WIN_REWARD = 700;
-  private final int LOSE_REWARD = -300;
+  private final int LOSE_REWARD = 100;
   
   private BoardState board; //the game board
   private short c_player;   //the symbol(piece) used by the computer
@@ -72,6 +73,16 @@ public class ReinforceLearner {
     actions = new LinkedList<ReinforceLearnerAction>();
     filesys = new TreeMap<Float, String>();
     
+    active_pi_tbl = ReinforceLearnerUtils.loadTable(PI_FILE);
+    active_q_tbl = ReinforceLearnerUtils.loadTable(Q_FILE);
+    
+    if(active_pi_tbl == null || active_q_tbl == null){
+      active_pi_tbl = new TreeMap<Float, ArrayList<Float>>();
+      active_q_tbl = new TreeMap<Float, ArrayList<Float>>();
+      System.out.println("Tables Created.");
+    }
+    else
+      System.out.println("Tables Loaded.");
     
   }
   
@@ -82,46 +93,47 @@ public class ReinforceLearner {
     float sid = ReinforceLearnerUtils.stateToStateId(state);
     
     //never encountered this state before, initialize it (start learning it)
-    if( !filesys.containsKey(sid) ){
-      System.out.println("I've never seen state" + sid + ", initializing it now...");
+    if( !active_pi_tbl.containsKey(sid) ){
+      System.out.println("I've never seen state " + sid + ", initializing it now...");
       active_pi_tbl.put(sid, initPiDataForState(state));
       active_q_tbl.put(sid, initQDataForState(state));
     }
     //i've seen this state before, choose an action from it
-    else{
-      float choice = generator.nextFloat();
-      ArrayList<Float> possible_actions = active_pi_tbl.get(sid);
-      float sum = 0f; int option = 0;
-      for(option = 0; option < TOTAL_ACTIONS; ++option){
-        sum += possible_actions.get(option);
-        if(sum >= choice){
-          System.out.println("State: " + sid + " -> action: " + option); 
-          break;
-        }
+    float choice = generator.nextFloat();
+    ArrayList<Float> possible_actions = active_pi_tbl.get(sid);
+    float sum = 0f; int option = 0;
+    for(option = 0; option < TOTAL_ACTIONS; ++option){
+      sum += possible_actions.get(option);
+      if(sum >= choice){
+        System.out.println("State: " + sid + " -> action: " + option); 
+        break;
       }
-      
-      ArrayList<Float> rewards = active_q_tbl.get(sid);
-      ReinforceLearnerAction chosen = new ReinforceLearnerAction(sid, option, rewards.get(option));
-      actions.add(chosen);
-      
-      //drop
-      if( option < 7 ){
-        System.out.println("RL PLAYER: Dropping my piece in column " + option);
-        Move move = new Move(Move.DROP, option, c_player);
-        board.make_move(move);
-      }
-      //pop
-      else{
-        System.out.println("RL PLAYER: Popping my piece in column " + (option - 7));
-        Move move = new Move(Move.POP, option - 7, c_player);
-        board.make_move(move);
-      }
-      
     }
+    
+    ArrayList<Float> rewards = active_q_tbl.get(sid);
+    ReinforceLearnerAction chosen = new ReinforceLearnerAction(sid, option, rewards.get(option));
+    actions.add(chosen);
+    
+    //drop
+    if( option < 7 ){
+      System.out.println("RL PLAYER: Dropping my piece in column " + option);
+      Move move = new Move(Move.DROP, option, c_player);
+      board.make_move(move);
+    }
+    //pop
+    else{
+      System.out.println("RL PLAYER: Popping my piece in column " + (option - 7));
+      Move move = new Move(Move.POP, option - 7, c_player);
+      board.make_move(move);
+    }
+
   }
   
   public void end(boolean learner_wins){
     float new_reward = ( learner_wins ) ? WIN_REWARD : LOSE_REWARD;
+    
+    System.out.println( learner_wins ? "RL Player: I Won!" : "RL Player: I Lost =[");
+    
     float new_prob;
     ReinforceLearnerAction past_action;
     int aid; float sid;
@@ -153,6 +165,10 @@ public class ReinforceLearner {
     }
   }
   
+  public void finish(){
+    ReinforceLearnerUtils.saveTable(active_pi_tbl, PI_FILE);
+    ReinforceLearnerUtils.saveTable(active_q_tbl, Q_FILE);
+  }
   
   private ArrayList<Float> initQDataForState(ArrayList<Long> state){
     //determine which actions are illegal given the state
@@ -170,6 +186,8 @@ public class ReinforceLearner {
     
     //set initial rewards uniformly
     ArrayList<Float> rewards = new ArrayList<Float>(TOTAL_ACTIONS);
+    for(int i = 0; i < TOTAL_ACTIONS; ++i)
+      rewards.add(0f);
     for(int i = 0; i < 7; ++i){
       if( ((top_row >> i) & 1) == 0 ) rewards.set(i, (.8f * WIN_REWARD));
       if( ((bottom_row >> i) & 1) == 1 ) rewards.set(i+BoardSize.COLUMN_COUNT, (.8f * WIN_REWARD));
@@ -214,7 +232,10 @@ public class ReinforceLearner {
     
     //set initial probs
     ArrayList<Float> probs = new ArrayList<Float>(TOTAL_ACTIONS);
-    float uniform = 100.0f / legal;
+    for(int i = 0; i < TOTAL_ACTIONS; ++i)
+      probs.add(0f);
+    
+    float uniform = 1.0f / legal;
     for(int i = 0; i < 7; ++i){
       if( ((top_row >> i) & 1) == 0 ) probs.set(i, uniform);
       if( ((bottom_row >> i) & 1) == 1 ) probs.set(i+BoardSize.COLUMN_COUNT, uniform);

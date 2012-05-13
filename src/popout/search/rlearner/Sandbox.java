@@ -1,5 +1,11 @@
 package popout.search.rlearner;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -35,6 +41,28 @@ public class Sandbox {
     foo_list.set(3, 100);
     
     System.out.println(foo.get(1).toString());
+    
+    ArrayList<Float> probs = new ArrayList<Float>(14);
+    System.out.println(probs.toString());
+    System.out.println(foo.toString());
+    
+    try{
+      FileOutputStream fout = new FileOutputStream("sandbox"); 
+      ByteArrayOutputStream b = new ByteArrayOutputStream();
+      ObjectOutputStream o = new ObjectOutputStream(b);
+      o.writeObject(foo);
+      o.close();
+      fout.write(b.toByteArray());
+      fout.close();
+    }catch(Exception e){e.printStackTrace(); }
+    
+    try{
+      FileInputStream fin = new FileInputStream("sandbox"); 
+      ObjectInputStream o = new ObjectInputStream(fin);
+      TreeMap<Integer, ArrayList<Integer>> lol = (TreeMap<Integer, ArrayList<Integer>>)o.readObject();
+      System.out.println(lol.toString());
+    }catch(Exception e){e.printStackTrace(); }
+    
   }
 
 }

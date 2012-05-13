@@ -14,6 +14,12 @@ public class ReinforceLearnerAction {
   private int action_id;  //the action
   private float reward;     //the immediate reward given for choosing this action
   
+  public String toString(){
+    return "State: " + state_id + "\n" +
+            "Action: " + action_id + "\n" +
+            "Reward: " + reward;
+  }
+  
   //constructors
   public ReinforceLearnerAction(){
     this.state_id = -1;
