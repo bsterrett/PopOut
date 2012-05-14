@@ -60,7 +60,7 @@ public class ThreadedIDS {
 		p_tpe.shutdown();
 		
 		try{
-			if(!p_tpe.awaitTermination(1, TimeUnit.SECONDS)){
+			if(!p_tpe.awaitTermination(20, TimeUnit.SECONDS)){
 				p_tpe.shutdownNow();
 			}
 		}

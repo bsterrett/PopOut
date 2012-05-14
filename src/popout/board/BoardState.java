@@ -162,4 +162,16 @@ public class BoardState {
 		valid_move_count = 0;
 		return available_moves;
 	}
+	
+	//returns the first empty slot in a row
+	public int getFirstEmptyInColumn(int column){
+	  int empty = -1;
+	  for(int r = 0; r < BoardSize.ROW_COUNT; ++r)
+	    if( p_current_state[column][r] == PlayerNum.EMPTY_SPACE ){
+	      empty = r;
+	      break;
+	    }
+	  
+	  return empty;
+	}
 }

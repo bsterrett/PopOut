@@ -14,7 +14,7 @@ public class Control2 {
   private static ReinforceLearner rlearner;
   
   //keep track of stats
-  private static final int NUM_GAMES = 100;
+  private static final int NUM_GAMES = 200;
   private static int wins = 0, losses = 0, ties = 0;
    
   
@@ -22,7 +22,7 @@ public class Control2 {
     p_board = new BoardState();
     p_display = new CLDisplay(p_board);
     p_ids = new ThreadedIDS(p_board, ThreadedIDS.NegaScout);
-    rlearner = new ReinforceLearner(p_board, .2f, .5f, PlayerNum.HUMAN);
+    rlearner = new ReinforceLearner(p_board, .8f, .9f, PlayerNum.HUMAN);
     rlearner.init();
   }
 

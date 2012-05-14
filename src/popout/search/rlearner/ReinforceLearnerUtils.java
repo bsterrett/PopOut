@@ -19,6 +19,7 @@ public class ReinforceLearnerUtils {
   
   //errors
   public static byte ROW_ERROR = (byte)-128;
+  public static float REWARD_ERROR = -1;
   
   private static final int NUM_COLS = BoardSize.COLUMN_COUNT;
   private static final int NUM_ROWS = BoardSize.ROW_COUNT;
