@@ -14,7 +14,7 @@ public class Control2 {
   private static ReinforceLearner rlearner;
   
   //keep track of stats
-  private static final int NUM_GAMES = 200;
+  private static final int NUM_GAMES = 10;
   private static int wins = 0, losses = 0, ties = 0;
    
   

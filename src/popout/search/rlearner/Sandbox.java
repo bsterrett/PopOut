@@ -20,5 +20,6 @@ public class Sandbox {
     System.out.println("\n\n");
     //System.out.println("----- Q-TABLE -----");
     //ReinforceLearnerUtils.viewTable("rl_q-tbl");
+    System.out.println(Math.max(-8, -9));
   }
 }

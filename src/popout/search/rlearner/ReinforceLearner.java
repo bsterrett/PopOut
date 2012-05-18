@@ -12,9 +12,6 @@
 
 package popout.search.rlearner;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
@@ -29,12 +26,14 @@ import popout.board.Move;
 public class ReinforceLearner {
   private final int STATES_PERFILE = 200; //number of game states to store per file
   private final int TOTAL_ACTIONS = 14;   //max 14 possible actions: 7 drops, 7 pop
-  private final float MAX_PROB = .8f;     //the maximum likelihood allowed for an action
   private final float MIN_REWARD = 20f;
   
   private final String PI_FILE = "rl_pi-tbl";
   private final String Q_FILE = "rl_q-tbl";
  
+  //strategy bias
+  private float DEF_BIAS = .45f;
+    
   private final int WIN_REWARD = 900;
   private final int LOSE_REWARD = -100;
   
@@ -96,9 +95,8 @@ public class ReinforceLearner {
     
     if( Float.isNaN(sid) ){
       System.err.println("step: UNKNOWN STATE");
-      System.out.println(state.toString());
-      System.out.println(Long.toBinaryString(state.get(0)) + " -- " + Long.toBinaryString(state.get(1)));
-      dumpMemory();
+      System.err.println(state.toString());
+      System.err.println(Long.toBinaryString(state.get(0)) + " -- " + Long.toBinaryString(state.get(1)));
       System.exit(0);
     }
     
@@ -110,32 +108,43 @@ public class ReinforceLearner {
     }
     //i've seen this state before, choose an action from it
     ArrayList<Float> possible_actions = active_pi_tbl.get(sid);
+    ArrayList<Integer> legal_actions = new ArrayList<Integer>();
     float instant_reward; int option = 0, max_option = 0; float max_reward = 0;
     for(option = 0; option < TOTAL_ACTIONS; ++option){
       if( possible_actions.get(option) > 0 ){
+        legal_actions.add(option);
         int action = (option < 7) ? Move.DROP : Move.POP;
-        instant_reward = calculateMoveWorth(board.get_state(), action, option % 7);
-        //System.out.println(option + " " + action + " " + instant_reward);
+        
+        //pick the move
+        instant_reward = calculateActionWorth(c_player, action, option % 7);
         if( possible_actions.get(option) * instant_reward > max_reward ){
           max_reward = possible_actions.get(option) * instant_reward;
           max_option = option;
         }
       }
     }
-    option = max_option;
+    
+    //TODO: replace hard coded value with some decay function based on turns
+    if( generator.nextFloat() <= .90 )  
+      option = max_option;
+    else{
+      legal_actions.remove(new Integer(max_option));
+      option = legal_actions.get(generator.nextInt(legal_actions.size()));
+      System.out.println("RL PLAYER: Exploring suboptimal move...");
+    }
     System.out.println("State: " + sid + " -> action: " + option); 
    
     //drop
     if( option < 7 ){
       System.out.println("RL PLAYER: Dropping my piece in column " + option);
-      instant_reward = calculateMoveWorth(board.get_state(), Move.DROP, option);
+      instant_reward = calculateActionWorth(c_player, Move.DROP, option);
       Move move = new Move(Move.DROP, option, c_player);
       board.make_move(move);
     }
     //pop
     else{
       System.out.println("RL PLAYER: Popping my piece in column " + (option - 7));
-      instant_reward = calculateMoveWorth(board.get_state(), Move.POP, option - 7);      
+      instant_reward = calculateActionWorth(c_player, Move.POP, option - 7);      
       Move move = new Move(Move.POP, option - 7, c_player);
       board.make_move(move);
     }
@@ -266,116 +275,103 @@ public class ReinforceLearner {
     return probs;
   }
 
-  private float calculateMoveWorth(short state[][], int action, int column){
+  private float calculateActionWorth(short player, int action, int column){
     float worth = ReinforceLearnerUtils.REWARD_ERROR;
-    float base = 20;
-    short enemy = PlayerNum.opposite(this.c_player);
-    short first;    //keep track of the first piece in the direction being checked 
-    float def_weight = .9f, atk_weight = .9f, weight = 1;
+ 
     if(action == Move.DROP){
-      float v_score = 10, l_score= 10, r_score = 10, bias = 5;
-      float ld_score = 10, rd_score = 10, lu_score = 10, ru_score = 10;
-      int row = board.getFirstEmptyInColumn(column);
-      
-      if(row == -1){
-        System.err.println("NOT ALLOWED");
-        System.exit(0);
-      }
-      
-      first = PlayerNum.EMPTY_SPACE;
-      for(int r = row-1; r >= Math.max(0, row-3); --r){
-        if( first == PlayerNum.EMPTY_SPACE){ 
-          first = state[column][r]; 
-          weight = (first == enemy) ? def_weight : atk_weight;
-        }
-        if( first != PlayerNum.EMPTY_SPACE && state[column][r] == first ){ v_score += (weight * v_score); }
-        else{ break; }
-      }
-      //check left and right
-      first = PlayerNum.EMPTY_SPACE;
-      for(int c = column-1; c >= Math.max(0, column-3); --c){
-        if( first == PlayerNum.EMPTY_SPACE){ 
-          first = state[column-1][row];
-          weight = (first == enemy) ? def_weight : atk_weight;
-        }        
-        if( first != PlayerNum.EMPTY_SPACE && state[c][row] == first ){ l_score += (weight * l_score); }
-        else{ break; }        
-      }
-      
-      first = PlayerNum.EMPTY_SPACE;
-      for(int c = column+1; c < Math.min(column+4, BoardSize.COLUMN_COUNT); ++c){
-        if( first == PlayerNum.EMPTY_SPACE){ 
-          first = state[column+1][row];
-          weight = (first == enemy) ? def_weight : atk_weight;
-        }          
-        if( first != PlayerNum.EMPTY_SPACE && state[c][row] == first ){ r_score += (weight * r_score); }
-        else{ break; }
-      }
-      
-      //check left and right down diagonals
-      int c = column-1, r = row-1;
-      first = PlayerNum.EMPTY_SPACE;
-      while(c >= Math.max(0, column-3) && r >= Math.max(0, row-3)){
-        if( first == PlayerNum.EMPTY_SPACE){ 
-          first = state[c][r];
-          weight = (first == enemy) ? def_weight : atk_weight;
-        }            
-        if( first != PlayerNum.EMPTY_SPACE && state[c][r] == first ){ ld_score += (weight * ld_score); c--; r--;}
-        else{ break; }
-      }
-      
-      c = column+1; r = row-1;
-      first = PlayerNum.EMPTY_SPACE;
-      while(c < Math.min(column+4, BoardSize.COLUMN_COUNT) && r >= Math.max(0, row-3)){
-        if( first == PlayerNum.EMPTY_SPACE){ 
-          first = state[c][r];
-          weight = (first == enemy) ? def_weight : atk_weight;
-        }            
-        if( first != PlayerNum.EMPTY_SPACE && state[c][r] == first ){ rd_score += (weight * rd_score); c++; r--;}
-        else{ break; }       
-      }  
-      
-      //check left and right up diagonals
-      c = column-1; r = row+1;
-      first = PlayerNum.EMPTY_SPACE;
-      while(c >= Math.max(0, column-3) && r < Math.min(BoardSize.ROW_COUNT, row+4)){
-        if( first == PlayerNum.EMPTY_SPACE){ 
-          first = state[c][r];
-          weight = (first == enemy) ? def_weight : atk_weight;
-        }        
-        if( first != PlayerNum.EMPTY_SPACE && state[c][r] == first ){ lu_score += (weight * lu_score); c--; r++;}
-        else{ break; }
-      }
-      
-      c = column+1; r = row+1;
-      first = PlayerNum.EMPTY_SPACE;
-      while(c < Math.min(column+4, BoardSize.COLUMN_COUNT) && r < Math.min(BoardSize.ROW_COUNT, row+4)){
-        if( first == PlayerNum.EMPTY_SPACE){ 
-          first = state[c][r];
-          weight = (first == enemy) ? def_weight : atk_weight;
-        }           
-        if( first != PlayerNum.EMPTY_SPACE && state[c][r] == first ){ ru_score += (weight * ru_score); c++; r++;}
-        else{ break; }       
-      }  
-      
-      
-      //drops closer to the center are better
-      base -= bias * Math.abs(column - Math.floor(BoardSize.COLUMN_COUNT / 2));
-      
-      worth = base + v_score + r_score + l_score + ld_score + rd_score + lu_score + ru_score;
+      worth = calculateDropWorth(player, column);
     }
     else if(action == Move.POP){
-      //how to handle this...
-      worth = 10;
+      worth = calculatePopWorth(player, column);
     }
     return worth;
   }
   
-  private void dumpMemory(){
-    System.out.println("==========STATE DUMP==========");
-    System.out.println(actions.toString());
-    System.out.println(active_pi_tbl.toString());
-    System.out.println(active_q_tbl.toString());
+  private float calculateDropWorth(short player, int column){
+    int row = board.getFirstEmptyInColumn(column);
+    return calculatePositionWorth(player, column, row);
+  }
+  
+  private float calculatePositionWorth(short player, int column, int row){
+    float base = 20;
+    float v_score = 0, l_score = 0, r_score = 0, bias = 5;
+    float ld_score = 0, rd_score = 0, lu_score = 0, ru_score = 0;
+    
+    v_score = calculateDirectionalWorth(player, column, row-1, column, row-3);
+
+    //check left and right
+    l_score = calculateDirectionalWorth(player, column-1, row, column-3, row);
+    r_score = calculateDirectionalWorth(player, column+1, row, column+4, row);
+
+    //check left and right down diagonals
+    ld_score = calculateDirectionalWorth(player, column-1, row-1, column-3, row-3);
+    rd_score = calculateDirectionalWorth(player, column+1, row-1, column+4, row-3);
+    
+    //check left and right up diagonals
+    lu_score = calculateDirectionalWorth(player, column-1, row+1, column-3, row+4);
+    ru_score = calculateDirectionalWorth(player, column+1, row+1, column+4, row+4);  
+    
+    //drops closer to the center are better
+    base -= bias * Math.abs(column - Math.floor(BoardSize.COLUMN_COUNT / 2));
+    
+    return base + v_score + r_score + l_score + ld_score + rd_score + lu_score + ru_score;
+  }
+  
+  //the worth of a pop is the sum of the drop worths of all pieces except the
+  //dropped piece.
+  private float calculatePopWorth(short player, int column){
+    short[][] state = board.get_state();
+    float worth = 0;
+    for(int r = 1; r < BoardSize.ROW_COUNT; ++r){
+      if( state[column][r] != PlayerNum.EMPTY_SPACE ){
+        short piece = state[column][r];
+        float delta = this.calculatePositionWorth(piece, column, r-1);
+        worth += ( piece == player ) ? delta : -delta;
+      }
+      else{ break; }
+    }
+    return worth;
+  }
+  
+  private float calculateDirectionalWorth(short player, int c_i, int r_i, int c_f, int r_f){
+    short[][] state = board.get_state();
+    
+    //keep track of the first piece in the direction being checked
+    short first = PlayerNum.EMPTY_SPACE;
+    short enemy = PlayerNum.opposite(player); 
+    
+    //define the hard limits, remember signs
+    int c_hard = 0, r_hard = 0, c_mod = 1, r_mod = 1, c_delta = -1, r_delta = -1;
+    
+    if((c_f - c_i) > 0){
+      c_hard = -(BoardSize.COLUMN_COUNT - 1);
+      c_i = -c_i; c_f = -c_f;
+      c_mod = -1;
+    }
+    else if((c_f - c_i) == 0)
+      c_delta = 0;
+    
+    if((r_f - r_i) > 0){
+      r_hard = -(BoardSize.ROW_COUNT - 1);
+      r_i = -r_i; r_f = -r_f;
+      r_mod = -1;
+    }
+    else if((r_f - r_i) == 0)
+      r_delta = 0;
+    
+    float worth = 10,  weight = 0;
+    
+    while(c_i >= Math.max(c_f, c_hard) && r_i >= Math.max(r_f, r_hard)){
+      if( first == PlayerNum.EMPTY_SPACE){ 
+        first = state[c_i * c_mod][r_i * r_mod];
+        weight = (first == enemy) ? DEF_BIAS : 1 - DEF_BIAS;
+      }           
+      if( first != PlayerNum.EMPTY_SPACE && state[c_i * c_mod][r_i * r_mod] == first ){
+        worth += (weight * worth); c_i+=c_delta; r_i+=r_delta;
+      }
+      else{ break; }       
+    }
+    return worth;
   }
 }
 
